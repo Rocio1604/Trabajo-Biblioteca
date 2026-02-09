@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        //bibliotecas
         Schema::create('bibliotecas', function (Blueprint $table) {
             $table->id('id');
             $table->string('provincia');
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        //socios
         Schema::create('socios', function (Blueprint $table) {
             $table->id('id');
             $table->string('dni')->unique();
@@ -34,6 +36,7 @@ return new class extends Migration
                   ->on('bibliotecas')
                   ->onDelete('cascade');
         });
+        //autores
         Schema::create('autores',function(Blueprint $table){
             $table->id();
             $table->string('nombre');
@@ -41,12 +44,15 @@ return new class extends Migration
             $table->timestamps();
 
         });
-        Schema::create('generos',function(Blueprint $table){
+
+        //categorias
+        Schema::create('categorias',function(Blueprint $table){
             $table->id();
-            $table->string('genero');
+            $table->string('categoria');
             $table->timestamps();
 
         });
+        //libros
         Schema::create('libros',function(Blueprint $table){
             $table->id();
             $table->string('isbn');
@@ -54,17 +60,42 @@ return new class extends Migration
             $table->string('titulo');
             $table->string('imagen')->nullable();
             $table->unsignedBigInteger('autor_id');
-            $table->unsignedBigInteger('genero_id');
+            $table->unsignedBigInteger('categoria_id');
             $table->unsignedBigInteger('biblioteca_id');
             $table->timestamps();
 
-            $table->foreign('autor_id')->references('id')->on('autores')->onDelete('cascade');
-            $table->foreign('genero_id')->references('id')->on('generos')->onDelete('cascade');
+            
+            $table->foreign('categoria_id')->references('id')->on('categorias')->onDelete('cascade');
             $table->foreign('biblioteca_id')->references('id')->on('biblioteca')->onDelete('cascade');
             
 
         });
+        //tabla intermedia libros-autores
+        Schema::create('libros_autores',function(Blueprint $table){
+            $table->id();
+            $table->unsignedBigInteger('autor_id');
+            $table->unsignedBigInteger('libro_id');
+            $table->timestamps();
 
+            $table->foreign('autor_id')->references('id')->on('autores')->onDelete('cascade');
+            $table->foreign('libro_id')->references('id')->on('libros')->onDelete('cascade');
+            
+
+        });
+        //tabla intermedia libros-categoria
+        Schema::create('libros_categoria',function(Blueprint $table){
+            $table->id();
+            $table->unsignedBigInteger('categoria_id');
+            $table->unsignedBigInteger('libro_id');
+            $table->timestamps();
+
+            $table->foreign('categoria_id')->references('id')->on('categorias')->onDelete('cascade');
+            $table->foreign('libro_id')->references('id')->on('libros')->onDelete('cascade');
+            
+
+        });
+
+        //prestamos
         Schema::create('prestamos', function (Blueprint $table) {
             $table->id('id');
             $table->unsignedBigInteger('socio_id');
@@ -84,6 +115,7 @@ return new class extends Migration
                   ->on('libros')
                   ->onDelete('cascade');
         });
+        //recibos
         Schema::create('recibos', function (Blueprint $table) {
             $table->id('id');
             $table->unsignedBigInteger('socio_id');
@@ -98,11 +130,10 @@ return new class extends Migration
                   ->on('socios')
                   ->onDelete('cascade');
         });
-
+        //usuarios
         Schema::create('usuarios', function (Blueprint $table) {
-            $table->id('id_usuario');
+            $table->id('id');
             $table->string('nombre');
-            $table->string('usuario')->unique();
             $table->string('correo')->unique();
             $table->string('telefono');
             $table->string('rol');
@@ -110,6 +141,7 @@ return new class extends Migration
             $table->string('estado');
             $table->timestamps();
         });
+        // coches
         Schema::create('coches', function (Blueprint $table) {
             $table->unsignedBigInteger('id_usuario');
             $table->string('pass');
@@ -118,7 +150,7 @@ return new class extends Migration
             $table->primary('id_usuario');
 
             $table->foreign('id_usuario')
-                  ->references('id_usuario')
+                  ->references('id')
                   ->on('usuarios')
                   ->onDelete('cascade');
         });
