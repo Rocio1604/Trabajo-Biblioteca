@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('direccion');
             $table->string('telefono');
             $table->string('correo');
-            $table->boolean('activo');
+            $table->boolean('es_activo');
             $table->timestamps();
         });
 
