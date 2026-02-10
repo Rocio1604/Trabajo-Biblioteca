@@ -1,0 +1,115 @@
+*{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+.py-12{
+    padding:12px 0;
+}
+.fs-7{
+    font-size: 14px;
+}
+.fs-8{
+    font-size: 12px;
+}
+.btn-naranja {
+    background-color: #e17100;
+    border-color: #e17100;
+    color: white;
+    &:hover{
+        background-color: #bb4d00;
+        color: white;
+    }
+}
+.btn-sidebar{
+    background-color: transparent;
+    color: white; /* Color naranja suave */
+    transition: all 0.3s ease;
+    &:hover{
+        background-color: #44403b;
+        transition: all 0.3s ease;
+    }
+}
+.btn-sidebar.activo{
+    background-color: #e17100;
+    color: white; /* Color naranja suave */
+    transition: all 0.3s ease;
+}
+.icono{
+    font-size: 50px;
+    color: #e17100;
+}
+.container-95 {
+    width: 95%;
+    max-width: 95%;
+    margin: 0 auto;
+}
+
+.color-input{
+    color: #dee2e6;
+}
+
+.input-focus {
+    border: 1px solid #dee2e6;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-focus:focus-within {
+    border: 2px solid #fe9a00;
+}
+
+.input-focus input:focus, .input-focus:focus{
+    outline: none;
+    box-shadow: none;
+}
+.etiqueta{
+    background-color: #fef3c6;
+    color: #ca1f25;
+    font-size: 12px;
+    padding: 4px 8px;
+    font-weight: 600;
+}
+.no-disponible{
+    background-color: #ffe2e2;
+    color: #ca1f25;
+}
+.disponible{
+    background-color: #dbfce7;
+    color: #269450;
+}
+.tarjeta:hover{
+    box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+}
+.modal-login{
+    width: 450px;
+}
+.logo-modal{
+    width: fit-content;
+    padding: 0 12px;
+    background-color: #e17100;;
+}
+.sidebar{
+    background-color: #292524 !important
+}
+.sidebar-borde{
+    border-bottom: 1px solid #44403b !important
+}
+.offcanvas-body.flex-column {
+    height: 100%;
+}
+.sidebar-header-prop {
+    height: 10%;
+    min-height: 100px; 
+}
+body.offcanvas-open {
+    overflow: hidden !important;
+}
+.sidebar-body-prop {
+    height: 80%;
+    overflow-y: auto; 
+}
+.sidebar-footer-prop {
+    height: 10%;
+    min-height: 100px;
+}
