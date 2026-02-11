@@ -44,6 +44,11 @@
     max-width: 95%;
     margin: 0 auto;
 }
+.container-80 {
+    width: 80%;
+    max-width: 80%;
+    margin: 0 auto;
+}
 
 .color-input{
     color: #dee2e6;

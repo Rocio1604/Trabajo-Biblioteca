@@ -67,43 +67,9 @@
 
         <!-- Lista de libros -->
         <div class="row g-3 px-2">
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="tarjeta bg-white p-3 border rounded-3">
-                    <p class="fw-semibold mb-1">Cien años de soledad</p>
-                    <p class="fs-7 mb-2 ">Gabriel García Márquez</p>
-                    <div class="mb-2">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <i class="bi bi-geo-alt fs-8"></i>
-                            <span class="fs-8">Biblioteca Central de Madrid</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 align-items-center ">
-                            <span class="etiqueta rounded-1">Novela</span>
-                            <p class="fs-8 text-body-tertiary m-0">ISBN: <span>978-84-376-0494-7</span></p>
-                        </div>
-                    </div>
-                    <p class="no-disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">No disponible</p>
-                </div>
-            </div>
-            
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="tarjeta bg-white p-3 border rounded-3">
-                    <p class="fw-semibold mb-1">Don Quijote de la Mancha</p>
-                    <p class="fs-7 mb-2 ">Miguel de Cervantes</p>
-                    <div class="mb-2">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <i class="bi bi-geo-alt fs-8"></i>
-                            <span class="fs-8">Biblioteca de Barcelona</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 align-items-center ">
-                            <span class="etiqueta rounded-1">Novela</span>
-                            <p class="fs-8 text-body-tertiary m-0">ISBN: <span>978-84-376-0494-7</span></p>
-                        </div>
-                    </div>
-                    <p class="disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">Disponible</p>
-                </div>
-            </div>
+           
 
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+            <!-- <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                 <div class="tarjeta bg-white p-3 border rounded-3">
                     <p class="fw-semibold mb-1">Cien años de soledad</p>
                     <p class="fs-7 mb-2 ">Gabriel García Márquez</p>
@@ -119,79 +85,11 @@
                     </div>
                     <p class="no-disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">No disponible</p>
                 </div>
-            </div>
+            </div> -->
             
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="tarjeta bg-white p-3 border rounded-3">
-                    <p class="fw-semibold mb-1">Don Quijote de la Mancha</p>
-                    <p class="fs-7 mb-2 ">Miguel de Cervantes</p>
-                    <div class="mb-2">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <i class="bi bi-geo-alt fs-8"></i>
-                            <span class="fs-8">Biblioteca de Barcelona</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 align-items-center ">
-                            <span class="etiqueta rounded-1">Novela</span>
-                            <p class="fs-8 text-body-tertiary m-0">ISBN: <span>978-84-376-0494-7</span></p>
-                        </div>
-                    </div>
-                    <p class="disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">Disponible</p>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="tarjeta bg-white p-3 border rounded-3">
-                    <p class="fw-semibold mb-1">Cien años de soledad</p>
-                    <p class="fs-7 mb-2 ">Gabriel García Márquez</p>
-                    <div class="mb-2">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <i class="bi bi-geo-alt fs-8"></i>
-                            <span class="fs-8">Biblioteca Central de Madrid</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 align-items-center ">
-                            <span class="etiqueta rounded-1">Novela</span>
-                            <p class="fs-8 text-body-tertiary m-0">ISBN: <span>978-84-376-0494-7</span></p>
-                        </div>
-                    </div>
-                    <p class="no-disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">No disponible</p>
-                </div>
-            </div>
             
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="tarjeta bg-white p-3 border rounded-3">
-                    <p class="fw-semibold mb-1">Don Quijote de la Mancha</p>
-                    <p class="fs-7 mb-2 ">Miguel de Cervantes</p>
-                    <div class="mb-2">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <i class="bi bi-geo-alt fs-8"></i>
-                            <span class="fs-8">Biblioteca de Barcelona</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 align-items-center ">
-                            <span class="etiqueta rounded-1">Novela</span>
-                            <p class="fs-8 text-body-tertiary m-0">ISBN: <span>978-84-376-0494-7</span></p>
-                        </div>
-                    </div>
-                    <p class="disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">Disponible</p>
-                </div>
-            </div>
             
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="tarjeta bg-white p-3 border rounded-3">
-                    <p class="fw-semibold mb-1">Don Quijote de la Mancha</p>
-                    <p class="fs-7 mb-2 ">Miguel de Cervantes</p>
-                    <div class="mb-2">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <i class="bi bi-geo-alt fs-8"></i>
-                            <span class="fs-8">Biblioteca de Barcelona</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 align-items-center ">
-                            <span class="etiqueta rounded-1">Novela</span>
-                            <p class="fs-8 text-body-tertiary m-0">ISBN: <span>978-84-376-0494-7</span></p>
-                        </div>
-                    </div>
-                    <p class="disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">Disponible</p>
-                </div>
-            </div>
+            
         </div>
 
         <!-- Modal -->
