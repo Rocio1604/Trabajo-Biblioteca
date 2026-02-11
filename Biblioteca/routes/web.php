@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\LibrosController;
+use App\Http\Controllers\AutoresController;
 use App\Http\Controllers\BibliotecasController;
 use App\Http\Controllers\PrestamosController;
 use App\Http\Controllers\RecibosController;
@@ -18,6 +19,13 @@ Route::post('/libros', [LibrosController::class, 'store'])->name('libros.store')
 Route::get('/libros/editar/{id}', [LibrosController::class, 'edit'])->name('libros.edit');
 Route::post('/libros/editar/{id}', [LibrosController::class, 'update'])->name('libros.update');
 Route::get('/libros/eliminar/{id}', [LibrosController::class, 'destroy'])->name('libros.destroy');
+// autores
+Route::get('/autores', [AutoresController::class, 'index'])->name('autor.index');
+Route::get('/autores/crearAutor', [AutoresController::class, 'create'])->name('autor.create');
+Route::post('/autores', [AutoresController::class, 'store'])->name('autor.store');
+Route::get('/autores/editar/{id}', [AutoresController::class, 'edit'])->name('autor.edit');
+Route::post('/autores/editar/{id}', [AutoresController::class, 'update'])->name('autor.update');
+Route::get('/autores/eliminar/{id}', [AutoresController::class, 'destroy'])->name('autor.destroy');
 
 // bibliotecas
 Route::get('/biblioteca', [BibliotecasController::class, 'index'])->name('biblio.index');
