@@ -12,6 +12,9 @@ Route::get('/', function () {
     return view('index');
 });
 
+//panel de inicio
+Route::get('panelInicio',[BibliotecasController::class,''])->name('panelinicio');
+
 // Libros
 Route::get('/libros', [LibrosController::class, 'index'])->name('libros.index');
 Route::get('/libros/crearLibro', [LibrosController::class, 'create'])->name('libros.create');
