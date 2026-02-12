@@ -8,7 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    
+    <style>
+        a{
+            color:white;
+            text-decoration: none;
+        }
+    </style>
 
     <title>@yield('title')</title>
 </head>
@@ -33,21 +38,22 @@
                     <!-- Cuerpo menu -->
                     <div class="p-3 sidebar-borde sidebar-body-prop">
                         <button type="button" class="btn btn-sidebar activo rounded-3 d-flex gap-3 py-3 px-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-grid-1x2"></i>Panel de inicio</button>
+                        <i class="bi bi-grid-1x2"></i><a href="{{route('panelinicio')}}">Panel inicio</a></button>
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-building"></i>Bibliotecas</button>
+                        <i class="bi bi-building"></i><a href="{{route('biblio.index')}}">Bibliotecas </a></button>
+                        <!-- <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
+                        <i class="bi bi-building"></i><a href="{{route('biblio.index')}}">trabajadores </a></button>
+                         -->
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-person-gear"></i>Trabajadores</button>
+                        <i class="bi bi-people"></i><a href="{{route('socio.index')}}">Socios</a></button>
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-people"></i>Socios</button>
+                        <i class="bi bi-journal-bookmark"></i><a href="{{route('libros.index')}}">Libros</a></button>
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-journal-bookmark"></i>Libros</button>
+                        <i class="bi bi-person-up"></i><a href="{{route('autor.index')}}">Autores</a></button>
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-person-up"></i>Autores</button>
+                        <i class="bi bi-arrow-left-right"></i><a href="{{route('prestamo.index')}}">Préstamos</a></button>
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-arrow-left-right"></i>Prétamos</button>
-                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-file-earmark-text"></i>Recibos</button>
+                        <i class="bi bi-file-earmark-text"></i><a href="{{route('recibo.index')}}">Recibos</a></button>
                     </div>
 
                     <!-- Cuenta menu -->

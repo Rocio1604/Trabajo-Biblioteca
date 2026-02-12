@@ -14,7 +14,7 @@ Route::get('/', function () {
 });
 
 //panel de inicio
-Route::get('panelInicio',[BibliotecasController::class,''])->name('panelinicio');
+Route::get('/panelInicio',[BibliotecasController::class,'prestamosBibliotecas'])->name('panelinicio');
 
 // Libros
 Route::get('/libros', [LibrosController::class, 'index'])->name('libros.index');

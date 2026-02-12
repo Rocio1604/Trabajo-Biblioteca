@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class bibliotecas extends Model
 {
     protected $table = 'bibliotecas';
@@ -16,4 +17,8 @@ class bibliotecas extends Model
         'correo',
         'es_activo'
     ];
+    public function prestamos()
+    {
+        return $this->hasMany(Prestamos::class, 'biblioteca_id');
+    }
 }
