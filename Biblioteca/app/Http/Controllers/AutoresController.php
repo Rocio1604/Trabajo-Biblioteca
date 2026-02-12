@@ -28,7 +28,7 @@ class AutoresController extends Controller
       
         autores::create($request->all()); 
 
-        return redirect()->route('autore.index')->with('funciona', 'Autor guardado correctamente');
+        return redirect()->route('autores.index')->with('funciona', 'Autor guardado correctamente');
     }
     
     public function destroy($id) {

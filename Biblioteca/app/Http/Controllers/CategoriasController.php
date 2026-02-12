@@ -17,7 +17,7 @@ class CategoriasController extends Controller
     public function store(Request $request) {
 
         $request->validate([
-            'id_autor' => 'required',
+            'id_categoria' => 'required',
         ]);
 
       
