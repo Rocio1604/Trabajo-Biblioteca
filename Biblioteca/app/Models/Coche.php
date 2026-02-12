@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class coches extends Model
+class Coche extends Model
 {
     protected $table = 'cochees';
         protected $fillable = [
@@ -12,6 +12,6 @@ class coches extends Model
     ];
     	public function usuarios()
 	{
-		return $this->belongsTo(autores::class, 'id_usuario');
+		return $this->belongsTo(autor::class, 'id_usuario');
 	}
 }

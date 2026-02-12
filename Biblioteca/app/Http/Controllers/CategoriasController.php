@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Categorias;
+use App\Models\Categoria;
 class CategoriasController extends Controller
 {
 
     
     public function create() {
-        $Categorias = Categorias::all();
+        $Categorias = Categoria::all();
 
         return view('crearcategoria', compact('Categorias'));
     }
@@ -21,13 +21,13 @@ class CategoriasController extends Controller
         ]);
 
       
-        Categorias::create($request->all()); 
+        Categoria::create($request->all()); 
 
         return redirect()->route('categorias.index')->with('funciona', 'Categoria guardado correctamente');
     }
     
     public function destroy($id) {
-    $autor = Categorias::find($id);
+    $autor = Categoria::find($id);
     
 
     if ($autor->libros()->count() > 0) {

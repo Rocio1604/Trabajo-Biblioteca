@@ -19,6 +19,6 @@ class Biblioteca extends Model
     ];
     public function prestamos()
     {
-        return $this->hasMany(Prestamos::class, 'biblioteca_id');
+        return $this->hasMany(Prestamo::class, 'biblioteca_id');
     }
 }

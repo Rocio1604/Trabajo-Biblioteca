@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Prestamos extends Model
+class Prestamo extends Model
 {
     protected $table = 'prestamos';
 
@@ -16,10 +16,10 @@ class Prestamos extends Model
     ];
     	public function socios()
 	{
-		return $this->belongsTo(autores::class, 'socio');
+		return $this->belongsTo(Socio::class, 'socio');
 	}
     	public function libros()
 	{
-		return $this->belongsTo(autores::class, 'ISBN');
+		return $this->belongsTo(Libro::class, 'ISBN');
 	}
 }
