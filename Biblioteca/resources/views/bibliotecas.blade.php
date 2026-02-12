@@ -1,89 +1,266 @@
 @extends('layout.menu')
+@section('title', 'Bibliotecas')
 
-@section('title', 'Panel Inicio')
 @section('content')
 
-<div class="container-80 d-flex flex-wrap">
-    <nav class="mt-4 mb-5">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                <div>
-                    <div class="d-flex flex-wrap gap-4 align-items-center">
-                        <i class="bi bi-book icono"></i>
-                        <div>
-                            <h1 class="mb-0 fs-2">Gestión bibliotecas</h1>
-                            <p class="fs-5 mb-0">Administración de bibliotecas por provincia</p>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-naranja rounded-4 d-flex align-items-center justify-content-center gap-3 px-4 py-12" data-bs-toggle="modal" data-bs-target="#loginModal">
-                    <i class="bi bi-box-arrow-in-right fs-5"></i>  Nueva biblioteca</button>
-            </div>
-    </nav>
-    <div class="row g-3 bg-white px-2 pb-3 border rounded-4 shadow-sm mb-4">
-            <div class="col-12 col-xl-6 ">
-                <div class="input-group rounded-4 input-focus">
-                    <span class="input-group-text border-0 bg-white rounded-start-4">
-                        <i class="bi bi-search fs-5 color-input"></i>
-                    </span>
-                    <input type="text" class="form-control border-0 rounded-end-4 py-12" placeholder="Buscar por provincia o responsable">
-                </div>
-            </div>
+<div class="mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="fs-2 mb-2">Gestión de Bibliotecas</h1>
+            <p class="m-0">Administración de bibliotecas registradas</p>
+        </div>
+
+        <button type="button"
+            class="btn btn-naranja rounded-3 d-flex align-items-center gap-2 px-3 py-2"
+            data-bs-toggle="modal"
+            data-bs-target="#modalBiblioteca">
+            <i class="bi bi-plus-lg"></i>Nueva Biblioteca
+        </button>
     </div>
-    <!-- bibliotecas -->
-    <div class="col-12 col-md-6"></div>
-    <!-- modal biblioteca -->
-    <div class="modal fade" id="biblioModal" tabindex="-1"
-            data-bs-backdrop="static"
-            data-bs-keyboard="false">
-            <div class="modal-dialog modal-dialog-centered modal-login">
-                <div class="modal-content rounded-4">
-                    <div class="modal-header border-0 p-3">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body px-4 pb-5 pt-0">
-                        <div class="text-center mb-4">
-                            <div class="d-flex justify-content-center align-items-center mb-3">
-                                <div class="  rounded-circle logo-modal">
-                                    <i class="bi bi-book fs-1 icono text-white"></i>
-                                </div>
-                            </div>
-                            <h2 class="fs-4 fw-semibold mb-2">Nueva biblioteca</h2>
-                        </div>
-                            <form id="biblioForm">
-                                <div class="mb-3">
-                                    <label class="form-label fs-7 fw-semibold" for="provincia">Provincia</label>
-                                    <div class="input-group rounded-3 input-focus">
-                                        <input type="text" id="provincia" name="provincia" class="form-control border-0 rounded-end-3 py-12" placeholder="Ingresa la provincia">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fs-7 fw-semibold" for="direccion">Dirección</label>
-                                    <div class="input-group rounded-3 input-focus">
-                                        <input type="text" id="direccion" name="direccion" class="form-control border-0 rounded-end-3 py-12" placeholder="Ingresa la dirección">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fs-7 fw-semibold" for="telefono">Teléfono</label>
-                                    <div class="input-group rounded-3 input-focus">
-                                        <input type="text" id="telefono" name="telefono" class="form-control border-0 rounded-end-3 py-12" placeholder="Ingresa el teléfono">
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-light rounded-3 py-2 w-100 fw-semibold">Cancelar</button>
-                                <button type="submit" class="btn btn-naranja rounded-3 py-2 w-100 fw-semibold">Agregar biblioteca</button>
-                            </form>
-                    </div>
+</div>
+
+<div class="row g-4">
+    @foreach($bibliotecas as $biblio)
+        <div class="col-12 col-md-6">
+            <div class="card shadow-sm rounded-4 p-4 position-relative h-100 {{ !$biblio->es_activo ? 'bg-light text-muted opacity-75' : '' }}">
+
+                <!-- BOTONES -->
+                <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
+
+                    <!-- EDITAR -->
+                    <button class="bg-transparent border-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalBiblioteca"
+                        data-id="{{ $biblio->id }}"
+                        data-nombre="{{ $biblio->nombre }}"
+                        data-provincia="{{ $biblio->provincia }}"
+                        data-direccion="{{ $biblio->direccion }}"
+                        data-telefono="{{ $biblio->telefono }}"
+                        data-correo="{{ $biblio->correo }}">
+                        <i class="bi bi-pencil-square icono-editar"></i>
+                    </button>
+
+                    <!-- ELIMINAR -->
+                    @if($biblio->es_activo)
+
+                    <!-- DESACTIVAR -->
+                    <button class="bg-transparent border-0"
+                        onclick="confirmarEliminar('{{ $biblio->id }}')">
+                        <i class="bi bi-trash icono-eliminar"></i>
+                    </button>
+
+                    @else
+
+                        <!-- REACTIVAR -->
+                        <button class="bg-transparent border-0"
+                            onclick="reactivarBiblioteca('{{ $biblio->id }}')">
+                            <i class="bi bi-arrow-counterclockwise text-success"></i>
+                        </button>
+
+                    @endif
+
                 </div>
+
+                <!-- CONTENIDO -->
+                <h5 class="fw-semibold mb-3">{{ $biblio->nombre }}</h5>
+
+                <p class="mb-2">
+                    <i class="bi bi-geo-alt me-2"></i>
+                    {{ $biblio->provincia }}
+                </p>
+
+                <p class="mb-2">
+                    <i class="bi bi-house me-2"></i>
+                    {{ $biblio->direccion }}
+                </p>
+
+                <p class="mb-2">
+                    <i class="bi bi-telephone me-2"></i>
+                    {{ $biblio->telefono }}
+                </p>
+
+                <p class="mb-0">
+                    <i class="bi bi-envelope me-2"></i>
+                    {{ $biblio->correo }}
+                </p>
+
             </div>
         </div>
+    @endforeach
+</div>
+
+
+<!-- MODAL CREAR / EDITAR -->
+<div class="modal fade" id="modalBiblioteca" tabindex="-1"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body px-4 pb-4 pt-0">
+
+                <h2 class="fs-4 fw-semibold mb-3" id="modalTitle">Nueva Biblioteca</h2>
+
+                <form id="bibliotecaForm" method="POST" action="{{ route('biblio.store') }}">
+                    @csrf
+                    <input type="hidden" id="editing_id" name="editing_id">
+
+                    <div class="row g-3">
+
+                        <div class="col-6">
+                            <label class="fw-semibold mb-1">Nombre</label>
+                            <input type="text" name="nombre" id="nombre"
+                                class="form-control rounded-3">
+                        </div>
+
+                        <div class="col-6">
+                            <label class="fw-semibold mb-1">Provincia</label>
+                            <input type="text" name="provincia" id="provincia"
+                                class="form-control rounded-3">
+                        </div>
+
+                        <div class="col-6">
+                            <label class="fw-semibold mb-1">Dirección</label>
+                            <input type="text" name="direccion" id="direccion"
+                                class="form-control rounded-3">
+                        </div>
+
+                        <div class="col-6">
+                            <label class="fw-semibold mb-1">Teléfono</label>
+                            <input type="text" name="telefono" id="telefono"
+                                class="form-control rounded-3">
+                        </div>
+
+                        <div class="col-6">
+                            <label class="fw-semibold mb-1">Correo</label>
+                            <input type="email" name="correo" id="correo"
+                                class="form-control rounded-3">
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-6">
+                            <button type="button"
+                                class="w-100 btn border rounded-3"
+                                data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                        </div>
+
+                        <div class="col-6">
+                            <button type="submit"
+                                class="w-100 btn btn-naranja rounded-3"
+                                id="btnModal">
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
+
+
 @section('scripts')
 <script>
-        let biblioModal = document.querySelector("#biblioModal");
-        let biblioForm = document.querySelector("#biblioForm");
-        loginModal.addEventListener("show.bs.modal",()=>{
-            loginForm.reset()
-        })
-    </script>
+
+let modal = document.querySelector("#modalBiblioteca");
+let form = document.querySelector("#bibliotecaForm");
+let modalTitle = document.getElementById('modalTitle');
+let btnModal = document.getElementById('btnModal');
+
+modal.addEventListener('show.bs.modal', (event) => {
+
+    let boton = event.relatedTarget;
+
+    if (boton.hasAttribute('data-id')) {
+
+        let id = boton.getAttribute('data-id');
+
+        modalTitle.textContent = 'Editar Biblioteca';
+        btnModal.textContent = 'Actualizar';
+
+        form.action = '/biblioteca/editar/' + id;
+
+        document.getElementById('editing_id').value = id;
+        document.getElementById('nombre').value = boton.getAttribute('data-nombre');
+        document.getElementById('provincia').value = boton.getAttribute('data-provincia');
+        document.getElementById('direccion').value = boton.getAttribute('data-direccion');
+        document.getElementById('telefono').value = boton.getAttribute('data-telefono');
+        document.getElementById('correo').value = boton.getAttribute('data-correo');
+
+    } else {
+
+        modalTitle.textContent = 'Nueva Biblioteca';
+        btnModal.textContent = 'Guardar';
+
+        form.action = "{{ route('biblio.store') }}";
+        form.reset();
+    }
+});
+
+
+function confirmarEliminar(id) {
+
+    Swal.fire({
+        title: '¿Eliminar biblioteca?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ff8000',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            let form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/biblioteca/eliminar/' + id;
+            form.innerHTML = `@csrf`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+    });
+
+}
+function reactivarBiblioteca(id) {
+
+    Swal.fire({
+        title: '¿Reactivar biblioteca?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ff8000',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, reactivar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            let form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/biblioteca/reactivar/' + id;
+            form.innerHTML = `@csrf`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+    });
+}
+
+
+</script>
 @endsection

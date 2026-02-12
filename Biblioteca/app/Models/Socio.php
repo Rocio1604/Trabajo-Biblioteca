@@ -21,6 +21,6 @@ class Socio extends Model
     }
     public function biblioteca()
     {
-        return $this->belongsTo(bibliotecas::class, 'biblioteca_id');
+        return $this->belongsTo(Biblioteca::class, 'biblioteca_id');
     }
 }

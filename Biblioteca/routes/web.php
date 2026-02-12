@@ -33,11 +33,10 @@ Route::get('/autores/eliminar/{id}', [AutoresController::class, 'destroy'])->nam
 
 // bibliotecas
 Route::get('/biblioteca', [BibliotecasController::class, 'index'])->name('biblio.index');
-Route::get('/biblioteca/crearBiblioteca', [LibrosController::class, 'create'])->name('biblio.create');
-Route::post('/biblioteca', [LibrosController::class, 'store'])->name('biblio.store');
-Route::get('/biblioteca/editar/{id}', [LibrosController::class, 'edit'])->name('biblio.edit');
-Route::post('/biblioteca/editar/{id}', [LibrosController::class, 'update'])->name('biblio.update');
-Route::get('/biblioteca/eliminar/{id}', [LibrosController::class, 'destroy'])->name('biblio.destroy');
+Route::post('/biblioteca', [BibliotecasController::class, 'store'])->name('biblio.store');
+Route::post('/biblioteca/editar/{id}', [BibliotecasController::class, 'update'])->name('biblio.update');
+Route::post('/biblioteca/eliminar/{id}', [BibliotecasController::class, 'destroy'])->name('biblio.destroy');
+Route::post('/biblioteca/reactivar/{id}', [BibliotecasController::class, 'reactivar'])->name('biblio.reactivar');
 
 // prestamos
 Route::get('/prestamos', [PrestamosController::class, 'index'])->name('prestamo.index');

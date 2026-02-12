@@ -3,46 +3,121 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\bibliotecas;
+use App\Models\Biblioteca;
 use App\Models\Prestamos;
 use Illuminate\Support\Facades\DB;
+
 class BibliotecasController extends Controller
 {
     public function index() {
-    $Bibliotecas = Bibliotecas::withCount('libros', 'socios')->get();
-    return view('listabiblioteca', compact('Bibliotecas'));
-    
+        $bibliotecas = Biblioteca::all();
+
+        return view('bibliotecas', compact('bibliotecas'));
     }
 
     
     public function create() {
-        $Bibliotecas = bibliotecas::all();
-
-        return view('crearbiblioteca', compact('Bibliotecas'));
+        
     }
 
-    public function store(Request $request) {
+    public function store(Request $request){
+       
+        $mensajes = [
+            'nombre.required' => 'El nombre es obligatorio',
+            'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
+
+            'correo.required' => 'El correo electrónico es obligatorio',
+            'correo.email' => 'Ingresa un formato de correo válido',
+            'correo.unique' => 'Este correo ya está registrado',
+
+            'telefono.required' => 'El teléfono es obligatorio',
+            'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9',
+
+            'provincia.required' => 'La provincia es obligatoria',
+            'provincia.min' => 'La provincia debe tener al menos 3 caracteres',
+
+            'direccion.required' => 'La direccion es obligatoria',
+            'direccion.min' => 'La direccion debe tener al menos 3 caracteres',
+        ];
 
         $request->validate([
-            'id_biblioteca' => 'required',
+            'nombre' => 'required|string|min:3|max:100',
+            'provincia' => 'required|string|min:3|max:100',
+            'correo' => 'required|email|unique:bibliotecas,correo|max:255',
+            'direccion' => 'required|min:5|max:255',
+            'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
+        ], $mensajes);
+
+        try {
+
+             Biblioteca::create([
+                'nombre' => $request->nombre,
+                'provincia' => $request->provincia,
+                'direccion' => $request->direccion,
+                'correo' => $request->correo,
+                'telefono' => $request->telefono,
+                'es_activo' => 1, 
+            ]);
+
+            return redirect()
+                ->route('biblio.index')
+                ->with('success', 'Biblioteca guardada correctamente');
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->route('biblio.index')
+                ->with('error', 'Error de base de datos: ' . $e->getMessage());
+        }
+       
+    }
+
+    public function update(Request $request, $id){
+        $request->validate([
+            'nombre' => 'required|min:3|max:100',
+            'provincia' => 'required|min:3|max:100',
+            'direccion' => 'required|min:5|max:255',
+            'correo' => 'required|email|max:255',
+            'telefono' => ['required','regex:/^[6789]\d{8}$/'],
         ]);
 
-      
-        bibliotecas::create($request->all()); 
+        $biblioteca = Biblioteca::findOrFail($id);
 
-        return redirect()->route('bibliotecas.index')->with('funciona', 'Biblioteca guardado correctamente');
+        $biblioteca->update([
+            'nombre' => $request->nombre,
+            'provincia' => $request->provincia,
+            'direccion' => $request->direccion,
+            'correo' => $request->correo,
+            'telefono' => $request->telefono,
+        ]);
+
+        return redirect()->route('biblio.index')
+                        ->with('success','Biblioteca actualizada correctamente');
     }
-    
-    public function destroy($id) {
-        $autor = bibliotecas::find($id);
-        
 
-        if ($autor->libros()->count() > 0) {
-            return redirect()->route('Bibliotecas.index')->with('error', 'No se puede eliminar tiene libros.');
+
+    public function destroy($id) {
+        $biblioteca = Biblioteca::find($id);
+
+        if ($biblioteca) {
+            $biblioteca->es_activo = 0;
+            $biblioteca->save();
         }
 
-        $autor->delete();
-        return redirect()->route('bibliotecas.index')->with('funciona', 'biblioteca eliminada.');
+        return redirect()->route('biblio.index')
+            ->with('success', 'Biblioteca desactivada correctamente');
+    }
+    public function reactivar($id)
+    {
+        $biblioteca = Biblioteca::find($id);
+
+        if ($biblioteca) {
+            $biblioteca->es_activo = 1;
+            $biblioteca->save();
+        }
+
+        return redirect()->route('biblio.index')
+            ->with('success', 'Biblioteca reactivada correctamente');
     }
 
     public function prestamosBibliotecas(){

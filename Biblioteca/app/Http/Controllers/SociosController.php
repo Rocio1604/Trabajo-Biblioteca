@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\bibliotecas;
+use App\Models\Biblioteca;
 use App\Models\EstadoCuota;
 use App\Models\Socio;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ class SociosController extends Controller
     public function index(){
         $socios = Socio::with(['estado', 'biblioteca'])->latest()->get();
         $estados = EstadoCuota::all();
-        $bibliotecas = bibliotecas::all();
+        $bibliotecas = Biblioteca::all();
         return view('socio.index', compact('socios', 'estados', 'bibliotecas'));
     }
 

@@ -41,9 +41,9 @@
                         <i class="bi bi-grid-1x2"></i><a href="{{route('panelinicio')}}">Panel inicio</a></button>
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
                         <i class="bi bi-building"></i><a href="{{route('biblio.index')}}">Bibliotecas </a></button>
-                        <!-- <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-building"></i><a href="{{route('biblio.index')}}">trabajadores </a></button>
-                         -->
+                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
+                        <i class="bi bi-building"></i><a href="{{route('usuario.index')}}">Trabajadores </a></button>
+                        
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
                         <i class="bi bi-people"></i><a href="{{route('socio.index')}}">Socios</a></button>
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
