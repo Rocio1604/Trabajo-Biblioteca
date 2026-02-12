@@ -45,13 +45,12 @@ Route::get('/prestamos/editar/{id}', [PrestamosController::class, 'edit'])->name
 Route::post('/prestamos/editar/{id}', [PrestamosController::class, 'update'])->name('prestamo.update');
 Route::get('/prestamos/eliminar/{id}', [PrestamosController::class, 'destroy'])->name('prestamo.destroy');
 
+
 // recibos
 Route::get('/recibos', [RecibosController::class, 'index'])->name('recibo.index');
-Route::get('/recibos/crearRecibo', [RecibosController::class, 'create'])->name('recibo.create');
 Route::post('/recibos', [RecibosController::class, 'store'])->name('recibo.store');
-Route::get('/recibos/editar/{id}', [RecibosController::class, 'edit'])->name('recibo.edit');
 Route::post('/recibos/editar/{id}', [RecibosController::class, 'update'])->name('recibo.update');
-Route::get('/recibos/eliminar/{id}', [RecibosController::class, 'destroy'])->name('recibo.destroy');
+Route::post('/recibos/eliminar/{id}', [RecibosController::class, 'destroy'])->name('recibo.destroy');
 
 // socios
 Route::get('/socios', [SociosController::class, 'index'])->name('socio.index');

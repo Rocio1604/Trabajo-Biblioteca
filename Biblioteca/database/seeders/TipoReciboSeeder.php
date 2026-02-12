@@ -9,11 +9,11 @@ class TipoReciboSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('tipos_recibos')->insert([
-            ['nombre' => 'Cuota anual'],
-            ['nombre' => 'Multa por retraso'],
-            ['nombre' => 'Libro perdido'],
-            ['nombre' => 'Reserva'],
-        ]);
+            DB::table('tipos_recibos')->insert([
+                ['nombre' => 'Cuota anual'],
+                ['nombre' => 'Multa por retraso'],
+                ['nombre' => 'Libro perdido'],
+                ['nombre' => 'Reserva'],
+            ]);
     }
 }

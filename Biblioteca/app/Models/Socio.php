@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Socio;
+use App\Models\EstadoCuota;
+use App\Models\Biblioteca;
 use Illuminate\Database\Eloquent\Model;
 
 class Socio extends Model
@@ -22,5 +25,9 @@ class Socio extends Model
     public function biblioteca()
     {
         return $this->belongsTo(Biblioteca::class, 'biblioteca_id');
+    }
+    public function recibos()
+    {
+        return $this->hasMany(Recibo::class, 'socio_id');
     }
 }

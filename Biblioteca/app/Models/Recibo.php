@@ -7,15 +7,44 @@ use Illuminate\Database\Eloquent\Model;
 class Recibo extends Model
 {
     protected $table = 'recibos';
-        protected $fillable = [
-        'id_recibo',
+    
+    protected $fillable = [
+        'socio_id',
         'concepto',
-        'tipo',
+        'tipo_id',
         'importe',
-        'fecha'
+        'fecha',
+        'estado_id',
+        'es_activo'
     ];
-    	public function socio()
-	{
-		return $this->belongsTo(socios::class, 'id_socio');
-	}
+
+    protected $casts = [
+        'fecha' => 'date',
+        'importe' => 'decimal:2',
+        'es_activo' => 'boolean'
+    ];
+
+    public function socio()
+    {
+        return $this->belongsTo(Socio::class, 'socio_id');
+    }
+
+    public function tipo()
+    {
+        return $this->belongsTo(TipoRecibo::class, 'tipo_id');
+    }
+
+    public function estado()
+    {
+        return $this->belongsTo(EstadoRecibo::class, 'estado_id');
+    }
+
+    public function biblioteca()
+{
+    return $this->belongsTo(Biblioteca::class);
+}
+    public function getNumeroReciboAttribute()
+    {
+        return 'REC-' . date('Y', strtotime($this->fecha)) . '-' . str_pad($this->id, 3, '0', STR_PAD_LEFT);
+    }
 }
