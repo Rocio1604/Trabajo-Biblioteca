@@ -1,10 +1,10 @@
-menu layout
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.6/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -32,7 +32,7 @@ menu layout
 
                     <!-- Cuerpo menu -->
                     <div class="p-3 sidebar-borde sidebar-body-prop">
-                        <button type="button" class="btn btn-sidebar activo rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
+                        <button type="button" class="btn btn-sidebar activo rounded-3 d-flex gap-3 py-3 px-12 w-100 fw-semibold fs-7 mb-1">
                         <i class="bi bi-grid-1x2"></i>Panel de inicio</button>
                         <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
                         <i class="bi bi-building"></i>Bibliotecas</button>
@@ -62,13 +62,11 @@ menu layout
                 </div>
             </nav>
 
-            <div class="col-lg-10 ms-lg-auto p-4">
-                <body>
+            <div class="col-lg-10 ms-lg-auto p-4 bg-light vh-100 overflow-auto">
                     <button class="btn btn-primary d-lg-none m-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
-                    <i class="bi bi-list"></i>
-                </button>
-                <h1>Contenido Principal</h1>
-                <p>Cuerpo</p>
+                        <i class="bi bi-list"></i>
+                    </button>
+                @yield('content')
             </div>
         </div>
     </div>
@@ -83,7 +81,8 @@ menu layout
             })
         })
     </script>
-     @yield('content')
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.6/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @yield('scripts')
 </body>
 </html>

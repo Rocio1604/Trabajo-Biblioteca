@@ -4,6 +4,7 @@ use App\Http\Controllers\AutoresController;
 use App\Http\Controllers\BibliotecasController;
 use App\Http\Controllers\PrestamosController;
 use App\Http\Controllers\RecibosController;
+use App\Http\Controllers\SocioController;
 use App\Http\Controllers\SociosController;
 use App\Http\Controllers\UsuariosController;
 use Illuminate\Support\Facades\Route;
@@ -58,10 +59,10 @@ Route::get('/recibos/eliminar/{id}', [RecibosController::class, 'destroy'])->nam
 Route::get('/socios', [SociosController::class, 'index'])->name('socio.index');
 Route::get('/socios/crearSocio', [SociosController::class, 'create'])->name('socio.create');
 Route::post('/socios', [SociosController::class, 'store'])->name('socio.store');
-Route::get('/socios/editar/{id}', [SociosController::class, 'edit'])->name('socio.edit');
+//Route::get('/socios/editar/{id}', [SociosController::class, 'edit'])->name('socio.edit');
 Route::post('/socios/editar/{id}', [SociosController::class, 'update'])->name('socio.update');
-Route::get('/socios/eliminar/{id}', [SociosController::class, 'destroy'])->name('socio.destroy');
-
+Route::post('/socios/eliminar/{id}', [SociosController::class, 'destroy'])->name('socio.destroy');
+Route::post('/socios/reactivar/{id}', [SociosController::class, 'reactivar'])->name('socio.reactivar');
 // usuarios
 Route::get('/usuarios', [UsuariosController::class, 'index'])->name('usuario.index');
 Route::get('/usuarios/crearUsuario', [UsuariosController::class, 'create'])->name('usuario.create');

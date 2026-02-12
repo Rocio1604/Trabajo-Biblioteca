@@ -25,7 +25,7 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-naranja rounded-4 d-flex align-items-center justify-content-center gap-3 px-4 py-12" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <button type="button" class="btn btn-naranja rounded-4 d-flex align-items-center justify-content-center gap-3 px-4 px-12" data-bs-toggle="modal" data-bs-target="#loginModal">
                     <i class="bi bi-box-arrow-in-right fs-5"></i>  Acceso Empleados</button>
             </div>
             <p>Explora nuestro cátalogo de libros disponibles en todas las bibliotecas</p>
@@ -38,25 +38,25 @@
                     <span class="input-group-text border-0 bg-white rounded-start-4">
                         <i class="bi bi-search fs-5 color-input"></i>
                     </span>
-                    <input type="text" class="form-control border-0 rounded-end-4 py-12" placeholder="Buscar por título, autor o ISBN...">
+                    <input type="text" class="form-control border-0 rounded-end-4 px-12" placeholder="Buscar por título, autor o ISBN...">
                 </div>
             </div>
             <div class="col-12 col-md-4 col-xl-2">
-                <select name="provincias" id="provincias" class="form-select py-12 px-3 rounded-4 col-2 input-focus">
+                <select name="provincias" id="provincias" class="form-select px-12 px-3 rounded-4 col-2 input-focus">
                     <option value="todas">Todas las provincias</option>
                     <option value="madrid">Madrid</option>
                     <option value="barcelona">Barcelona</option>
                 </select>
             </div>
             <div class="col-12 col-md-4 col-xl-2">
-                <select name="categorias" id="categorias" class="form-select py-12 px-3 rounded-4 col-2 input-focus">
+                <select name="categorias" id="categorias" class="form-select px-12 px-3 rounded-4 col-2 input-focus">
                     <option value="todas">Todas las categorias</option>
                     <option value="madrid">Madrid</option>
                     <option value="barcelona">Barcelona</option>
                 </select>
             </div>
             <div class="col-12 col-md-4 col-xl-2">
-                <select name="disponibilidad" id="disponibilidad" class="form-select py-12 ps-4 pe-5 rounded-4 col-1 input-focus">
+                <select name="disponibilidad" id="disponibilidad" class="form-select px-12 ps-4 pe-5 rounded-4 col-1 input-focus">
                     <option value="todos">Todos</option>
                     <option value="disponible">Solo disponibles</option>
                     <option value="no-disponible">No disponibles</option>
@@ -119,7 +119,7 @@
                                         <span class="input-group-text border-0 bg-white rounded-start-3">
                                             <i class="bi bi-person fs-5 color-input"></i>
                                         </span>
-                                        <input type="text" id="usuario" name="usuario" class="form-control border-0 rounded-end-3 py-12" placeholder="Ingresa tu usuario">
+                                        <input type="text" id="usuario" name="usuario" class="form-control border-0 rounded-end-3 px-12" placeholder="Ingresa tu usuario">
                                     </div>
                                 </div>
                                 <div class="mb-3">
@@ -128,7 +128,7 @@
                                         <span class="input-group-text border-0 bg-white rounded-start-3">
                                             <i class="bi bi-lock fs-5 color-input"></i>
                                         </span>
-                                        <input type="text" id="password" name="password" class="form-control border-0 rounded-end-3 py-12" placeholder="Ingresa tu usuario">
+                                        <input type="text" id="password" name="password" class="form-control border-0 rounded-end-3 px-12" placeholder="Ingresa tu usuario">
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-naranja rounded-3 py-2 w-100 fw-semibold">Iniciar Sesión</button>

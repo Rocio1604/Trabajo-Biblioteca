@@ -14,6 +14,7 @@ return new class extends Migration
         //bibliotecas
         Schema::create('bibliotecas', function (Blueprint $table) {
             $table->id('id');
+            $table->string('nombre');
             $table->string('provincia');
             $table->string('direccion');
             $table->string('telefono');
@@ -36,6 +37,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('telefono');
             $table->unsignedBigInteger('estado_cuota');
+            $table->boolean('es_activo');
             $table->timestamps();
 
             $table->foreign('biblioteca_id')
@@ -53,6 +55,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->date('fecha_nacimiento');
+            $table->boolean('es_activo');
             $table->timestamps();
 
         });
@@ -84,6 +87,7 @@ return new class extends Migration
             $table->string('titulo');
             $table->unsignedBigInteger('categoria_id');
             $table->decimal('precio', 8, 2);
+            $table->boolean('es_activo');
             $table->timestamps();
 
             $table->foreign('categoria_id')->references('id')->on('categorias')->onDelete('cascade');
@@ -186,6 +190,7 @@ return new class extends Migration
             $table->decimal('importe', 8, 2);
             $table->date('fecha');
             $table->unsignedBigInteger('estado_id');
+            $table->boolean('es_activo');
             $table->timestamps();
 
             $table->foreign('socio_id')
@@ -252,16 +257,16 @@ return new class extends Migration
         Schema::dropIfExists('validaciones_sistema');
         Schema::dropIfExists('usuarios');
         Schema::dropIfExists('roles');
-        Schema::dropIfExists('ejemplares');
         Schema::dropIfExists('recibos');
         Schema::dropIfExists('prestamos');
         Schema::dropIfExists('tipos_recibos');
         Schema::dropIfExists('estados_recibos');
         Schema::dropIfExists('estados_prestamos');
         Schema::dropIfExists('autor_libro');
+        Schema::dropIfExists('ejemplares');
+        Schema::dropIfExists('estados_libros');
         Schema::dropIfExists('libros');
         Schema::dropIfExists('disponibilidades_libros');
-        Schema::dropIfExists('estados_libros');
         Schema::dropIfExists('categorias');
         Schema::dropIfExists('autores');
         Schema::dropIfExists('socios');

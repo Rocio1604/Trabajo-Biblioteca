@@ -9,9 +9,11 @@ class bibliotecas extends Model
     protected $table = 'bibliotecas';
     protected $fillable = [
         'id_biblioteca',
+        'nombre',
         'provincia',
         'direccion',
         'telefono',
-        'correo'
+        'correo',
+        'es_activo'
     ];
 }

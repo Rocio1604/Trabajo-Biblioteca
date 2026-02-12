@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Bibliotecas;
 class BibliotecasController extends Controller
 {
-       public function index() {
+    public function index() {
     $Bibliotecas = Bibliotecas::withCount('libros', 'socios')->get();
     return view('listabiblioteca', compact('Bibliotecas'));
     
