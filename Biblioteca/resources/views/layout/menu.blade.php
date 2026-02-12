@@ -37,23 +37,37 @@
 
                     <!-- Cuerpo menu -->
                     <div class="p-3 sidebar-borde sidebar-body-prop">
-                        <button type="button" class="btn btn-sidebar activo rounded-3 d-flex gap-3 py-3 px-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-grid-1x2"></i><a href="{{route('panelinicio')}}">Panel inicio</a></button>
-                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-building"></i><a href="{{route('biblio.index')}}">Bibliotecas </a></button>
-                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-building"></i><a href="{{route('usuario.index')}}">Trabajadores </a></button>
-                        
-                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-people"></i><a href="{{route('socio.index')}}">Socios</a></button>
-                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-journal-bookmark"></i><a href="{{route('libros.index')}}">Libros</a></button>
-                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-person-up"></i><a href="{{route('autor.index')}}">Autores</a></button>
-                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-arrow-left-right"></i><a href="{{route('prestamo.index')}}">Préstamos</a></button>
-                        <button type="button" class="btn btn-sidebar rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1">
-                        <i class="bi bi-file-earmark-text"></i><a href="{{route('recibo.index')}}">Recibos</a></button>
+                        <a href="{{route('panelinicio')}}" class="btn btn-sidebar {{ Route::is('panelinicio') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-grid-1x2"></i>
+                            <span>Panel inicio</span>
+                        </a>
+                        <a href="{{route('biblio.index')}}" class="btn btn-sidebar {{ Route::is('biblio.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-building"></i>
+                            <span>Bibliotecas</span>
+                        <a href="{{route('usuario.index')}}" class="btn btn-sidebar {{ Route::is('usuario.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-person-gear"></i>
+                            <span>Usuarios</span>
+                        </a>
+                        <a href="{{ route('socio.index') }}" class="btn btn-sidebar {{ Route::is('socio.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-people"></i>
+                            <span>Socios</span>
+                        </a>
+                        <a href="{{route('libros.index')}}" class="btn btn-sidebar {{ Route::is('libros.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-journal-bookmark"></i>
+                            <span>Libros</span>
+                        </a>
+                        <a href="{{route('autor.index')}}" class="btn btn-sidebar {{ Route::is('autor.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-person-up"></i>
+                            <span>Autores</span>
+                        </a>
+                        <a href="{{route('prestamo.index')}}" class="btn btn-sidebar {{ Route::is('prestamo.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-arrow-left-right"></i>
+                            <span>Préstamos</span>
+                        </a>
+                        <a href="{{route('recibo.index')}}" class="btn btn-sidebar {{ Route::is('recibo.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span>Recibos</span>
+                        </a>
                     </div>
 
                     <!-- Cuenta menu -->
@@ -77,15 +91,6 @@
         </div>
     </div>
     <script>
-        let botonesSidebar = document.querySelectorAll(".sidebar-body-prop .btn-sidebar");
-        botonesSidebar.forEach(boton=>{
-            boton.addEventListener("click",()=>{
-                botonesSidebar.forEach(b=>{
-                    b.classList.remove("activo")
-                })
-                boton.classList.add("activo")
-            })
-        })
     </script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.6/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
