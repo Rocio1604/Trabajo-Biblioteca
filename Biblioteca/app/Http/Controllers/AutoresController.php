@@ -3,43 +3,94 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\autores;
+use App\Models\Autor;
 
 class AutoresController extends Controller
 {
-   public function index() {
-    $autores = autores::withCount('libroAutor')->get();
-    return view('listaautor', compact('autores'));
+    public function index() {
+        $autores = Autor::all();
+        return view('autores', compact('autores'));
     }
 
     
     public function create() {
-        $autores = autores::all();
-
-        return view('crearautor', compact('autores'));
+       
     }
 
-    public function store(Request $request) {
+    public function store(Request $request){
+        $mensajes = [
+            'nombre.required' => 'El nombre es obligatorio',
+            'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
+
+            'fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria',
+            'fecha_nacimiento.date' => 'Debe ingresar una fecha válida',
+            'fecha_nacimiento.before' => 'La fecha debe ser anterior a hoy',
+        ];
 
         $request->validate([
-            'id_autor' => 'required',
+            'nombre' => 'required|string|min:3|max:100',
+            'fecha_nacimiento' => 'required|date|before:today',
+        ], $mensajes);
+
+        try {
+
+            Autor::create([
+                'nombre' => $request->nombre,
+                'fecha_nacimiento' => $request->fecha_nacimiento,
+                'es_activo' => 1,
+            ]);
+
+            return redirect()
+                ->route('autores.index')
+                ->with('success', 'Autor guardado correctamente');
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->route('autor.index')
+                ->with('error', 'Error de base de datos: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request,$id){
+            $request->validate([
+            'nombre' => 'required|min:3|max:100',
+            'fecha_nacimiento' => 'required|date|before:today',
+             ]);
+
+        $autor = Autor::findOrFail($id);
+
+        $autor->update([
+            'nombre' => $request->nombre,
+            'fecha_nacimiento' => $request->fecha_nacimiento,
         ]);
 
-      
-        autores::create($request->all()); 
-
-        return redirect()->route('autores.index')->with('funciona', 'Autor guardado correctamente');
+        return redirect()
+                ->route('autor.index')
+                ->with('success','Autor actualizado correctamente');
     }
     
     public function destroy($id) {
-    $autor = autores::find($id);
-    
+         $autor = Autor::find($id);
 
-    if ($autor->libros()->count() > 0) {
-        return redirect()->route('autores.index')->with('error', 'No se puede eliminar tiene libros.');
+        if ($autor) {
+            $autor->es_activo = 0;
+            $autor->save();
+        }
+
+        return redirect()->route('autor.index')
+            ->with('success', 'Autor dado de baja correctamente');
     }
+    public function reactivar($id){
+        $autor = Autor::find($id);
 
-    $autor->delete();
-    return redirect()->route('autor.index')->with('funciona', 'Autor eliminado.');
-}
+        if ($autor) {
+            $autor->es_activo = 1;
+            $autor->save();
+        }
+
+        return redirect()->route('autor.index')
+            ->with('success', 'Autor dado de alta correctamente');
+    }
+    
 }

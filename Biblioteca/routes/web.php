@@ -25,11 +25,10 @@ Route::post('/libros/editar/{id}', [LibrosController::class, 'update'])->name('l
 Route::get('/libros/eliminar/{id}', [LibrosController::class, 'destroy'])->name('libros.destroy');
 // autores
 Route::get('/autores', [AutoresController::class, 'index'])->name('autor.index');
-Route::get('/autores/crearAutor', [AutoresController::class, 'create'])->name('autor.create');
 Route::post('/autores', [AutoresController::class, 'store'])->name('autor.store');
-Route::get('/autores/editar/{id}', [AutoresController::class, 'edit'])->name('autor.edit');
 Route::post('/autores/editar/{id}', [AutoresController::class, 'update'])->name('autor.update');
-Route::get('/autores/eliminar/{id}', [AutoresController::class, 'destroy'])->name('autor.destroy');
+Route::post('/autores/eliminar/{id}', [AutoresController::class, 'destroy'])->name('autor.destroy');
+Route::post('/autores/reactivar/{id}', [AutoresController::class, 'reactivar'])->name('autor.reactivar');
 
 // bibliotecas
 Route::get('/biblioteca', [BibliotecasController::class, 'index'])->name('biblio.index');

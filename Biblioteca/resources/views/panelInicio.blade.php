@@ -7,7 +7,7 @@
     <div class="col-12 col-md-6 p-3">
         <h3>Bibliotecas más activas</h3>
         @foreach($bibliotecasPrestamos as $biblio)
-            <div class="mb-3 p-3 border rounded">
+            <div class="mb-3 p-3 border rounded mt-4">
                 <h5>{{ $biblio->nombre }}</h5>
                 <p><strong>Provincia:</strong> {{ $biblio->provincia }}</p>
                 <p><strong>Socios activos:</strong> {{ $biblio->socios_count }}</p>
@@ -19,7 +19,7 @@
     <div class="col-12 col-md-6 p-3">
         <h3>Préstamos recientes</h3>
         @foreach($prestamosRecientes as $prestamo)
-            <div class="mb-3 p-3 border rounded">
+            <div class="mb-3 p-3 border rounded mt-4">
                 <p><strong>Fecha:</strong> {{ \Carbon\Carbon::parse($prestamo->fecha_prestamo)->format('d/m/Y') }}</p>
                 <p><strong>Socio:</strong> {{ $prestamo->socio_nombre }}</p>
                 <p><strong>Libro:</strong> {{ $prestamo->libro_titulo }}</p>
