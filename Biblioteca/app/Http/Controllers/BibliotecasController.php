@@ -15,7 +15,16 @@ class BibliotecasController extends Controller
         return view('bibliotecas', compact('bibliotecas'));
     }
 
-    
+    public function buscar(Request $request)
+    {
+        $provincia = $request->provincia;
+
+        $bibliotecas = Biblioteca::where('provincia', 'LIKE', "%$provincia%")
+            ->get();
+
+        return response()->json($bibliotecas);
+    }
+        
     public function create() {
         
     }

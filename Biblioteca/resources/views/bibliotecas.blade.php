@@ -18,8 +18,21 @@
         </button>
     </div>
 </div>
+<div class="d-flex flex-wrap align-items-center">
+    <div class="col-9">
+        <div class="input-group rounded-4 input-focus">
+                <span class="input-group-text border-0 bg-white rounded-start-4 bg-transparent">
+                    <i class="bi bi-search fs-5 color-input"></i>
+                </span>
+                <input type="text" id="buscador" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre, email o DNI...">
+            </div>
+    </div>
+    <div class="col-3">
+        <button id="buscar"><i class="bi bi-search fs-5 color-input"></i>Buscar</button>
+    </div>
+</div>
 
-<div class="row g-4">
+<div class="row g-4" id="caja">
     @foreach($bibliotecas as $biblio)
         <div class="col-12 col-md-6">
             <div class="card shadow-sm rounded-4 p-4 position-relative h-100 {{ !$biblio->es_activo ? 'bg-light text-muted opacity-75' : '' }}">
@@ -175,6 +188,7 @@
 @section('scripts')
 <script>
 
+let btnBuscar= document.getElementById('buscar');
 let modal = document.querySelector("#modalBiblioteca");
 let form = document.querySelector("#bibliotecaForm");
 let modalTitle = document.getElementById('modalTitle');
@@ -261,6 +275,81 @@ function reactivarBiblioteca(id) {
     });
 }
 
+btnBuscar.addEventListener('click', () => {
 
+    let inputProvincia = document.getElementById('buscador');
+    let provincia = inputProvincia.value.trim(); 
+    
+    if (provincia !== '') {
+        fetch("{{ route('biblio.buscar') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                provincia: provincia    
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            let caja = document.getElementById('caja');
+            caja.innerHTML = '';
+
+            if (data.length === 0) {
+                caja.innerHTML = '<p class="text-muted">No se encontraron resultados</p>';
+                return;
+            }
+
+            data.forEach(biblio => {
+                caja.innerHTML += `
+                <div class="col-12 col-md-6">
+                    <div class="card shadow-sm rounded-4 p-4 position-relative h-100">
+
+                        <h5 class="fw-semibold mb-3">${biblio.nombre}</h5>
+
+                        <p class="mb-2">
+                            <i class="bi bi-geo-alt me-2"></i>
+                            ${biblio.provincia}
+                        </p>
+
+                        <p class="mb-2">
+                            <i class="bi bi-house me-2"></i>
+                            ${biblio.direccion}
+                        </p>
+
+                        <p class="mb-2">
+                            <i class="bi bi-telephone me-2"></i>
+                            ${biblio.telefono}
+                        </p>
+
+                        <p class="mb-0">
+                            <i class="bi bi-envelope me-2"></i>
+                            ${biblio.correo}
+                        </p>
+
+                    </div>
+                </div>
+                `;
+            });
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo realizar la búsqueda'
+            });
+        });
+    } else {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Atención',
+            text: 'Por favor ingresa una provincia para buscar'
+        });
+    }
+});
 </script>
 @endsection

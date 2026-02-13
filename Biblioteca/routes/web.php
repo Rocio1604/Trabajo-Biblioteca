@@ -36,6 +36,7 @@ Route::post('/biblioteca', [BibliotecasController::class, 'store'])->name('bibli
 Route::post('/biblioteca/editar/{id}', [BibliotecasController::class, 'update'])->name('biblio.update');
 Route::post('/biblioteca/eliminar/{id}', [BibliotecasController::class, 'destroy'])->name('biblio.destroy');
 Route::post('/biblioteca/reactivar/{id}', [BibliotecasController::class, 'reactivar'])->name('biblio.reactivar');
+Route::post('/biblioteca/buscar', [BibliotecasController::class, 'buscar'])->name('biblio.buscar');     
 
 // prestamos
 Route::get('/prestamos', [PrestamosController::class, 'index'])->name('prestamo.index');
