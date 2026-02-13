@@ -53,6 +53,7 @@ Route::get('/recibos', [RecibosController::class, 'index'])->name('recibo.index'
 Route::post('/recibos', [RecibosController::class, 'store'])->name('recibo.store');
 Route::post('/recibos/editar/{id}', [RecibosController::class, 'update'])->name('recibo.update');
 Route::post('/recibos/eliminar/{id}', [RecibosController::class, 'destroy'])->name('recibo.destroy');
+Route::post('/recibos/buscar', [RecibosController::class, 'buscar'])->name('recibo.buscar');
 
 // socios
 Route::get('/socios', [SociosController::class, 'index'])->name('socio.index');

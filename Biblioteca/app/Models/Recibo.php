@@ -23,6 +23,7 @@ class Recibo extends Model
         'importe' => 'decimal:2',
         'es_activo' => 'boolean'
     ];
+     protected $appends = ['numero_recibo'];
 
     public function socio()
     {

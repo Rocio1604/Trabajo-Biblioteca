@@ -14,7 +14,26 @@
                         <i class="fas fa-plus"></i> Nuevo Recibo
                     </button>
                 </div>
-
+                <div class="card-body border-bottom">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" 
+                                    id="buscador" 
+                                    class="form-control" 
+                                    placeholder="Buscar por nombre de socio o número de recibo...">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <button id="btnBuscar" class="btn btn-primary w-100">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
                         {{ session('success') }}
@@ -44,7 +63,7 @@
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="tablaRecibos">
                                 @forelse($recibos as $recibo)
                                     
                                     <tr>
@@ -253,5 +272,123 @@
 </div>
 @endsection
 @section('scripts')
+<script>
+    let btnBuscar = document.getElementById('btnBuscar');
 
+    btnBuscar.addEventListener('click', () => {
+        let inputBusqueda = document.getElementById('buscador');
+        let busqueda = inputBusqueda.value.trim();
+        
+        if (busqueda !== '') {
+            fetch("{{ route('recibo.buscar') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    busqueda: busqueda
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let tablaRecibos = document.getElementById('tablaRecibos');
+                tablaRecibos.innerHTML = '';
+
+                if (data.length === 0) {
+                    tablaRecibos.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No se encontraron resultados</td></tr>';
+                    return;
+                }
+
+                data.forEach(recibo => {
+                    
+   
+                    let tipoBadge = '';
+                    if (recibo.tipo.nombre === 'Suscripcion' || recibo.tipo.nombre === 'Suscripción') {
+                        tipoBadge = '<span class="badge bg-primary">Suscripción</span>';
+                    } else {
+                        tipoBadge = '<span class="badge bg-danger">Multa</span>';
+                    }
+
+                    let estadoBadge = '';
+                    if (recibo.estado.nombre === 'Pagado') {
+                        estadoBadge = '<span class="badge bg-success">Pagado</span>';
+                    } else {
+                        estadoBadge = '<span class="badge bg-warning text-dark">Pendiente</span>';
+                    }
+
+                    let fecha = new Date(recibo.fecha).toLocaleDateString('es-ES');
+
+                    let concepto = recibo.concepto.length > 40 
+                        ? recibo.concepto.substring(0, 40) + '...' 
+                        : recibo.concepto;
+
+                    let importe = parseFloat(recibo.importe).toFixed(2);
+
+                    let nombreSocio = recibo.socio ? recibo.socio.nombre : 'N/A';
+
+                    let botonesAccion = '';
+                    if (recibo.es_activo) {
+                        botonesAccion = `
+                            <div class="btn-group" role="group">
+                                <button type="button" 
+                                        class="btn btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modalEditarRecibo${recibo.id}"
+                                        title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button type="button" 
+                                        class="btn btn-sm btn-danger" 
+                                        onclick="confirmarEliminar(${recibo.id})"
+                                        title="Dar de baja">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    tablaRecibos.innerHTML += `
+                    <tr>
+                        <td>
+                            <small class="text-muted">${recibo.numero_recibo}</small>
+                        </td>
+                        <td>${tipoBadge}</td>
+                        <td>${nombreSocio}</td>
+                        <td>${concepto}</td>
+                        <td>${fecha}</td>
+                        <td><strong>€${importe}</strong></td>
+                        <td>${estadoBadge}</td>
+                        <td>${botonesAccion}</td>
+                    </tr>
+                    `;
+                });
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('No se pudo realizar la búsqueda');
+            });
+        } else {
+            alert('Por favor ingresa un término de búsqueda');
+        }
+    });
+
+    function confirmarEliminar(id) {
+        if (confirm('¿Estás seguro de dar de baja este recibo?')) {
+            let form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/recibos/eliminar/' + id;
+            form.innerHTML = `@csrf`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    document.getElementById('buscador').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            btnBuscar.click();
+        }
+    });
+</script>
 @endsection

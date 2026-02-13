@@ -23,6 +23,34 @@ class RecibosController extends Controller
         return view('recibo', compact('recibos', 'socios', 'tipos', 'estados'));
     }
 
+    public function buscar(Request $request)
+    {
+        $busqueda = $request->busqueda;
+
+        
+        $idExtraido = null;
+        if (preg_match('/REC-\d{4}-(\d+)/', $busqueda, $matches)) {
+            $idExtraido = (int)$matches[1]; 
+        }
+
+        $recibos = Recibo::with(['socio', 'tipo', 'estado'])
+            ->where(function($query) use ($busqueda, $idExtraido) {
+                $query->whereHas('socio', function($q) use ($busqueda) {
+                    $q->where('nombre', 'LIKE', "%$busqueda%");
+                })
+                ->orWhere('concepto', 'LIKE', "%$busqueda%");
+                
+                if ($idExtraido) {
+                    $query->orWhere('id', $idExtraido);
+                } else {
+                    $query->orWhere('id', 'LIKE', "%$busqueda%");
+                }
+            })
+            ->get();
+
+        return response()->json($recibos);
+    }
+
     public function store(Request $request)
     {
         $mensajes = [
