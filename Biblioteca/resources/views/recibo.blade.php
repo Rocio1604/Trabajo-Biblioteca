@@ -94,7 +94,7 @@
                                         </td>
                                         <td>
                                             @if($recibo->tipo->nombre == 'Suscripcion' || $recibo->tipo->nombre == 'Suscripción')
-                                                <span class="badge bg-primary">Suscripción</span>
+                                                <span class="badge bg-info">Suscripción</span>
                                             @else
                                                 <span class="badge bg-danger">Multa</span>
                                             @endif

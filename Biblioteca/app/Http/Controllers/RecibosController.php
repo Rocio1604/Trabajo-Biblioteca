@@ -63,7 +63,7 @@ class RecibosController extends Controller
 
         return response()->json($recibos);
     }
-    
+
     public function store(Request $request)
     {
         $mensajes = [
