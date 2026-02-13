@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class SociosController extends Controller
 {
     public function index(){
-        $socios = Socio::with(['estado', 'biblioteca'])->latest()->get();
+        $socios = Socio::with(['estado', 'biblioteca'])->orderBy('es_activo', 'desc')->latest()->get();
         $estados = EstadoCuota::all();
         $bibliotecas = Biblioteca::all();
         return view('socio.index', compact('socios', 'estados', 'bibliotecas'));

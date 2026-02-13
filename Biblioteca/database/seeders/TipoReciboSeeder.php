@@ -12,8 +12,6 @@ class TipoReciboSeeder extends Seeder
             DB::table('tipos_recibos')->insert([
                 ['nombre' => 'Cuota anual'],
                 ['nombre' => 'Multa por retraso'],
-                ['nombre' => 'Libro perdido'],
-                ['nombre' => 'Reserva'],
             ]);
     }
 }

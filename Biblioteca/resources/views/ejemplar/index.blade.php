@@ -18,21 +18,21 @@
                 <span class="input-group-text border-0 bg-white rounded-start-4 bg-transparent">
                     <i class="bi bi-search fs-5 color-input"></i>
                 </span>
-                <input type="text" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por titulo, autor o ISBN...">
+                <input type="text" id="inputBuscar" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por titulo, autor o ISBN...">
             </div>
         </div>
         <div class="col-12 col-md-6 col-xl-2">
-            <select name="categoria" id="categoria" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
-                <option value="todas">Todos las categorias</option>
-                @foreach($categorias as $categoria)
-                    <option value="{{ $categoria->id }}">
-                        {{ $categoria->nombre }}
+            <select name="biblioteca_id" id="biblioteca_id" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
+                <option value="todas">Todos las bibliotecas</option>
+                @foreach($bibliotecas as $biblioteca)
+                    <option value="{{ $biblioteca->id }}">
+                        {{ $biblioteca->nombre }}
                     </option>
                 @endforeach
             </select>
         </div>
         <div class="col-12 col-md-6 col-xl-2">
-            <select name="estado" id="estado" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
+            <select name="estado_id" id="estado_id" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
                 <option value="todas">Cualquier Estado</option>
                 @foreach($estados as $estado)
                     <option value="{{ $estado->id }}">
@@ -43,7 +43,7 @@
         </div>
         <div class="col-12 col-md-6 col-xl-2">
             <select name="categoria_id" id="categoria_id"  class="w-100 input-focus bg-transparent " placeholder="Seleccione una categoría" >
-                <option value="" selected disabled>Seleccione una categoría</option> 
+                <option value="todas">Todos las categorias</option>
                 @foreach($categorias as $categoria)
                     <option value="{{ $categoria->id }}">
                         {{ $categoria->nombre }}
@@ -54,8 +54,8 @@
         <div class="col-12 col-md-6  col-xl-2">
             <select name="activo" id="activo" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
                 <option value="todas">Todos los libros</option>
-                <option value="activos">Solo activos</option>
-                <option value="inactivos">Solo inactivos</option>
+                <option value="1">Solo activos</option>
+                <option value="0">Solo inactivos</option>
             </select>
         </div>  
     </div>
@@ -76,94 +76,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($ejemplares as $ejemplar)
-            <tr>
-                <td class="px-4 py-3">
-                    <div>
-                        <p class="m-0 fw-semibold">{{ $ejemplar->libro->titulo }}</p>
-                        <p class="m-0 fs-7">{{ $ejemplar->libro->isbn }}</p>
-                    </div>
-                </td>
-                <td class="px-4 py-3 fs-7">
-                    {{ $ejemplar->libro->autores->pluck('nombre')->implode(', ') }}
-                </td>
-                <td class="px-4 py-3 fs-7">{{ $ejemplar->libro->categoria->nombre }}</td>
-                <td class="px-4 py-3 fs-7">{{ $ejemplar->biblioteca->nombre }}</td>
-                <td class="px-4 py-3 fs-7">
-                    @switch($ejemplar->estado->id)
-                        @case(1)
-                            <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <span class="fs-8">{{ $ejemplar->estado->nombre }}</span>
-                            </div>
-                            @break
-                        @case(2)
-                        <!-- color azul en letra y de fondo azul claro -->
-                             <div class="d-flex flex-wrap align-items-center etiqueta-azul rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <span class="fs-8">{{ $ejemplar->estado->nombre }}</span>
-                            </div>
-                            @break
-                        @case(3)
-                        <!-- color naranja en letra y de fondo naranja claro -->
-                             <div class="d-flex flex-wrap align-items-center etiqueta-naranja rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <span class="fs-8">{{ $ejemplar->estado->nombre }}</span>
-                            </div>
-                            @break
-                        @case(4)
-                        <!-- color naranja en letra y de fondo naranja claro -->
-                             <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <span class="fs-8">{{ $ejemplar->estado->nombre }}</span>
-                            </div>
-                            @break
-
-                    @endswitch
-                </td>
-                <td class="px-4 py-3">
-                    <!-- color verde con icono de caja -->
-                    @if($ejemplar->disponibilidad->id === 1)
-                        <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-check2-circle fs-8"></i>
-                            <span class="fs-8">Disponible</span>
-                        </div>
-                    @endif
-                    <!-- color gris -->
-                    @if($ejemplar->disponibilidad->id === 2)   
-                        <div class="d-flex flex-wrap align-items-center etiqueta-gris rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-x-circle fs-8"></i>
-                            <span class="fs-8">No disponible</span>
-                        </div>
-                    @endif
-                </td>
-                <td class="px-4 py-3">
-                    <!-- color verde con icono de caja -->
-                    @if($ejemplar->es_activo)
-                        Sí
-                    @else
-                        No
-                    @endif
-                </td>
-                <td class="px-4 py-3">
-                    <div class="d-flex wrap-flex gap-4">
-                        @if($ejemplar->es_activo)
-                            <button class="bg-transparent border-0" data-bs-toggle="modal" 
-                                    data-bs-target="#registroModal"
-                                    data-id="{{ $ejemplar->id }}"
-                                    data-libro="{{ $ejemplar->libro->id }}"
-                                    data-biblioteca="{{ $ejemplar->biblioteca->id }}"
-                                    data-estado="{{ $ejemplar->estado->id }}">
-                                <i class="bi bi-pencil-square icono-editar"></i>
-                            </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $ejemplar->id }}')">
-                                <i class="bi bi-trash icono-eliminar"></i>
-                            </button>
-                        @else
-                            <button class="bg-transparent border-0 " onclick="reactivarEjemplar('{{ $ejemplar->id }}')">
-                                <i class="bi bi-arrow-counterclockwise text-success"></i>
-                            </button>
-                        @endif
-                    </div>
-                </td>
-            </tr>
-            @endforeach
+             @include('ejemplar.partials.tabla')
         </tbody>
     </table>
 </div>
@@ -244,6 +157,7 @@
 @endsection
 @section('scripts')
     <script>
+        let categoriaSelect, libroSelect;
         let modalRegistrar = document.querySelector("#registroModal");
         let registerForm = document.querySelector("#registerForm");
         let modalTitle = document.getElementById('modalTitle');
@@ -301,44 +215,9 @@
                 }
             });
         }
+        
 
-        let categoriaSelect = new TomSelect("#categoria_id", {
-            create: false,
-            maxItems: 1, 
-            persist: false,
-            plugins: ['clear_button'], 
-            render: {
-                no_results: function(data, escape) {
-                    return '<div class="no-results p-2 text-muted">No se encontró la categoría "' + escape(data.input) + '"</div>';
-                }
-            }
-        });
-
-        let libroSelect = new TomSelect("#libro_id", {
-            create: false,
-            maxItems: 1, 
-            valueField: 'value',
-            labelField: 'text',
-            searchField: ['text', 'isbn'], 
-            dataAttr: 'data', 
-            persist: false,
-            plugins: ['clear_button'], 
-            render: {
-                option: function(data, escape) {
-                    return `<div>
-                                <span class="fw-bold">${escape(data.text)}</span>
-                                <br>
-                                <small class="text-muted">ISBN: ${escape(data.isbn)}</small>
-                            </div>`;
-                },
-                item: function(data, escape) {
-                    return `<div>${escape(data.text)} <small class="text-muted">(${escape(data.isbn)})</small></div>`;
-                },
-                no_results: function(data, escape) {
-                    return '<div class="no-results">No se encontró el libro "' + escape(data.input) + '"</div>';
-                }
-            }
-        });
+        
 
         function reactivarEjemplar(id) {
             Swal.fire({
@@ -361,6 +240,88 @@
                 }
             });
         }
+    document.addEventListener('DOMContentLoaded', function() {
+    categoriaSelect = new TomSelect("#categoria_id", {
+        create: false,
+        maxItems: 1, 
+        persist: false,
+        plugins: ['clear_button'], 
+        render: {
+            no_results: function(data, escape) {
+                return '<div class="no-results p-2 text-muted">No se encontró la categoría "' + escape(data.input) + '"</div>';
+            }
+        }
+    });
+
+    libroSelect = new TomSelect("#libro_id", {
+        create: false,
+        maxItems: 1, 
+        valueField: 'value',
+        labelField: 'text',
+        searchField: ['text', 'isbn'], 
+        dataAttr: 'data', 
+        persist: false,
+        plugins: ['clear_button'], 
+        render: {
+            option: function(data, escape) {
+                return `<div>
+                            <span class="fw-bold">${escape(data.text)}</span>
+                            <br>
+                            <small class="text-muted">ISBN: ${escape(data.isbn)}</small>
+                        </div>`;
+            },
+            item: function(data, escape) {
+                return `<div>${escape(data.text)} <small class="text-muted">(${escape(data.isbn)})</small></div>`;
+            },
+            no_results: function(data, escape) {
+                return '<div class="no-results">No se encontró el libro "' + escape(data.input) + '"</div>';
+            }
+        }
+    });
+
+    const buscador = document.getElementById('inputBuscar'); 
+    const selectEstado = document.getElementById('estado_id');
+    const selectActivo = document.getElementById('activo');
+    const selectBiblioteca = document.getElementById('biblioteca_id');
+    
+    const contenedorTabla = document.querySelector('tbody');
+
+    function aplicarFiltros() {
+        const buscar = buscador ? buscador.value : '';
+        const cat = (categoriaSelect && categoriaSelect.getValue()) ? categoriaSelect.getValue() : 'todas';
+        const est = selectEstado ? selectEstado.value : 'todas';
+        const act = selectActivo ? selectActivo.value : 'todas';
+        let bib = selectBiblioteca ? selectBiblioteca.value : 'todas';
+
+        const url = `{{ route('ejemplares.index') }}?buscar=${buscar}&categoria_id=${cat}&estado_id=${est}&activo=${act}&biblioteca_id=${bib}`;
+
+        // Petición AJAX (Fetch)
+        fetch(url, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => 
+            response.text())
+        .then(html => {
+            contenedorTabla.innerHTML = html;
+        })
+        .catch(error => console.error('Error filtrando ejemplares:', error));
+    }
+    let timeout = null;
+        buscador.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(aplicarFiltros, 200);
+    });
+        [selectEstado, selectActivo, selectBiblioteca].forEach(select => {
+            if (select) {
+                select.addEventListener('change', aplicarFiltros);
+            }
+        });
+        categoriaSelect.on('change', function(value) {
+            aplicarFiltros();
+        });
+    });
 
     </script>
     <!-- Alerta de exito -->

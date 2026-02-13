@@ -38,58 +38,42 @@
                     <span class="input-group-text border-0 bg-white rounded-start-4">
                         <i class="bi bi-search fs-5 color-input"></i>
                     </span>
-                    <input type="text" class="form-control border-0 rounded-end-4 px-12" placeholder="Buscar por título, autor o ISBN...">
+                    <input type="text" id="inputBuscar" class="form-control border-0 rounded-end-4 px-12" placeholder="Buscar por título, autor o ISBN...">
                 </div>
             </div>
             <div class="col-12 col-md-4 col-xl-2">
-                <select name="provincias" id="provincias" class="form-select px-12 px-3 rounded-4 col-2 input-focus">
-                    <option value="todas">Todas las provincias</option>
-                    <option value="madrid">Madrid</option>
-                    <option value="barcelona">Barcelona</option>
+                <select name="biblioteca_id" id="biblioteca_id" class="form-select px-12 px-3 rounded-4 col-2 input-focus">
+                    <option value="todas">Todas las bibliotecas</option>
+                    @foreach($bibliotecas as $biblio)
+                    <option value="{{ $biblio->id }}" {{ request('biblioteca_id') == $biblio->id ? 'selected' : '' }}>
+                        {{ $biblio->nombre }}
+                    </option>
+                @endforeach
                 </select>
             </div>
             <div class="col-12 col-md-4 col-xl-2">
-                <select name="categorias" id="categorias" class="form-select px-12 px-3 rounded-4 col-2 input-focus">
+                <select name="categoria_id" id="categoria_id" class="form-select px-12 px-3 rounded-4 col-2 input-focus">
                     <option value="todas">Todas las categorias</option>
-                    <option value="madrid">Madrid</option>
-                    <option value="barcelona">Barcelona</option>
+                    @foreach($categorias as $cat)
+                        <option value="{{ $cat->id }}" {{ request('categoria_id') == $cat->id ? 'selected' : '' }}>
+                            {{ $cat->nombre }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-12 col-md-4 col-xl-2">
-                <select name="disponibilidad" id="disponibilidad" class="form-select px-12 ps-4 pe-5 rounded-4 col-1 input-focus">
-                    <option value="todos">Todos</option>
-                    <option value="disponible">Solo disponibles</option>
-                    <option value="no-disponible">No disponibles</option>
+                <select name="disponibilidad_id" id="disponibilidad_id" class="form-select px-12 ps-4 pe-5 rounded-4 col-1 input-focus">
+                    <option value="todas">Todos</option>
+                    <option value="1">Solo disponibles</option>
+                    <option value="0">No disponibles</option>
                 </select>
             </div>
         </div>
-        <p class="mb-3">Mostrando <span class="fw-bold">7</span> resultados</p>
+        <p class="mb-3">Mostrando <span class="fw-bold">{{ $totalejemplares }}</span> resultados</p>
 
         <!-- Lista de libros -->
-        <div class="row g-3 px-2">
-           
-
-            <!-- <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="tarjeta bg-white p-3 border rounded-3">
-                    <p class="fw-semibold mb-1">Cien años de soledad</p>
-                    <p class="fs-7 mb-2 ">Gabriel García Márquez</p>
-                    <div class="mb-2">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <i class="bi bi-geo-alt fs-8"></i>
-                            <span class="fs-8">Biblioteca Central de Madrid</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 align-items-center ">
-                            <span class="etiqueta rounded-1">Novela</span>
-                            <p class="fs-8 text-body-tertiary m-0">ISBN: <span>978-84-376-0494-7</span></p>
-                        </div>
-                    </div>
-                    <p class="no-disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">No disponible</p>
-                </div>
-            </div> -->
-            
-            
-            
-            
+        <div class="row g-3 px-2" id="contenedor-tarjetas">
+            @include('partials.tabla')
         </div>
 
         <!-- Modal -->
@@ -166,7 +150,55 @@
             }
             document.getElementById('correo').value = "";
         })
+    document.addEventListener('DOMContentLoaded', function() {
+        let buscador = document.getElementById('inputBuscar'); 
+        let selectEstado = document.getElementById('estado_id');
+        let selectActivo = document.getElementById('activo');
+        let selectBiblioteca = document.getElementById('biblioteca_id');
+        let selectCategoria = document.getElementById('categoria_id');
+        let selectDisponibilidad = document.getElementById('disponibilidad_id');
         
+        let contenedorEjemplares = document.getElementById('contenedor-tarjetas');
+
+        function aplicarFiltros() {
+            let buscar = buscador ? buscador.value : '';
+            let cat = selectCategoria ? selectCategoria.value : 'todas';
+            let est = selectEstado ? selectEstado.value : 'todas';
+            let act = selectActivo ? selectActivo.value : 'todas';
+            let bib = selectBiblioteca ? selectBiblioteca.value : 'todas';
+            let disp = selectDisponibilidad ? selectDisponibilidad.value : 'todas';
+
+            let url = `{{ route('home') }}?buscar=${encodeURIComponent(buscar)}&categoria_id=${cat}&estado_id=${est}&activo=${act}&biblioteca_id=${bib}&disponibilidad=${disp}`;
+
+            console.log("Filtrando en:", url); 
+
+            fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+        }).then(response => response.text())
+            .then(html => {
+                if (contenedorEjemplares) {
+                    contenedorEjemplares.innerHTML = html;
+                }
+            })
+            .catch(error => console.error('Error filtrando ejemplares:', error));
+        }
+
+        let timeout = null;
+        if (buscador) {
+            buscador.addEventListener('input', function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(aplicarFiltros, 300);
+            });
+        }
+        let selects = [selectEstado, selectActivo, selectBiblioteca, selectCategoria,selectDisponibilidad];
+        selects.forEach(select => {
+            if (select) {
+                select.addEventListener('change', aplicarFiltros);
+            }
+        });
+    });
     </script>
 
     @if($errors->any() || session('loginModal'))

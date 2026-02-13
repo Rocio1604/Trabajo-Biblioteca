@@ -12,14 +12,29 @@ use Illuminate\Http\Request;
 
 class EjemplareController extends Controller
 {
-    public function index(){
-        $ejemplares = Ejemplare::with(['libro', 'biblioteca', 'estado', 'disponibilidad'])->latest()->get();
+    public function index(Request $request){
+        $ejemplares = $this->aplicarFiltros($request)->get();
+        /* $ejemplares = Ejemplare::with(['libro', 'biblioteca', 'estado', 'disponibilidad'])->where('es_activo', 1)->latest()->get(); */
+        if ($request->ajax()) {
+            return view('ejemplar.partials.tabla', compact('ejemplares'))->render();
+        }
         $libros = Libro::where('es_activo', 1)->get();
         $bibliotecas = Biblioteca::where('es_activo', 1)->get();
         $estados = EstadoLibro::all();
         $disponibilidades = DisponibilidadLibro::all();
         $categorias = Categoria::all();
         return view('ejemplar.index', compact('ejemplares', 'libros', 'bibliotecas', 'estados', 'disponibilidades', 'categorias'));
+    }
+    public function home(Request $request) {
+        $ejemplares = $this->aplicarFiltros($request)->where('es_activo', 1)->latest()->get();
+        /* $ejemplares = Ejemplare::with(['libro', 'biblioteca', 'estado', 'disponibilidad'])->where('es_activo', 1)->latest()->get(); */
+        if ($request->ajax()) {
+            return view('partials.tabla', compact('ejemplares'))->render();
+        }
+        $bibliotecas = Biblioteca::where('es_activo', 1)->get();
+        $categorias = Categoria::all();
+        $totalejemplares = Ejemplare::where('es_activo', 1)->count();
+        return view('index', compact('ejemplares', 'totalejemplares', 'bibliotecas', 'categorias'));
     }
     public function store(Request $request)
     {
@@ -96,5 +111,42 @@ class EjemplareController extends Controller
         }catch (\Exception $e) {
             return redirect()->back()->with('error', 'No se pudo reactivar el ejemplar: ' . $e->getMessage());
         }
+    }
+    private function aplicarFiltros(Request $request)
+    {
+        $query = Ejemplare::with(['libro.autores', 'biblioteca', 'estado', 'disponibilidad']);
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->whereHas('libro', function($q) use ($buscar) {
+                $q->where('titulo', 'LIKE', "%$buscar%")
+                ->orWhere('isbn', 'LIKE', "%$buscar%")
+                ->orWhereHas('autores', function($q2) use ($buscar) {
+                    $q2->where('nombre', 'LIKE', "%$buscar%");
+                });
+            });
+        }
+        if ($request->filled('biblioteca_id') && $request->biblioteca_id != 'todas') {
+            $query->where('biblioteca_id', $request->biblioteca_id);
+        }
+        if ($request->filled('categoria_id') && $request->categoria_id != 'todas') {
+            $query->whereHas('libro', function($q) use ($request) {
+                $q->where('categoria_id', $request->categoria_id);
+            });
+        }
+        if ($request->filled('estado_id') && $request->estado_id != 'todas') { // Asegúrate que diga != 'todas'
+            $query->where('estado_id', $request->estado_id);
+        }
+        if ($request->filled('activo') && $request->activo != 'todas') {
+            $query->where('es_activo', $request->activo);
+        }
+        if ($request->filled('disponibilidad')) {
+            if ($request->disponibilidad === '1') $query->where('disponibilidad_id', 1);
+            if ($request->disponibilidad === '0') $query->where('disponibilidad_id', '!=', 1);
+        }
+        /* if ($request->filled('disponibilidad') && $request->disponibilidad != 'todos') {
+            $query->where('disponibilidad_id', $request->disponibilidad);
+        } */
+        
+        return $query->orderBy('es_activo', 'desc')->latest();
     }
 }

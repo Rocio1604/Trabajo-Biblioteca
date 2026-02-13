@@ -274,7 +274,7 @@
                                value="{{ date('Y-m-d') }}" required>
                     </div>
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label class="form-label">Estado *</label>
                         <select name="estado_id" class="form-select" required>
                             <option value="">Selecciona un estado</option>
@@ -282,7 +282,7 @@
                                 <option value="{{ $estado->id }}">{{ $estado->nombre }}</option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

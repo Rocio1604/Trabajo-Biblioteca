@@ -39,7 +39,7 @@
 
                 <!-- BOTONES -->
                 <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
-
+                    @if($autor->es_activo)
                     <!-- EDITAR -->
                     <button class="bg-transparent border-0"
                         data-bs-toggle="modal"
@@ -49,7 +49,7 @@
                         data-feche="{{ $autor->fecha_nacimiento }}">
                         <i class="bi bi-pencil-square icono-editar"></i>
                     </button>
-
+                    @endif
                     <!-- ELIMINAR -->
                     @if($autor->es_activo)
 

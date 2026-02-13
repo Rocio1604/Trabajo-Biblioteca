@@ -18,7 +18,7 @@
                 <span class="input-group-text border-0 bg-white rounded-start-4 bg-transparent">
                     <i class="bi bi-search fs-5 color-input"></i>
                 </span>
-                <input type="text" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre, email o usuario...">
+                <input type="text" id="inputBuscar" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre, email o teléfono...">
             </div>
         </div>
         <div class="col-12 col-md-6 col-xl-3">
@@ -42,7 +42,7 @@
 </div>
 
 <div class="border rounded-4 overflow-hidden shadow-sm">
-    <table class="table mb-0 align-middle">
+    <table class="table mb-0 align-middle" id="tabla-usuarios">
         <thead class="table-light">
             <tr>
                 <th class="px-4 py-12">TRABAJADOR</th>
@@ -55,62 +55,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($usuarios as $usuario)
-            <tr>
-                <td class="px-4 py-3">
-                    <div>
-                        <p class="m-0 fw-semibold">{{ $usuario->nombre }}</p>
-                        <p class="m-0 fs-7">{{ $usuario->correo }}</p>
-                    </div>
-                </td>
-                <td class="px-4 py-3 fs-7">{{ $usuario->telefono }}</td>
-                <td class="px-4 py-3 fs-7">{{ $usuario->rol->nombre }}</td>
-                <td class="px-4 py-3 fs-7">{{ $usuario->biblioteca->nombre }}</td>
-                <td class="px-4 py-3 fs-7">{{ $usuario->created_at->format('d/m/Y') }}</td>
-                <td class="px-4 py-3">
-                    <!-- color verde con icono de caja -->
-                    @if($usuario->es_activo === 1)
-                        <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-check2-circle fs-8"></i>
-                            <span class="fs-8">Activo</span>
-                        </div>
-                    @endif
-                    <!-- color gris -->
-                    @if($usuario->es_activo === 0)   
-                        <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-x-circle fs-8"></i>
-                            <span class="fs-8">Inactivo</span>
-                        </div>
-                    @endif
-                </td>
-                <td class="px-4 py-3">
-                    <div class="d-flex wrap-flex gap-4">
-                        @if($usuario->es_activo)
-                            <button class="bg-transparent border-0" data-bs-toggle="modal" 
-                                    data-bs-target="#registroModal"
-                                    data-id="{{ $usuario->id }}"
-                                    data-nombre="{{ $usuario->nombre }}"
-                                    data-correo="{{ $usuario->correo }}" 
-                                    data-telefono="{{ $usuario->telefono }}"
-                                    data-rol="{{ $usuario->rol_id }}"
-                                    data-biblioteca="{{ $usuario->biblioteca_id }}">
-                                <i class="bi bi-pencil-square icono-editar"></i>
-                            </button>
-                            <button class="bg-transparent border-0 " onclick="abrirModalPassword('{{ $usuario->id }}', '{{ $usuario->nombre }}', '{{ $usuario->biblioteca->nombre }}')">
-                                <i class="bi bi-key text-warning"></i>
-                            </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $usuario->id }}')">
-                                <i class="bi bi-trash icono-eliminar"></i>
-                            </button>
-                        @else
-                            <button class="bg-transparent border-0 " onclick="reactivarTrabajador('{{ $usuario->id }}')">
-                                <i class="bi bi-arrow-counterclockwise text-success"></i>
-                            </button>
-                        @endif
-                    </div>
-                </td>
-            </tr>
-            @endforeach
+            @include('trabajadores.partials.tabla')
         </tbody>
     </table>
 </div>
@@ -344,6 +289,40 @@
                 }
             });
         }
+
+    document.addEventListener('DOMContentLoaded', function() {
+    let buscador = document.getElementById('inputBuscar'); 
+    let selectRol = document.getElementById('roles');
+    let selectEstado = document.getElementById('estado');
+    let contenedorTabla = document.getElementById('tabla-usuarios');
+
+    function aplicarFiltros() {
+        let valBusqueda = buscador.value;
+        let valRol = selectRol.value;
+        let valEstado = selectEstado.value;
+        let url = `{{ route('usuario.index') }}?buscar=${valBusqueda}&rol=${valRol}&estado=${valEstado}`;
+
+        fetch(url, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            contenedorTabla.innerHTML = html;
+        })
+        .catch(error => console.error('Error filtrando:', error));
+    }
+        let timeout = null;
+        buscador.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(aplicarFiltros, 200);
+        });
+
+        // Escuchamos cuando el usuario cambia un select
+        selectRol.addEventListener('change', aplicarFiltros);
+        selectEstado.addEventListener('change', aplicarFiltros);
+    });
 
     </script>
     <!-- Alerta de exito -->

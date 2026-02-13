@@ -44,6 +44,7 @@
                         <a href="{{route('biblio.index')}}" class="btn btn-sidebar {{ Route::is('biblio.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
                             <i class="bi bi-building"></i>
                             <span>Bibliotecas</span>
+                        </a>
                         @can('admin')
                         <a href="{{route('usuario.index')}}" class="btn btn-sidebar {{ Route::is('usuario.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
                             <i class="bi bi-person-gear"></i>
@@ -79,11 +80,11 @@
                     <!-- Cuenta menu -->
                     <div class="p-3 sidebar-borde sidebar-footer-prop">
                         <div class="mb-2">
-                            <h1 class="mb-0 fs-7">{{ auth()->user()->nombre }}</h1>
-                            <p class="fs-8 mb-0 text-white-50">{{ auth()->user()->rol->nombre}}</p>
+                            <h1 class="mb-0 fs-7">{{ auth()->user()->nombre ?? 'Sin nombre' }}</h1>
+                            <p class="fs-8 mb-0 text-white-50">{{ auth()->user()->rol?->nombre ?? 'Sin Rol'}}</p>
                             <div class="small text-warning mt-2">
                                 <i class="bi bi-geo-alt"></i> 
-                                {{ auth()->user()->biblioteca->nombre }}
+                                {{ auth()->user()->biblioteca?->nombre ?? 'Sin biblioteca' }}
                             </div>
                         </div>
                         <form action="{{ route('logout') }}" method="POST">

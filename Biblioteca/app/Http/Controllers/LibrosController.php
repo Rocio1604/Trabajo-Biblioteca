@@ -11,7 +11,7 @@ use App\Models\Categoria;
 class LibrosController extends Controller
 {
    public function index(){
-        $libros = Libro::with([ 'autores','categoria'])->latest()->get();
+        $libros = Libro::with([ 'autores','categoria'])->orderBy('es_activo', 'desc')->latest()->get();
         $categorias = Categoria::all();
         $autores = Autor::all();
         return view('libro.index', compact('libros', 'categorias', 'autores'));

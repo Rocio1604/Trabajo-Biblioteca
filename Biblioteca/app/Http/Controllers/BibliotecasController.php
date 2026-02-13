@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class BibliotecasController extends Controller
 {
     public function index() {
-        $bibliotecas = Biblioteca::query()->latest()->orderBy('es_activo', 'desc')->get();
+        $bibliotecas = Biblioteca::query()->orderBy('es_activo', 'desc')->latest()->get();
 
         return view('bibliotecas', compact('bibliotecas'));
     }

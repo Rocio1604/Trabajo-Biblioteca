@@ -12,7 +12,7 @@ class RecibosController extends Controller
 {
     public function index()
     {
-        $recibos = Recibo::with(['socio', 'tipo', 'estado'])
+        $recibos = Recibo::with(['socio', 'tipo', 'estado'])->orderBy('id', 'desc')
             ->latest()
             ->get();
         
@@ -77,7 +77,6 @@ class RecibosController extends Controller
             'importe.min' => 'El importe debe ser mayor a 0',
             'fecha.required' => 'La fecha es obligatoria',
             'fecha.date' => 'La fecha no es válida',
-            'estado_id.required' => 'Debes seleccionar un estado'
         ];
 
         $request->validate([
@@ -86,7 +85,6 @@ class RecibosController extends Controller
             'tipo_id' => 'required|integer|exists:tipos_recibos,id',
             'importe' => 'required|numeric|min:0.01',
             'fecha' => 'required|date',
-            'estado_id' => 'required|integer|exists:estados_recibos,id'
         ], $mensajes);
 
         try {
@@ -96,7 +94,7 @@ class RecibosController extends Controller
                 'tipo_id' => $request->tipo_id,
                 'importe' => $request->importe,
                 'fecha' => $request->fecha,
-                'estado_id' => $request->estado_id,
+                'estado_id' => 1,
                 'es_activo' => true
             ]);
 

@@ -13,10 +13,33 @@ use Illuminate\Support\Facades\Validator;
 class UsuariosController extends Controller
 {
      
-    public function index() {
-        $usuarios = Usuario::all();
-        $roles= Role::all();
+    public function index(Request $request) {
+        $query = Usuario::with(['rol', 'biblioteca']);
+
+        if ($request->filled('buscar')) {
+            $term = $request->buscar;
+            $query->where(function($q) use ($term) {
+                $q->where('nombre', 'LIKE', "%$term%")
+                ->orWhere('correo', 'LIKE', "%$term%")
+                ->orWhere('telefono', 'LIKE', "%$term%");
+            });
+        }
+        
+        if ($request->filled('rol') && $request->rol !== 'todas') {
+            $query->where('rol_id', $request->rol);
+        }
+
+        if ($request->filled('estado') && $request->estado !== 'todas') {
+            $activo = ($request->estado == '1') ? 1 : 0;
+            $query->where('es_activo', $activo);
+        }
+        $usuarios = $query->orderBy('es_activo', 'desc')->latest()->get();
+        $roles = Role::all();
         $bibliotecas = Biblioteca::all();
+        if ($request->ajax()) {
+            return view('trabajadores.partials.tabla', compact('usuarios'))->render();
+        }
+
         return view('trabajadores.index', compact('usuarios', 'roles', 'bibliotecas'));
     }
 

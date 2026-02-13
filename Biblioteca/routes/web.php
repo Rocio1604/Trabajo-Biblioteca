@@ -11,9 +11,11 @@ use App\Http\Controllers\SociosController;
 use App\Http\Controllers\UsuariosController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', [EjemplareController::class, 'home'])->name('home');
+/* 
 Route::get('/', function () {
         return view('index');
-    });
+    }); */
 
 Route::get('/login', function() {
         return redirect('/')->with('loginModal', true); 
@@ -31,7 +33,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/libros', [LibrosController::class, 'store'])->name('libros.store');
     Route::get('/libros/editar/{id}', [LibrosController::class, 'edit'])->name('libros.edit');
     Route::post('/libros/editar/{id}', [LibrosController::class, 'update'])->name('libros.update');
-    Route::get('/libros/eliminar/{id}', [LibrosController::class, 'destroy'])->name('libros.destroy');
+    Route::post('/libros/eliminar/{id}', [LibrosController::class, 'destroy'])->name('libros.destroy');
+    Route::post('/libros/reactivar/{id}', [LibrosController::class, 'reactivar'])->name('libros.reactivar');
 
     // Ejemplares
     Route::get('/ejemplares', [EjemplareController::class, 'index'])->name('ejemplares.index');
@@ -64,8 +67,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/prestamos', [PrestamosController::class, 'store'])->name('prestamo.store');
     Route::get('/prestamos/editar/{id}', [PrestamosController::class, 'edit'])->name('prestamo.edit');
     Route::post('/prestamos/editar/{id}', [PrestamosController::class, 'update'])->name('prestamo.update');
-    Route::get('/prestamos/eliminar/{id}', [PrestamosController::class, 'destroy'])->name('prestamo.destroy');
-
+    Route::post('/prestamos/eliminar/{id}', [PrestamosController::class, 'destroy'])->name('prestamo.destroy');
+    
     // recibos
     Route::get('/recibos', [RecibosController::class, 'index'])->name('recibo.index');
     Route::post('/recibos', [RecibosController::class, 'store'])->name('recibo.store');

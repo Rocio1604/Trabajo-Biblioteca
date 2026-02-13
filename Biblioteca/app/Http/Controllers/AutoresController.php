@@ -8,7 +8,7 @@ use App\Models\Autor;
 class AutoresController extends Controller
 {
     public function index() {
-        $autores = Autor::all();
+        $autores = Autor::query()->orderBy('es_activo', 'desc')->latest()->get();
         return view('autores', compact('autores'));
     }
     public function buscar(Request $request)
