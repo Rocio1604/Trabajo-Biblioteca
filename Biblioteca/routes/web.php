@@ -29,6 +29,7 @@ Route::post('/autores', [AutoresController::class, 'store'])->name('autor.store'
 Route::post('/autores/editar/{id}', [AutoresController::class, 'update'])->name('autor.update');
 Route::post('/autores/eliminar/{id}', [AutoresController::class, 'destroy'])->name('autor.destroy');
 Route::post('/autores/reactivar/{id}', [AutoresController::class, 'reactivar'])->name('autor.reactivar');
+Route::post('/autores/buscar', [AutoresController::class, 'buscar'])->name('autor.buscar');
 
 // bibliotecas
 Route::get('/biblioteca', [BibliotecasController::class, 'index'])->name('biblio.index');

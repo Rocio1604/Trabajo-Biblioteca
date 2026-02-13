@@ -27,7 +27,7 @@
                 <input type="text" id="buscador" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre, email o DNI...">
             </div>
     </div>
-    <div class="col-3">
+    <div class="col-3 rounded-4 ">
         <button id="buscar"><i class="bi bi-search fs-5 color-input"></i>Buscar</button>
     </div>
 </div>
@@ -274,7 +274,6 @@ function reactivarBiblioteca(id) {
 
     });
 }
-
 btnBuscar.addEventListener('click', () => {
 
     let inputProvincia = document.getElementById('buscador');
@@ -288,7 +287,7 @@ btnBuscar.addEventListener('click', () => {
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
             },
             body: JSON.stringify({
-                provincia: provincia    
+                provincia: provincia  
             })
         })
         .then(response => response.json())
@@ -303,10 +302,45 @@ btnBuscar.addEventListener('click', () => {
             }
 
             data.forEach(biblio => {
+                
+                // Determinar clases CSS según estado
+                let cardClass = !biblio.es_activo ? 'bg-light text-muted opacity-75' : '';
+                
+                // Botón de eliminar o reactivar según estado
+                let actionButton = biblio.es_activo 
+                    ? `<button class="bg-transparent border-0" onclick="confirmarEliminar('${biblio.id}')">
+                        <i class="bi bi-trash icono-eliminar"></i>
+                       </button>`
+                    : `<button class="bg-transparent border-0" onclick="reactivarBiblioteca('${biblio.id}')">
+                        <i class="bi bi-arrow-counterclockwise text-success"></i>
+                       </button>`;
+
                 caja.innerHTML += `
                 <div class="col-12 col-md-6">
-                    <div class="card shadow-sm rounded-4 p-4 position-relative h-100">
+                    <div class="card shadow-sm rounded-4 p-4 position-relative h-100 ${cardClass}">
 
+                        <!-- BOTONES -->
+                        <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
+                            
+                            <!-- EDITAR -->
+                            <button class="bg-transparent border-0"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalBiblioteca"
+                                data-id="${biblio.id}"
+                                data-nombre="${biblio.nombre}"
+                                data-provincia="${biblio.provincia}"
+                                data-direccion="${biblio.direccion}"
+                                data-telefono="${biblio.telefono}"
+                                data-correo="${biblio.correo}">
+                                <i class="bi bi-pencil-square icono-editar"></i>
+                            </button>
+
+                            <!-- ELIMINAR / REACTIVAR -->
+                            ${actionButton}
+
+                        </div>
+
+                        <!-- CONTENIDO -->
                         <h5 class="fw-semibold mb-3">${biblio.nombre}</h5>
 
                         <p class="mb-2">

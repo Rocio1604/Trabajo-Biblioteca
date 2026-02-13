@@ -11,7 +11,15 @@ class AutoresController extends Controller
         $autores = Autor::all();
         return view('autores', compact('autores'));
     }
+    public function buscar(Request $request)
+    {
+        $nombre = $request->nombre;
 
+        $autores = Autor::where('nombre', 'LIKE', "%$nombre%")
+            ->get();
+
+        return response()->json($autores);
+    }
     
     public function create() {
        

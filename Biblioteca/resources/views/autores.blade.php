@@ -18,8 +18,21 @@
         </button>
     </div>
 </div>
+<div class="d-flex flex-wrap align-items-center">
+    <div class="col-9">
+        <div class="input-group rounded-4 input-focus">
+                <span class="input-group-text border-0 bg-white rounded-start-4 bg-transparent">
+                    <i class="bi bi-search fs-5 color-input"></i>
+                </span>
+                <input type="text" id="buscador" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre">
+            </div>
+    </div>
+    <div class="col-3">
+        <button id="buscar"><i class="bi bi-search fs-5 color-input"></i>Buscar</button>
+    </div>
+</div>
 
-<div class="row g-4">
+<div class="row g-4" id="caja">
     @foreach($autores as $autor)
         <div class="col-12 col-md-6">
             <div class="card shadow-sm rounded-4 p-4 position-relative h-100 {{ !$autor->es_activo ? 'bg-light text-muted opacity-75' : '' }}">
@@ -142,6 +155,7 @@
 @section('scripts')
 <script>
 
+let btnBuscar= document.getElementById('buscar');
 let modal = document.querySelector("#modalAutor");
 let form = document.querySelector("#autorForm");
 let modalTitle = document.getElementById('modalTitle');
@@ -226,5 +240,86 @@ function reactivarAutor(id) {
 }
 
 
+btnBuscar.addEventListener('click', () => {
+
+    let inputNombre = document.getElementById('buscador');
+    let nombre = inputNombre.value.trim();
+    
+    if (nombre !== '') {
+        fetch("{{ route('autor.buscar') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                nombre: nombre
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            let caja = document.getElementById('caja');
+            caja.innerHTML = '';
+
+            if (data.length === 0) {
+                caja.innerHTML = '<p class="text-muted">No se encontraron resultados</p>';
+                return;
+            }
+
+            data.forEach(autor => {
+                
+                let cardClass = !autor.es_activo ? 'bg-light text-muted opacity-75' : '';
+                
+                let actionButton = autor.es_activo 
+                    ? `<button class="bg-transparent border-0" onclick="confirmarEliminar('${autor.id}')">
+                        <i class="bi bi-trash icono-eliminar"></i>
+                       </button>`
+                    : `<button class="bg-transparent border-0" onclick="reactivarAutor('${autor.id}')">
+                        <i class="bi bi-arrow-counterclockwise text-success"></i>
+                       </button>`;
+
+                caja.innerHTML += `
+                <div class="col-12 col-md-6">
+                    <div class="card shadow-sm rounded-4 p-4 position-relative h-100 ${cardClass}">
+
+                        <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
+                            
+                            <button class="bg-transparent border-0"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalAutor"
+                                data-id="${autor.id}"
+                                data-nombre="${autor.nombre}"
+                                data-feche="${autor.fecha_nacimiento}">
+                                <i class="bi bi-pencil-square icono-editar"></i>
+                            </button>
+
+                            ${actionButton}
+
+                        </div>
+
+                        <h5 class="fw-semibold mb-3">${autor.nombre}</h5>
+                        
+                        <p class="mb-0">
+                            <i class="bi bi-calendar me-2"></i>
+                            ${autor.fecha_nacimiento}
+                        </p>
+
+                    </div>
+                </div>
+                `;
+            });
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo realizar la búsqueda'
+            });
+        });
+    }
+});
 </script>
 @endsection
