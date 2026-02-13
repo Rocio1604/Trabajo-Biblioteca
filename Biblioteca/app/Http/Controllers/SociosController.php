@@ -18,16 +18,34 @@ class SociosController extends Controller
 
     public function buscar(Request $request)
     {
-        $busqueda = $request->nombre; 
-    $socios = Socio::with(['estado', 'biblioteca'])
-        ->where(function($query) use ($busqueda) {
-            $query->where('nombre', 'LIKE', "%$busqueda%")
-                  ->orWhere('dni', 'LIKE', "%$busqueda%")
-                  ->orWhere('email', 'LIKE', "%$busqueda%");
-        })
-        ->get();
+        $busqueda = $request->nombre;
+        $cuota = $request->cuota;
+        $estado = $request->estado;
 
-    return response()->json($socios);
+        $query = Socio::with(['estado', 'biblioteca']);
+        
+        if ($busqueda) {
+            $query->where(function($q) use ($busqueda) {
+                $q->where('nombre', 'LIKE', "%$busqueda%")
+                ->orWhere('dni', 'LIKE', "%$busqueda%")
+                ->orWhere('email', 'LIKE', "%$busqueda%");
+            });
+        }
+
+        if ($cuota && $cuota !== 'todas') {
+            $query->where('estado_cuota', $cuota);
+        }
+
+        if ($estado !== null && $estado !== '' && $estado !== 'todas') {
+            $esActivo = (int)$estado;
+            $query->where('es_activo', $esActivo);
+            
+            \Log::info('Filtrando por estado:', ['es_activo' => $esActivo]);
+        }
+
+        $socios = $query->get();
+
+        return response()->json($socios);
     }
 
     public function store(Request $request)

@@ -73,17 +73,22 @@
                 <td class="px-4 py-3 fs-7">{{ $socio->dni }}</td>
                 <td class="px-4 py-3 fs-7">{{ $socio->biblioteca->nombre }}</td>
                 <td class="px-4 py-3">
-                    @if($socio->estado->nombre === 'Vencida')
-                        <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-x-circle fs-8"></i>
-                            <span class="fs-8">Vencida</span>
-                        </div>
-                    @endif
-                    @if($socio->estado->nombre === 'Activa')   
-                        <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-check2-circle fs-8"></i>
-                            <span class="fs-8">Activa</span>
-                        </div>
+                    @if($socio->estado)
+                        @if($socio->estado->nombre === 'Vencida')
+                            <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
+                                <i class="bi bi-x-circle fs-8"></i>
+                                <span class="fs-8">Vencida</span>
+                            </div>
+                        @elseif($socio->estado->nombre === 'Activa')   
+                            <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
+                                <i class="bi bi-check2-circle fs-8"></i>
+                                <span class="fs-8">Activa</span>
+                            </div>
+                        @else
+                            <span class="text-muted fs-8">{{ $socio->estado->nombre }}</span>
+                        @endif
+                    @else
+                        <span class="text-danger fs-8">Sin estado</span>
                     @endif
                 </td>
                 <td class="px-4 py-3">
@@ -214,38 +219,194 @@
 @endsection
 @section('scripts')
     <script>
-        let modalRegistrar = document.querySelector("#registrarSocio");
-        let registerForm = document.querySelector("#registerForm");
-        let modalTitle = document.getElementById('modalTitle');
-        let btnModal = document.getElementById('btnModal');
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            let modalRegistrar = document.querySelector("#registrarSocio");
+            let registerForm = document.querySelector("#registerForm");
+            let modalTitle = document.getElementById('modalTitle');
+            let btnModal = document.getElementById('btnModal');
+            let btnBuscar = document.getElementById('buscar');
 
-        modalRegistrar.addEventListener('show.bs.modal',(event)=>{
-            let boton = event.relatedTarget;
-            if (boton && boton.hasAttribute('data-id')) {
-                let id = boton.getAttribute('data-id');
-                modalTitle.textContent = 'Editar socio';
-                btnModal.textContent = 'Actualizar';
-                registerForm.action = '/socios/editar/' + id;
-                document.getElementById('editing_id').value = id;
-                document.getElementById('dni').value = boton.getAttribute('data-dni');
-                document.getElementById('nombre').value = boton.getAttribute('data-nombre');
-                document.getElementById('email').value = boton.getAttribute('data-email');
-                document.getElementById('telefono').value = boton.getAttribute('data-telefono');
-                document.getElementById('biblioteca').value = boton.getAttribute('data-biblioteca');
-            } else if (boton){
-                modalTitle.textContent = 'Nuevo socio';
-                btnModal.textContent = 'Registrar';
-                registerForm.action = "{{ route('socio.store') }}";
-                document.getElementById('biblioteca').value = "";
+            let selectCuota = document.getElementById('cuota');
+            let selectEstado = document.getElementById('estado');
+            console.log('=== VERIFICACIÓN INICIAL ===');
+            console.log('btnBuscar:', btnBuscar);
+            console.log('selectCuota:', selectCuota);
+            console.log('selectEstado:', selectEstado);
+
+            // Eventos de filtrado automático
+            selectCuota.addEventListener('change', () => {
+                console.log('Cambió cuota'); // DEBUG
+                btnBuscar.click(); 
+            });
+
+            selectEstado.addEventListener('change', () => {
+                console.log('Cambió estado'); // DEBUG
+                btnBuscar.click(); 
+            });
+
+            // Modal events
+            modalRegistrar.addEventListener('show.bs.modal',(event)=>{
+                let boton = event.relatedTarget;
+                if (boton && boton.hasAttribute('data-id')) {
+                    let id = boton.getAttribute('data-id');
+                    modalTitle.textContent = 'Editar socio';
+                    btnModal.textContent = 'Actualizar';
+                    registerForm.action = '/socios/editar/' + id;
+                    document.getElementById('editing_id').value = id;
+                    document.getElementById('dni').value = boton.getAttribute('data-dni');
+                    document.getElementById('nombre').value = boton.getAttribute('data-nombre');
+                    document.getElementById('email').value = boton.getAttribute('data-email');
+                    document.getElementById('telefono').value = boton.getAttribute('data-telefono');
+                    document.getElementById('biblioteca').value = boton.getAttribute('data-biblioteca');
+                } else if (boton){
+                    modalTitle.textContent = 'Nuevo socio';
+                    btnModal.textContent = 'Registrar';
+                    registerForm.action = "{{ route('socio.store') }}";
+                    document.getElementById('biblioteca').value = "";
+                    registerForm.reset();
+                }
+            });
+
+            modalRegistrar.addEventListener('hidden.bs.modal', () => {
                 registerForm.reset();
-            }
-        });
+                registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            });
 
-        modalRegistrar.addEventListener('hidden.bs.modal', () => {
-            registerForm.reset();
-            registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        });
+            // Búsqueda
+            btnBuscar.addEventListener('click', () => {
+                console.log('Botón buscar clickeado'); // DEBUG
+                let inputNombre = document.getElementById('buscador');
+                let nombre = inputNombre.value.trim();
 
+                let selectCuota = document.getElementById('cuota');
+                let cuota = selectCuota.value;
+        
+                let selectEstado = document.getElementById('estado');
+                let estado = selectEstado.value;
+                
+                console.log('Filtros:', { nombre, cuota, estado }); // DEBUG
+
+                fetch("{{ route('socio.buscar') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        nombre: nombre,
+                        cuota: cuota,
+                        estado: estado 
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resultados:', data); // DEBUG
+                    let tablaSocios = document.getElementById('tablaSocios');
+                    tablaSocios.innerHTML = '';
+
+                    if (data.length === 0) {
+                        tablaSocios.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No se encontraron resultados</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(socio => {
+                        let estadoBadge = '';
+                        if (socio.estado) {
+                            if (socio.estado.nombre === 'Vencida') {
+                                estadoBadge = `
+                                    <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
+                                        <i class="bi bi-x-circle fs-8"></i>
+                                        <span class="fs-8">Vencida</span>
+                                    </div>
+                                `;
+                            } else if (socio.estado.nombre === 'Activa') {
+                                estadoBadge = `
+                                    <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
+                                        <i class="bi bi-check2-circle fs-8"></i>
+                                        <span class="fs-8">Activa</span>
+                                    </div>
+                                `;
+                            } else {
+                                estadoBadge = `<span class="text-muted fs-8">${socio.estado.nombre}</span>`;
+                            }
+                        } else {
+                            estadoBadge = '<span class="text-danger fs-8">Sin estado</span>';
+                        }
+
+                        let botonesAccion = '';
+                        if (socio.es_activo) {
+                            botonesAccion = `
+                                <button class="bg-transparent border-0" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#registrarSocio"
+                                        data-id="${socio.id}"
+                                        data-nombre="${socio.nombre}"
+                                        data-dni="${socio.dni}"
+                                        data-email="${socio.email}"
+                                        data-telefono="${socio.telefono}"
+                                        data-biblioteca="${socio.biblioteca_id}">
+                                    <i class="bi bi-pencil-square icono-editar"></i>
+                                </button>
+                                <button class="bg-transparent border-0" onclick="confirmarEliminar('${socio.id}')">
+                                    <i class="bi bi-trash icono-eliminar"></i>
+                                </button>
+                            `;
+                        } else {
+                            botonesAccion = `
+                                <button class="bg-transparent border-0" onclick="reactivarSocio('${socio.id}')">
+                                    <i class="bi bi-arrow-counterclockwise text-success"></i>
+                                </button>
+                            `;
+                        }
+
+                        let fechaAlta = new Date(socio.created_at).toLocaleDateString('es-ES');
+                        let bibliotecaNombre = socio.biblioteca ? socio.biblioteca.nombre : 'N/A';
+
+                        tablaSocios.innerHTML += `
+                        <tr>
+                            <td class="px-4 py-3">
+                                <div>
+                                    <p class="m-0 fw-semibold">${socio.nombre}</p>
+                                    <p class="m-0 fs-7">Alta: ${fechaAlta}</p>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div>
+                                    <p class="m-0 fs-7">${socio.email}</p>
+                                    <p class="m-0 fs-7">${socio.telefono}</p>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 fs-7">${socio.dni}</td>
+                            <td class="px-4 py-3 fs-7">${bibliotecaNombre}</td>
+                            <td class="px-4 py-3">
+                                ${estadoBadge}
+                            </td>
+                            <td class="px-4 py-3">
+                                ${socio.es_activo ? 'Sí' : 'No'}
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="d-flex wrap-flex gap-4">
+                                    ${botonesAccion}
+                                </div>
+                            </td>
+                        </tr>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo realizar la búsqueda'
+                    });
+                });
+            });
+
+        }); // FIN DOMContentLoaded
+        
+        // Funciones globales (fuera de DOMContentLoaded porque se llaman desde onclick)
         function confirmarEliminar(id) {
             Swal.fire({
                 title: '¿Desactivar socio?',
@@ -289,142 +450,8 @@
                 }
             });
         }
-
-        // BÚSQUEDA - FUERA DEL IF DE ERRORES
-        let btnBuscar = document.getElementById('buscar');
-
-        btnBuscar.addEventListener('click', () => {
-            let inputNombre = document.getElementById('buscador');
-            let nombre = inputNombre.value.trim();
-            
-            if (nombre !== '') {
-                fetch("{{ route('socio.buscar') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        nombre: nombre
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    let tablaSocios = document.getElementById('tablaSocios');
-                    tablaSocios.innerHTML = '';
-
-                    if (data.length === 0) {
-                        tablaSocios.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No se encontraron resultados</td></tr>';
-                        return;
-                    }
-
-                    data.forEach(socio => {
-                        
-                        // Estado de cuota badge - DENTRO DEL FOREACH
-                        let estadoBadge = '';
-                        if (socio.estado) {
-                            if (socio.estado.nombre === 'Vencida') {
-                                estadoBadge = `
-                                    <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                        <i class="bi bi-x-circle fs-8"></i>
-                                        <span class="fs-8">Vencida</span>
-                                    </div>
-                                `;
-                            } else if (socio.estado.nombre === 'Activa') {
-                                estadoBadge = `
-                                    <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                        <i class="bi bi-check2-circle fs-8"></i>
-                                        <span class="fs-8">Activa</span>
-                                    </div>
-                                `;
-                            }
-                        }
-
-                        // Botones de acción
-                        let botonesAccion = '';
-                        if (socio.es_activo) {
-                            botonesAccion = `
-                                <button class="bg-transparent border-0" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#registrarSocio"
-                                        data-id="${socio.id}"
-                                        data-nombre="${socio.nombre}"
-                                        data-dni="${socio.dni}"
-                                        data-email="${socio.email}"
-                                        data-telefono="${socio.telefono}"
-                                        data-biblioteca="${socio.biblioteca_id}">
-                                    <i class="bi bi-pencil-square icono-editar"></i>
-                                </button>
-                                <button class="bg-transparent border-0" onclick="confirmarEliminar('${socio.id}')">
-                                    <i class="bi bi-trash icono-eliminar"></i>
-                                </button>
-                            `;
-                        } else {
-                            botonesAccion = `
-                                <button class="bg-transparent border-0" onclick="reactivarSocio('${socio.id}')">
-                                    <i class="bi bi-arrow-counterclockwise text-success"></i>
-                                </button>
-                            `;
-                        }
-
-                        // Formatear fecha
-                        let fechaAlta = new Date(socio.created_at).toLocaleDateString('es-ES');
-
-                        // Nombre de biblioteca
-                        let bibliotecaNombre = socio.biblioteca ? socio.biblioteca.nombre : 'N/A';
-
-                        tablaSocios.innerHTML += `
-                        <tr>
-                            <td class="px-4 py-3">
-                                <div>
-                                    <p class="m-0 fw-semibold">${socio.nombre}</p>
-                                    <p class="m-0 fs-7">Alta: ${fechaAlta}</p>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3">
-                                <div>
-                                    <p class="m-0 fs-7">${socio.email}</p>
-                                    <p class="m-0 fs-7">${socio.telefono}</p>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 fs-7">${socio.dni}</td>
-                            <td class="px-4 py-3 fs-7">${bibliotecaNombre}</td>
-                            <td class="px-4 py-3">
-                                ${estadoBadge}
-                            </td>
-                            <td class="px-4 py-3">
-                                ${socio.es_activo ? 'Sí' : 'No'}
-                            </td>
-                            <td class="px-4 py-3">
-                                <div class="d-flex wrap-flex gap-4">
-                                    ${botonesAccion}
-                                </div>
-                            </td>
-                        </tr>
-                        `;
-                    });
-
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No se pudo realizar la búsqueda'
-                    });
-                });
-            } else {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Atención',
-                    text: 'Por favor ingresa un término de búsqueda'
-                });
-            }
-        });
-
     </script>
 
-    <!-- Alerta de éxito -->
     @if(session('success'))
         <script>
             Swal.fire({
@@ -440,7 +467,6 @@
         </script>
     @endif
 
-    <!-- Errores de base -->
     @if(session('error'))
     <script>
         Swal.fire({
@@ -452,7 +478,6 @@
     </script>
     @endif
 
-    <!-- Errores de validación -->
     @if ($errors->any())
         <script>
         document.addEventListener('DOMContentLoaded', function() {
