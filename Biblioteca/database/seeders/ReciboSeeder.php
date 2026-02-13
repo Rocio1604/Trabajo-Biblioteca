@@ -13,13 +13,11 @@ class ReciboSeeder extends Seeder
         $recibos = [];
         
         for ($i = 1; $i <= 15; $i++) {
-            $tipoId = rand(1, 4); 
+            $tipoId = rand(1, 2); 
             
             $conceptos = [
                 1 => 'Cuota anual 2024',
-                2 => 'Retraso en devolución de libro',
-                3 => 'Libro extraviado - ISBN...',
-                4 => 'Reserva de sala de estudio'
+                2 => 'Retraso en devolución de libro'
             ];
             
             $importes = [
