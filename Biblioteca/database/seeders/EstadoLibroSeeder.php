@@ -12,8 +12,8 @@ class EstadoLibroSeeder extends Seeder
         DB::table('estados_libros')->insert([
             ['nombre' => 'Nuevo'],
             ['nombre' => 'Bueno'],
-            ['nombre' => 'Regular'],
-            ['nombre' => 'Deteriorado'],
+            ['nombre' => 'Desgastado'],
+            ['nombre' => 'Roto'],
         ]);
     }
 }

@@ -10,9 +10,8 @@ class EstadoCuotaSeeder extends Seeder
     public function run(): void
     {
         DB::table('estados_cuotas')->insert([
-            ['nombre' => 'Al día'],
-            ['nombre' => 'Pendiente'],
-            ['nombre' => 'Atrasado'],
+            ['nombre' => 'Activa'],
+            ['nombre' => 'Vencida'],
         ]);
     }
 }

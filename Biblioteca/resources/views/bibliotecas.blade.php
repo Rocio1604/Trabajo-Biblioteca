@@ -41,6 +41,7 @@
                 <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
 
                     <!-- EDITAR -->
+                     @if($biblio->es_activo)
                     <button class="bg-transparent border-0"
                         data-bs-toggle="modal"
                         data-bs-target="#modalBiblioteca"
@@ -52,6 +53,7 @@
                         data-correo="{{ $biblio->correo }}">
                         <i class="bi bi-pencil-square icono-editar"></i>
                     </button>
+                        @endif
 
                     <!-- ELIMINAR -->
                     @if($biblio->es_activo)
@@ -128,31 +130,46 @@
                         <div class="col-6">
                             <label class="fw-semibold mb-1">Nombre</label>
                             <input type="text" name="nombre" id="nombre"
-                                class="form-control rounded-3">
+                                class="form-control rounded-3 @error('nombre') is-invalid @enderror" value="{{ old('nombre') }}">
+                            @error('nombre')
+                                    <div class="invalid-feedback fs-8">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-6">
                             <label class="fw-semibold mb-1">Provincia</label>
                             <input type="text" name="provincia" id="provincia"
-                                class="form-control rounded-3">
+                                class="form-control rounded-3 @error('provincia') is-invalid @enderror" value="{{ old('provincia') }}">
+                            @error('provincia')
+                                    <div class="invalid-feedback fs-8">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-6">
                             <label class="fw-semibold mb-1">Dirección</label>
                             <input type="text" name="direccion" id="direccion"
-                                class="form-control rounded-3">
+                                class="form-control rounded-3 @error('direccion') is-invalid @enderror" value="{{ old('direccion') }}">
+                            @error('direccion')
+                                    <div class="invalid-feedback fs-8">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-6">
                             <label class="fw-semibold mb-1">Teléfono</label>
                             <input type="text" name="telefono" id="telefono"
-                                class="form-control rounded-3">
+                                class="form-control rounded-3 @error('telefono') is-invalid @enderror" value="{{ old('telefono') }}">
+                            @error('telefono')
+                                    <div class="invalid-feedback fs-8">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-6">
                             <label class="fw-semibold mb-1">Correo</label>
                             <input type="email" name="correo" id="correo"
-                                class="form-control rounded-3">
+                                class="form-control rounded-3 @error('correo') is-invalid @enderror" value="{{ old('correo') }}">
+                            @error('correo')
+                                    <div class="invalid-feedback fs-8">{{ $message }}</div>
+                            @enderror
                         </div>
 
                     </div>
@@ -194,51 +211,56 @@ let form = document.querySelector("#bibliotecaForm");
 let modalTitle = document.getElementById('modalTitle');
 let btnModal = document.getElementById('btnModal');
 
-modal.addEventListener('show.bs.modal', (event) => {
+    modal.addEventListener('show.bs.modal', (event) => {
 
-    let boton = event.relatedTarget;
+        let boton = event.relatedTarget;
 
-    if (boton.hasAttribute('data-id')) {
+        if (boton.hasAttribute('data-id')) {
 
-        let id = boton.getAttribute('data-id');
+            let id = boton.getAttribute('data-id');
 
-        modalTitle.textContent = 'Editar Biblioteca';
-        btnModal.textContent = 'Actualizar';
+            modalTitle.textContent = 'Editar Biblioteca';
+            btnModal.textContent = 'Actualizar';
 
-        form.action = '/biblioteca/editar/' + id;
+            form.action = '/biblioteca/editar/' + id;
 
-        document.getElementById('editing_id').value = id;
-        document.getElementById('nombre').value = boton.getAttribute('data-nombre');
-        document.getElementById('provincia').value = boton.getAttribute('data-provincia');
-        document.getElementById('direccion').value = boton.getAttribute('data-direccion');
-        document.getElementById('telefono').value = boton.getAttribute('data-telefono');
-        document.getElementById('correo').value = boton.getAttribute('data-correo');
+            document.getElementById('editing_id').value = id;
+            document.getElementById('nombre').value = boton.getAttribute('data-nombre');
+            document.getElementById('provincia').value = boton.getAttribute('data-provincia');
+            document.getElementById('direccion').value = boton.getAttribute('data-direccion');
+            document.getElementById('telefono').value = boton.getAttribute('data-telefono');
+            document.getElementById('correo').value = boton.getAttribute('data-correo');
 
-    } else {
+        } else if (boton){
 
-        modalTitle.textContent = 'Nueva Biblioteca';
-        btnModal.textContent = 'Guardar';
+            modalTitle.textContent = 'Nueva Biblioteca';
+            btnModal.textContent = 'Registrar';
 
-        form.action = "{{ route('biblio.store') }}";
+            form.action = "{{ route('biblio.store') }}";
+            form.reset();
+        }
+    });
+        
+    modal.addEventListener('hidden.bs.modal', () => {
         form.reset();
-    }
-});
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    });
 
 
 function confirmarEliminar(id) {
 
     Swal.fire({
-        title: '¿Eliminar biblioteca?',
+        title: '¿Desactivar biblioteca?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#ff8000',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonText: 'Sí, desactivar',
+        cancelButtonText: 'Cancelar',
+        customClass: { popup: 'rounded-4' }
     }).then((result) => {
 
         if (result.isConfirmed) {
-
             let form = document.createElement('form');
             form.method = 'POST';
             form.action = '/biblioteca/eliminar/' + id;
@@ -259,7 +281,8 @@ function reactivarBiblioteca(id) {
         confirmButtonColor: '#ff8000',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Sí, reactivar',
-        cancelButtonText: 'Cancelar'
+        cancelButtonText: 'Cancelar',
+        customClass: { popup: 'rounded-4' }
     }).then((result) => {
 
         if (result.isConfirmed) {
@@ -386,4 +409,54 @@ btnBuscar.addEventListener('click', () => {
     }
 });
 </script>
+<!-- Alerta de exito -->
+    @if(session('success'))
+        <script>
+            Swal.fire({
+                title: '¡Éxito!',
+                text: '{{ session("success") }}',
+                icon: 'success',
+                confirmButtonColor: '#ff8000',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'rounded-4',
+                }
+            });
+        </script>
+    @endif
+    <!-- Errores de base -->
+    @if(session('error'))
+    <script>
+        Swal.fire({
+            title: 'Error Crítico',
+            text: '{{ session("error") }}',
+            icon: 'error',
+            confirmButtonColor: '#ff8000'
+        });
+    </script>
+    @endif
+    <!-- Errores de validación -->
+    @if ($errors->any())
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var modalElemento = document.getElementById('modalBiblioteca');
+            var modal = new bootstrap.Modal(modalElemento);
+            
+            let editarID = "{{ old('editing_id') }}"; 
+
+            if (editarID) {
+                document.getElementById('modalTitle').textContent = 'Editar biblioteca';
+                document.getElementById('btnModal').textContent = 'Actualizar';
+                document.getElementById('bibliotecaForm').action = '/biblioteca/editar/' + editarID;
+            } else {
+                document.getElementById('modalTitle').textContent = 'Nueva biblioteca';
+                document.getElementById('btnModal').textContent = 'Registrar';
+                document.getElementById('bibliotecaForm').action = "{{ route('biblio.store') }}";
+            }
+
+            modal.show();
+        });
+    </script>
+    @endif
 @endsection
+</html>

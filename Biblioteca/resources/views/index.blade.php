@@ -112,14 +112,15 @@
                             <h2 class="fs-4 fw-semibold mb-2">Iniciar Sesión</h2>
                             <p>Acceso para empleados de BiblioERP</p>
                         </div>
-                            <form id="loginForm">
+                            <form id="loginForm" action="{{ route('login.post') }}" method="POST"> 
+                                @csrf
                                 <div class="mb-3">
-                                    <label class="form-label fs-7 fw-semibold" for="usuario">Usuario</label>
+                                    <label class="form-label fs-7 fw-semibold" for="correo">Correo</label>
                                     <div class="input-group rounded-3 input-focus">
                                         <span class="input-group-text border-0 bg-white rounded-start-3">
                                             <i class="bi bi-person fs-5 color-input"></i>
                                         </span>
-                                        <input type="text" id="usuario" name="usuario" class="form-control border-0 rounded-end-3 px-12" placeholder="Ingresa tu usuario">
+                                        <input type="email" id="correo" name="correo" value="{{ old('correo') }}" class="form-control border-0 rounded-end-3 px-12" placeholder="Ingresa tu correo">
                                     </div>
                                 </div>
                                 <div class="mb-3">
@@ -128,9 +129,22 @@
                                         <span class="input-group-text border-0 bg-white rounded-start-3">
                                             <i class="bi bi-lock fs-5 color-input"></i>
                                         </span>
-                                        <input type="text" id="password" name="password" class="form-control border-0 rounded-end-3 px-12" placeholder="Ingresa tu usuario">
+                                        <input type="password" id="password" name="password" class="form-control border-0 rounded-end-3 px-12" placeholder="Ingresa tu contraseña">
                                     </div>
                                 </div>
+                                @if($errors->has('password') || $errors->get('correo') == ['vacio'])
+                                    <div class="text-danger small mb-3 fw-bold mensaje-error">
+                                        <i class="bi bi-exclamation-circle"></i> Por favor, completa todos los campos.
+                                    </div>
+                                @elseif($errors->has('correo') && $errors->first('correo') == 'formato')
+                                    <div class="text-danger small mb-3 fw-bold mensaje-error">
+                                        <i class="bi bi-exclamation-circle"></i> El formato del correo no es correcto.
+                                    </div>
+                                @elseif($errors->has('login_error'))
+                                    <div class="text-danger small mb-3 fw-bold mensaje-error">
+                                        <i class="bi bi-exclamation-circle"></i> {{ $errors->first('login_error') }}
+                                    </div>
+                                @endif
                                 <button type="submit" class="btn btn-naranja rounded-3 py-2 w-100 fw-semibold">Iniciar Sesión</button>
                             </form>
                     </div>
@@ -143,9 +157,23 @@
     <script>
         let loginModal = document.querySelector("#loginModal");
         let loginForm = document.querySelector("#loginForm");
-        loginModal.addEventListener("show.bs.modal",()=>{
+        let divError=document.querySelector(".mensaje-error");
+        loginModal.addEventListener("hidden.bs.modal",()=>{
             loginForm.reset()
+            let divError = document.querySelector(".mensaje-error");
+            if (divError) {
+                divError.innerHTML="";
+            }
+            document.getElementById('correo').value = "";
         })
+        
     </script>
+
+    @if($errors->any() || session('loginModal'))
+        <script>
+            var myModal = new bootstrap.Modal(document.querySelector("#loginModal"));
+            myModal.show();
+        </script>
+    @endif
 </body>
 </html>

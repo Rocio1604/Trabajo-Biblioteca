@@ -21,24 +21,21 @@
                 <input type="text" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por titulo, autor o ISBN...">
             </div>
         </div>
-        <div class="col-12 col-md-4 col-xl-2">
-            <select name="estado" id="estado" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
-                <option value="todas">Todos los estados</option>
-                <!-- @foreach($estados as $estado)
-                    <option value="{{ $estado->id }}">
-                        Cuota {{ $estado->nombre }}
+        <div class="col-12 col-md-6 col-xl-3">
+            <select name="categoria" id="categoria" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
+                <option value="todas">Todos las categorias</option>
+                @foreach($categorias as $categoria)
+                    <option value="{{ $categoria->id }}">
+                        {{ $categoria->nombre }}
                     </option>
-                @endforeach -->
+                @endforeach
             </select>
         </div>
-        <div class="col-12 col-md-4 col-xl-2">
-            <select name="disponibilidad" id="disponibilidad" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
-                <option value="todas">Cualquier Disnibilidad</option>
-            </select>
-        </div>
-        <div class="col-12 col-md-4 col-xl-2">
+        <div class="col-12 col-md-6 col-xl-3">
             <select name="activo" id="activo" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
                 <option value="todas">Todos los libros</option>
+                <option value="1">Activos</option>
+                <option value="0">Inactivos</option>
             </select>
         </div>
     </div>
@@ -52,63 +49,27 @@
                 <th class="px-4 py-12">ISBN</th>
                 <th class="px-4 py-12">AUTORES</th>
                 <th class="px-4 py-12">CATEGORÍA</th>
-                <th class="px-4 py-12">ESTADO</th>
-                <th class="px-4 py-12">BIBLIOTECA</th>
-                <th class="px-4 py-12">DISPONIBILIDAD</th>
+                <th class="px-4 py-12">PRECIO</th>
                 <th class="px-4 py-12">¿ACTIVO?</th>
                 <th class="px-4 py-12">ACCIONES</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($socios as $socio)
+            @foreach($libros as $libro)
             <tr>
-                <td class="px-4 py-3 fs-6 fw-bold">Cien años de soledad<!-- {{ $socio->biblioteca->nombre }} --></td>
-                <td class="px-4 py-3 fs-7">978-84-376-0494-7<!-- {{ $socio->dni }} --></td>
-                <td class="px-4 py-3 fs-7">Gabriel García Márquez<!-- {{ $socio->dni }} --></td>
-                <td class="px-4 py-3 fs-7">Novela<!-- {{ $socio->biblioteca->nombre }} --></td>
-                <td class="px-4 py-3">
-                    @switch($libro->estado->id)
-                        @case(1)
-                            <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <span class="fs-8">Nuevo<!-- {{ $socio->estado->nombre }} --></span>
-                            </div>
-                            @break
-                        @case(2)
-                        <!-- color azul en letra y de fondo azul claro -->
-                             <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <span class="fs-8">Bueno<!-- {{ $socio->estado->nombre }} --></span>
-                            </div>
-                            @break
-                        @case(3)
-                        <!-- color naranja en letra y de fondo naranja claro -->
-                             <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <span class="fs-8">Desgastado<!-- {{ $socio->estado->nombre }} --></span>
-                            </div>
-                            @break
-                        @case(4)
-                        <!-- color naranja en letra y de fondo naranja claro -->
-                             <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <span class="fs-8">Roto<!-- {{ $socio->estado->nombre }} --></span>
-                            </div>
-                            @break
-                            
-                    @endswitch
+                <td class="px-4 py-3 fs-6 fw-semibold">{{ $libro->titulo }}</td>
+                <td class="px-4 py-3 fs-7">{{ $libro->isbn }}</td>
+                <td class="px-4 py-3 fs-7">
+                    {{ $libro->autores->pluck('nombre')->implode(', ') }}
                 </td>
-                <td class="px-4 py-3 fs-7">Madrid<!-- {{ $libro->biblioteca->nombre }} --></td>
+                <td class="px-4 py-3 fs-7">{{ $libro->categoria->nombre }}</td>
+                <td class="px-4 py-3 fs-7">€{{ number_format($libro->precio, 2) }}</td>
                 <td class="px-4 py-3">
                     <!-- color verde con icono de caja -->
-                    @if($socio->estado->id === 1)
-                        <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-check2-circle fs-8"></i>
-                            <span class="fs-8">Disponible</span>
-                        </div>
-                    @endif
-                    <!-- color gris -->
-                    @if($socio->estado->id === 2)   
-                        <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-x-circle fs-8"></i>
-                            <span class="fs-8">Vencida</span>
-                        </div>
+                    @if($libro->es_activo)
+                        Sí
+                    @else
+                        No
                     @endif
                 </td>
                 <td class="px-4 py-3">
@@ -116,19 +77,19 @@
                         @if($libro->es_activo)
                             <button class="bg-transparent border-0" data-bs-toggle="modal" 
                                     data-bs-target="#registroModal"
-                                    data-id="{{ $socio->id }}"
-                                    data-nombre="{{ $socio->nombre }}"
-                                    data-dni="{{ $socio->dni }}"
-                                    data-email="{{ $socio->email }}"
-                                    data-telefono="{{ $socio->telefono }}"
-                                    data-biblioteca="{{ $socio->biblioteca_id }}">
+                                    data-id="{{ $libro->id }}"
+                                    data-titulo="{{ $libro->titulo }}"
+                                    data-isbn="{{ $libro->isbn }}"
+                                    data-categoria="{{ $libro->categoria->id }}"
+                                    data-precio="{{ $libro->precio }}"
+                                    data-autores="{{ json_encode($libro->autores->pluck('id')) }}">
                                 <i class="bi bi-pencil-square icono-editar"></i>
                             </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $socio->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $libro->id }}')">
                                 <i class="bi bi-trash icono-eliminar"></i>
                             </button>
                         @else
-                            <button class="bg-transparent border-0 " onclick="reactivarLibro('{{ $socio->id }}')">
+                            <button class="bg-transparent border-0 " onclick="reactivarLibro('{{ $libro->id }}')">
                                 <i class="bi bi-arrow-counterclockwise text-success"></i>
                             </button>
                         @endif
@@ -143,7 +104,7 @@
 
 <!-- Modal -->
 
-<div class="modal fade" id="resgistroModal" tabindex="-1"
+<div class="modal fade" id="registroModal" tabindex="-1"
     data-bs-backdrop="static"
     data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -174,47 +135,40 @@
                         </div>
                         <div class="row gx-3">
                             <div class="col-6">
-                                <label for="categoria" class="fs-7 icono-editar fw-semibold mb-1">Categoría</label>
-                                <select name="categoria" id="categoria"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('categoria') is-invalid @enderror">
-                                    <option value="" selected disabled>Seleccione una categoría</option>
+                                <label for="categoria_id" class="fs-7 icono-editar fw-semibold mb-1">Categoría</label>
+                                <select name="categoria_id" id="categoria_id"  class="w-100 input-focus bg-transparent @error('categoria_id') is-invalid @enderror" placeholder="Seleccione una categoría">
+                                    <option value="" selected disabled>Seleccione una categoría</option> 
                                     @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id }}" {{ old('categoria') == $categoria->id ? 'selected' : '' }}>
+                                        <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
                                             {{ $categoria->nombre }}
                                         </option>
                                     @endforeach
-                                    </select>
-                                    @error('categoria')
+                                </select>
+                                    @error('categoria_id')
                                         <div class="invalid-feedback fs-8">{{ $message }}</div>
                                     @enderror
                             </div>
                             <div class="col-6">
-                                <label for="estado" class="fs-7 icono-editar fw-semibold mb-1">Estado</label>
-                                <select name="estado" id="estado"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('estado') is-invalid @enderror">
-                                    <option value="" selected disabled>Seleccione un estado</option>
-                                    @foreach($estados as $estado)
-                                        <option value="{{ $estado->id }}" {{ old('estado') == $estado->id ? 'selected' : '' }}>
-                                            {{ $estado->nombre }}
-                                        </option>
-                                    @endforeach
-                                    </select>
-                                    @error('estado')
-                                        <div class="invalid-feedback fs-8">{{ $message }}</div>
-                                    @enderror
+                                <label for="precio" class="fs-7 icono-editar fw-semibold mb-1">Precio</label>
+                                <input type="text" id="precio" name="precio" value="{{ old('precio') }}" class="form-control rounded-3 input-focus py-2 @error('precio') is-invalid @enderror">
+                                @error('precio')
+                                    <div class="invalid-feedback fs-8">{{ $message }}</div>
+                                @enderror
                             </div>
-                        </div>
-                        <div class="mb-3">
-                                <label for="biblioteca" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Biblioteca</label>
-                                <select name="biblioteca" id="biblioteca"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca') is-invalid @enderror">
-                                    <option value="" selected disabled>Seleccione una biblioteca</option>
-                                    @foreach($bibliotecas as $biblioteca)
-                                        <option value="{{ $biblioteca->id }}" {{ old('biblioteca') == $biblioteca->id ? 'selected' : '' }}>
-                                            {{ $biblioteca->nombre }}
+                            <div class="mb-3">
+                                <label for="autores" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Autores</label>
+                                <select id="autores" name="autores[]" multiple placeholder="Seleccione uno o varios autores" autocomplete="off" class="input-focus @error('autores') is-invalid @enderror">
+                                        <option value="" selected disabled>Seleccione uno o varios autores</option>
+                                    @foreach($autores as $autor)
+                                        <option value="{{ $autor->id }}" {{ old('autores') && in_array($autor->id, old('autores')) ? 'selected' : '' }}>
+                                            {{ $autor->nombre }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('biblioteca')
+                                @error('autores')
                                     <div class="invalid-feedback fs-8">{{ $message }}</div>
                                 @enderror
+                            </div>
                         </div>
                         <div class="row g-3">
                             <div class="col-6">
@@ -246,24 +200,30 @@
                 btnModal.textContent = 'Actualizar';
                 registerForm.action = '/libros/editar/' + id;
                 document.getElementById('editing_id').value = id;
-                /* 
-                document.getElementById('dni').value = boton.getAttribute('data-dni');
-                document.getElementById('nombre').value = boton.getAttribute('data-nombre');
-                document.getElementById('email').value = boton.getAttribute('data-email');
-                document.getElementById('telefono').value = boton.getAttribute('data-telefono');
-                document.getElementById('biblioteca').value = boton.getAttribute('data-biblioteca'); */
+
+                var autoresIds = JSON.parse(boton.getAttribute('data-autores'));
+                autoresSelect.clear(); 
+                categoriaSelect.clear();
+                autoresSelect.setValue(autoresIds);
+                document.getElementById('isbn').value = boton.getAttribute('data-isbn');
+                document.getElementById('titulo').value = boton.getAttribute('data-titulo');
+                categoriaSelect.setValue(boton.getAttribute('data-categoria'));
+                document.getElementById('precio').value = boton.getAttribute('data-precio');
             } else if (boton){
                 modalTitle.textContent = 'Nuevo libro';
                 btnModal.textContent = 'Registrar';
                 registerForm.action = "{{ route('libros.store') }}";
                 document.getElementById('biblioteca').value = "";
                 document.getElementById('estado').value = "";
+                
                 registerForm.reset();
             }
         })
 
         modalRegistrar.addEventListener('hidden.bs.modal', () => {
             registerForm.reset();
+            autoresSelect.clear(); 
+            categoriaSelect.clear();
             registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
         });
 
@@ -281,13 +241,38 @@
                 if (result.isConfirmed) {
                     let form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = '/socios/eliminar/' + id;
+                    form.action = '/libros/eliminar/' + id;
                     form.innerHTML = `@csrf`;
                     document.body.appendChild(form);
                     form.submit();
                 }
             });
         }
+
+        let categoriaSelect = new TomSelect("#categoria_id", {
+            create: false,
+            maxItems: 1, 
+            persist: false,
+            plugins: ['clear_button'], 
+            render: {
+                no_results: function(data, escape) {
+                    return '<div class="no-results p-2 text-muted">No se encontró la categoría "' + escape(data.input) + '"</div>';
+                }
+            }
+        });
+
+        let autoresSelect = new TomSelect("#autores", {
+            plugins: ['remove_button', 'clear_button'],
+            create: false, 
+            maxItems: null,
+            persist: false,
+            render: {
+                no_results: function(data, escape) {
+                    return '<div class="no-results">No se encontró el autor "' + escape(data.input) + '"</div>';
+                }
+            }
+        });
+
         function reactivarLibro(id) {
             Swal.fire({
                 title: '¿Reactivar libro?',
@@ -302,7 +287,7 @@
                 if (result.isConfirmed) {
                     let form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = '/socios/reactivar/' + id;
+                    form.action = '/libros/reactivar/' + id;
                     form.innerHTML = `@csrf`;
                     document.body.appendChild(form);
                     form.submit();
@@ -342,19 +327,19 @@
     @if ($errors->any())
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var modalElemento = document.getElementById('registroModal');
-            var modal = new bootstrap.Modal(modalElemento);
+            let modalElemento = document.getElementById('registroModal');
+            let modal = new bootstrap.Modal(modalElemento);
             
             let editarID = "{{ old('editing_id') }}"; 
 
             if (editarID) {
                 document.getElementById('modalTitle').textContent = 'Editar Libro';
                 document.getElementById('btnModal').textContent = 'Actualizar';
-                document.getElementById('registerForm').action = '/socios/editar/' + editarID;
+                document.getElementById('registerForm').action = '/libros/editar/' + editarID;
             } else {
-                document.getElementById('modalTitle').textContent = 'Nuevo socio';
+                document.getElementById('modalTitle').textContent = 'Nuevo libro';
                 document.getElementById('btnModal').textContent = 'Registrar';
-                document.getElementById('registerForm').action = "{{ route('socio.store') }}";
+                document.getElementById('registerForm').action = "{{ route('libros.store') }}";
             }
 
             modal.show();

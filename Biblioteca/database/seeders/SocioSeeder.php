@@ -66,17 +66,6 @@ class SocioSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'dni' => '67890123F',
-                'nombre' => 'Laura Jiménez Díaz',
-                'biblioteca_id' => 3,
-                'email' => 'laura.jimenez@email.com',
-                'telefono' => '600678901',
-                'estado_cuota' => 3,
-                'es_activo' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
                 'dni' => '78901234G',
                 'nombre' => 'Miguel Álvarez Torres',
                 'biblioteca_id' => 4,

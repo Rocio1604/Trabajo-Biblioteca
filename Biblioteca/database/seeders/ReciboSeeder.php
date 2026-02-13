@@ -14,7 +14,7 @@ class ReciboSeeder extends Seeder
         
         for ($i = 1; $i <= 15; $i++) {
             $recibos[] = [
-                'socio_id' => rand(1, 8),
+                'socio_id' => rand(1, 7),
                 'concepto' => 'Cuota anual 2024',
                 'tipo_id' => 1,
                 'importe' => 30.00,

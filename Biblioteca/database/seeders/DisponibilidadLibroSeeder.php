@@ -12,8 +12,6 @@ class DisponibilidadLibroSeeder extends Seeder
         DB::table('disponibilidades_libros')->insert([
             ['nombre' => 'Disponible'],
             ['nombre' => 'Prestado'],
-            ['nombre' => 'Reservado'],
-            ['nombre' => 'En reparación'],
         ]);
     }
 }

@@ -12,4 +12,8 @@ class Autor extends Model
         'fecha_nacimiento',
         'es_activo'
     ];
+    public function libros()
+    {
+        return $this->belongsToMany(Libro::class, 'autor_libro');
+    }
 }

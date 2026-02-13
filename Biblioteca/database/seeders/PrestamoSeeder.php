@@ -22,7 +22,7 @@ class PrestamoSeeder extends Seeder
             $ejemplar = DB::table('ejemplares')->where('id', $ejemplar_id)->first();
             
             $prestamos[] = [
-                'socio_id' => rand(1, 8),
+                'socio_id' => rand(1, 7),
                 'ejemplar_id' => $ejemplar_id,
                 'biblioteca_id' => $ejemplar->biblioteca_id, // ← AGREGADO
                 'fecha_prestamo' => $fecha_prestamo,

@@ -44,10 +44,12 @@
                         <a href="{{route('biblio.index')}}" class="btn btn-sidebar {{ Route::is('biblio.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
                             <i class="bi bi-building"></i>
                             <span>Bibliotecas</span>
+                        @can('admin')
                         <a href="{{route('usuario.index')}}" class="btn btn-sidebar {{ Route::is('usuario.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
                             <i class="bi bi-person-gear"></i>
                             <span>Usuarios</span>
                         </a>
+                        @endcan
                         <a href="{{ route('socio.index') }}" class="btn btn-sidebar {{ Route::is('socio.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
                             <i class="bi bi-people"></i>
                             <span>Socios</span>
@@ -55,6 +57,10 @@
                         <a href="{{route('libros.index')}}" class="btn btn-sidebar {{ Route::is('libros.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
                             <i class="bi bi-journal-bookmark"></i>
                             <span>Libros</span>
+                        </a>
+                        <a href="{{route('ejemplares.index')}}" class="btn btn-sidebar {{ Route::is('ejemplares.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
+                            <i class="bi bi-archive"></i>
+                            <span>Ejemplares</span>
                         </a>
                         <a href="{{route('autor.index')}}" class="btn btn-sidebar {{ Route::is('autor.*') ? 'activo' : '' }} rounded-3 d-flex gap-3 px-3 py-12 w-100 fw-semibold fs-7 mb-1 text-decoration-none">
                             <i class="bi bi-person-up"></i>
@@ -73,11 +79,19 @@
                     <!-- Cuenta menu -->
                     <div class="p-3 sidebar-borde sidebar-footer-prop">
                         <div class="mb-2">
-                            <h1 class="mb-0 fs-7">Ana García</h1>
-                            <p class="fs-8 mb-0 text-white-50">Admin</p>
+                            <h1 class="mb-0 fs-7">{{ auth()->user()->nombre }}</h1>
+                            <p class="fs-8 mb-0 text-white-50">{{ auth()->user()->rol->nombre}}</p>
+                            <div class="small text-warning mt-2">
+                                <i class="bi bi-geo-alt"></i> 
+                                {{ auth()->user()->biblioteca->nombre }}
+                            </div>
                         </div>
-                        <button type="button" class="btn text-white rounded-4 p-0 d-flex align-items-center justify-content-center gap-2 fs-7 ">
-                        <i class="bi bi-box-arrow-right fs-7"></i>Cerrar Sesión</button>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn text-white rounded-4 p-0 d-flex align-items-center justify-content-center gap-2 fs-7 ">
+                            <i class="bi bi-box-arrow-right fs-7"></i>Cerrar Sesión</button>
+                        </form>
+                        
                     </div>
                 </div>
             </nav>

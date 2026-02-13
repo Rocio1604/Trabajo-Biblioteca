@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class BibliotecasController extends Controller
 {
     public function index() {
-        $bibliotecas = Biblioteca::all();
+        $bibliotecas = Biblioteca::query()->latest()->orderBy('es_activo', 'desc')->get();
 
         return view('bibliotecas', compact('bibliotecas'));
     }
@@ -46,7 +46,7 @@ class BibliotecasController extends Controller
             'provincia.min' => 'La provincia debe tener al menos 3 caracteres',
 
             'direccion.required' => 'La direccion es obligatoria',
-            'direccion.min' => 'La direccion debe tener al menos 3 caracteres',
+            'direccion.min' => 'La direccion debe tener al menos 5 caracteres',
         ];
 
         $request->validate([
@@ -82,26 +82,41 @@ class BibliotecasController extends Controller
     }
 
     public function update(Request $request, $id){
+        $mensajes = [
+            'nombre.required' => 'El nombre es obligatorio',
+            'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
+
+            'correo.required' => 'El correo electrónico es obligatorio',
+            'correo.email' => 'Ingresa un formato de correo válido',
+            'correo.unique' => 'Este correo ya está registrado',
+
+            'telefono.required' => 'El teléfono es obligatorio',
+            'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9',
+
+            'provincia.required' => 'La provincia es obligatoria',
+            'provincia.min' => 'La provincia debe tener al menos 3 caracteres',
+
+            'direccion.required' => 'La direccion es obligatoria',
+            'direccion.min' => 'La direccion debe tener al menos 5 caracteres',
+        ];
+
         $request->validate([
             'nombre' => 'required|min:3|max:100',
             'provincia' => 'required|min:3|max:100',
             'direccion' => 'required|min:5|max:255',
             'correo' => 'required|email|max:255',
             'telefono' => ['required','regex:/^[6789]\d{8}$/'],
-        ]);
+        ], $mensajes);
 
         $biblioteca = Biblioteca::findOrFail($id);
-
-        $biblioteca->update([
-            'nombre' => $request->nombre,
-            'provincia' => $request->provincia,
-            'direccion' => $request->direccion,
-            'correo' => $request->correo,
-            'telefono' => $request->telefono,
-        ]);
-
-        return redirect()->route('biblio.index')
+        try {
+            $biblioteca->update($request->all());
+            return redirect()->route('biblio.index')
                         ->with('success','Biblioteca actualizada correctamente');
+        } catch (\Exception $e) {
+            return redirect()->route('biblio.index')->with('error', 'Error al actualizar: ' . $e->getMessage());
+        }
+        
     }
 
 

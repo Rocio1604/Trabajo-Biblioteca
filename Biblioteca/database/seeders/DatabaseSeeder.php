@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             ReciboSeeder::class,
             RolSeeder::class,
             UsuarioSeeder::class,
+            ValidacionSistema::class,
         ]);
     }
 }

@@ -24,16 +24,18 @@
         <div class="col-12 col-md-6 col-xl-3">
             <select name="roles" id="roles" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
                 <option value="todas">Todos los roles</option>
-                <!-- @foreach($estados as $estado)
-                    <option value="{{ $estado->id }}">
-                        Cuota {{ $estado->nombre }}
+                @foreach($roles as $rol)
+                    <option value="{{ $rol->id }}">
+                        {{ $rol->nombre }}
                     </option>
-                @endforeach -->
+                @endforeach
             </select>
         </div>
         <div class="col-12 col-md-6 col-xl-3">
             <select name="estado" id="estado" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
                 <option value="todas">Todos los trabajadores</option>
+                <option value="1">Activos</option>
+                <option value="2">Inactivos</option>
             </select>
         </div>
     </div>
@@ -53,28 +55,28 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($socios as $socio)
+            @foreach($usuarios as $usuario)
             <tr>
                 <td class="px-4 py-3">
                     <div>
-                        <p class="m-0 fw-semibold">nombre</p>
-                        <p class="m-0 fs-7">correo</p>
+                        <p class="m-0 fw-semibold">{{ $usuario->nombre }}</p>
+                        <p class="m-0 fs-7">{{ $usuario->correo }}</p>
                     </div>
                 </td>
-                <td class="px-4 py-3 fs-7">622333444<!-- {{ $socio->dni }} --></td>
-                <td class="px-4 py-3 fs-7">trabajador<!-- {{ $socio->biblioteca->nombre }} --></td>
-                <td class="px-4 py-3 fs-7">madrid<!-- {{ $socio->biblioteca->nombre }} --></td>
-                <td class="px-4 py-3 fs-7">2024-03-20<!-- {{ $socio->biblioteca->nombre }} --></td>
+                <td class="px-4 py-3 fs-7">{{ $usuario->telefono }}</td>
+                <td class="px-4 py-3 fs-7">{{ $usuario->rol->nombre }}</td>
+                <td class="px-4 py-3 fs-7">{{ $usuario->biblioteca->nombre }}</td>
+                <td class="px-4 py-3 fs-7">{{ $usuario->created_at->format('d/m/Y') }}</td>
                 <td class="px-4 py-3">
                     <!-- color verde con icono de caja -->
-                    @if($socio->estado->id === 1)
+                    @if($usuario->es_activo === 1)
                         <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
                             <i class="bi bi-check2-circle fs-8"></i>
                             <span class="fs-8">Activo</span>
                         </div>
                     @endif
                     <!-- color gris -->
-                    @if($socio->estado->id === 2)   
+                    @if($usuario->es_activo === 0)   
                         <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
                             <i class="bi bi-x-circle fs-8"></i>
                             <span class="fs-8">Inactivo</span>
@@ -83,25 +85,25 @@
                 </td>
                 <td class="px-4 py-3">
                     <div class="d-flex wrap-flex gap-4">
-                        @if($libro->es_activo)
+                        @if($usuario->es_activo)
                             <button class="bg-transparent border-0" data-bs-toggle="modal" 
                                     data-bs-target="#registroModal"
-                                    data-id="{{ $socio->id }}"
-                                    data-nombre="{{ $socio->nombre }}"
-                                    data-dni="{{ $socio->dni }}"
-                                    data-email="{{ $socio->email }}"
-                                    data-telefono="{{ $socio->telefono }}"
-                                    data-biblioteca="{{ $socio->biblioteca_id }}">
+                                    data-id="{{ $usuario->id }}"
+                                    data-nombre="{{ $usuario->nombre }}"
+                                    data-correo="{{ $usuario->correo }}" 
+                                    data-telefono="{{ $usuario->telefono }}"
+                                    data-rol="{{ $usuario->rol_id }}"
+                                    data-biblioteca="{{ $usuario->biblioteca_id }}">
                                 <i class="bi bi-pencil-square icono-editar"></i>
                             </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $socio->id }}')">
+                            <button class="bg-transparent border-0 " onclick="abrirModalPassword('{{ $usuario->id }}', '{{ $usuario->nombre }}', '{{ $usuario->biblioteca->nombre }}')">
                                 <i class="bi bi-key text-warning"></i>
                             </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $socio->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $usuario->id }}')">
                                 <i class="bi bi-trash icono-eliminar"></i>
                             </button>
                         @else
-                            <button class="bg-transparent border-0 " onclick="reactivarTrabajador('{{ $socio->id }}')">
+                            <button class="bg-transparent border-0 " onclick="reactivarTrabajador('{{ $usuario->id }}')">
                                 <i class="bi bi-arrow-counterclockwise text-success"></i>
                             </button>
                         @endif
@@ -116,7 +118,7 @@
 
 <!-- Modal -->
 
-<div class="modal fade" id="resgistroModal" tabindex="-1"
+<div class="modal fade" id="registroModal" tabindex="-1"
     data-bs-backdrop="static"
     data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -138,9 +140,9 @@
                                 @enderror
                             </div>
                             <div class="col-6">
-                                <label for="email" class="fs-7 icono-editar fw-semibold mb-1">Email</label>
-                                <input type="text" id="email" name="email" value="{{ old('email') }}" class="form-control rounded-3 input-focus py-2 @error('email') is-invalid @enderror">
-                                @error('email')
+                                <label for="correo" class="fs-7 icono-editar fw-semibold mb-1">Correo</label>
+                                <input type="email" id="correo" name="correo" value="{{ old('correo') }}" class="form-control rounded-3 input-focus py-2 @error('correo') is-invalid @enderror">
+                                @error('correo')
                                     <div class="invalid-feedback fs-8">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -155,7 +157,7 @@
                             </div>
                             <div class="col-6">
                                 <label for="rol" class="fs-7 icono-editar fw-semibold mb-1">Rol</label>
-                                <select name="rol" id="rol"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('rol') is-invalid @enderror">
+                                <select name="rol_id" id="rol"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('rol_id') is-invalid @enderror">
                                     <option value="" selected disabled>Seleccione un rol</option>
                                     @foreach($roles as $rol)
                                         <option value="{{ $rol->id }}" {{ old('rol') == $rol->id ? 'selected' : '' }}>
@@ -163,12 +165,12 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('rol')
+                                @error('rol_id')
                                     <div class="invalid-feedback fs-8">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <div >
                                 <label for="contrasena" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Contraseña</label>
                                 <input type="password" id="contrasena" name="contrasena" value="{{ old('contrasena') }}" class="form-control rounded-3 input-focus py-2 @error('contrasena') is-invalid @enderror">
                                 @error('contrasena')
@@ -202,6 +204,50 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="passwordModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0 pb-0 px-4">
+                <h5 class="modal-title fw-semibold">Cambiar Contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="passwordForm" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <p class="text-muted fs-7">Usuario: <strong id="passNombreUsuario"></strong> <span id="passBibliotecaUsuario"></span></p>
+                    
+                    <div class="mb-3">
+                        <label class="fs-7 fw-semibold mb-1">Nueva Contraseña</label>
+                        <input type="password" name="nueva_contrasena" 
+                            class="form-control @if($errors->has('nueva_contrasena')) is-invalid @endif">
+                        @if($errors->has('nueva_contrasena'))
+                            <div class="invalid-feedback">{{ $errors->first('nueva_contrasena') }}</div>
+                        @endif
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="fs-7 fw-semibold mb-1">Confirmar Contraseña</label>
+                        <input type="password" name="confirmar_contrasena" 
+                            class="form-control @if($errors->has('confirmar_contrasena')) is-invalid @endif">
+                        @if($errors->has('confirmar_contrasena') && !$errors->has('nueva_contrasena'))
+                            <div class="invalid-feedback">{{ $errors->first('confirmar_contrasena') }}</div>
+                        @endif
+                    </div>
+                    <div class="row g-3">
+                            <div class="col-6">
+                                <button type="button" class="w-100 btn bg-transparent border rounded-3 px-4 py-2" data-bs-dismiss="modal">Cancelar</button>
+                            </div>
+                           <div class="col-6">
+                                <button type="submit" class="w-100 btn btn-naranja rounded-3 px-4 py-2" id="btnCambiarPassword">Cambiar contraseña</button>
+                           </div>
+                    </div>
+                </div>
+                    
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 @section('scripts')
     <script>
@@ -217,20 +263,22 @@
                 console.log(id);
                 modalTitle.textContent = 'Editar Trabajador';
                 btnModal.textContent = 'Actualizar';
-                registerForm.action = '/libros/editar/' + id;
+                registerForm.action = '/usuarios/editar/' + id;
                 document.getElementById('editing_id').value = id;
-                /* 
-                document.getElementById('dni').value = boton.getAttribute('data-dni');
                 document.getElementById('nombre').value = boton.getAttribute('data-nombre');
-                document.getElementById('email').value = boton.getAttribute('data-email');
+                document.getElementById('correo').value = boton.getAttribute('data-correo');
                 document.getElementById('telefono').value = boton.getAttribute('data-telefono');
-                document.getElementById('biblioteca').value = boton.getAttribute('data-biblioteca'); */
+                document.getElementById('rol').value = boton.getAttribute('data-rol'); 
+                document.getElementById('biblioteca').value = boton.getAttribute('data-biblioteca');
+
+                document.getElementById('contrasena').parentElement.style.display = 'none'
             } else if (boton){
                 modalTitle.textContent = 'Nuevo Trabajador';
                 btnModal.textContent = 'Registrar';
-                registerForm.action = "{{ route('libros.store') }}";
+                registerForm.action = "{{ route('usuario.store') }}";
                 document.getElementById('biblioteca').value = "";
-                document.getElementById('estado').value = "";
+                document.getElementById('rol').value = "";
+                document.getElementById('contrasena').parentElement.style.display = 'block'
                 registerForm.reset();
             }
         })
@@ -239,6 +287,20 @@
             registerForm.reset();
             registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
         });
+
+        function abrirModalPassword(id, nombre,biblioteca) {
+            let modalRegistroElement = document.getElementById('registroModal');
+            let modalRegistroBus = bootstrap.Modal.getInstance(modalRegistroElement);
+            if (modalRegistroBus) {
+                modalRegistroBus.hide();
+            }
+            let modal = new bootstrap.Modal(document.getElementById('passwordModal'));
+            let form = document.getElementById('passwordForm');
+            document.getElementById('passNombreUsuario').textContent = nombre;
+            document.getElementById('passBibliotecaUsuario').textContent =" ("+ biblioteca + ")";
+            form.action = '/usuarios/password/' + id;
+            modal.show();
+        }
 
         function confirmarEliminar(id) {
             Swal.fire({
@@ -254,7 +316,7 @@
                 if (result.isConfirmed) {
                     let form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = '/socios/eliminar/' + id;
+                    form.action = '/usuarios/eliminar/' + id;
                     form.innerHTML = `@csrf`;
                     document.body.appendChild(form);
                     form.submit();
@@ -275,7 +337,7 @@
                 if (result.isConfirmed) {
                     let form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = '/socios/reactivar/' + id;
+                    form.action = '/usuarios/reactivar/' + id;
                     form.innerHTML = `@csrf`;
                     document.body.appendChild(form);
                     form.submit();
@@ -312,27 +374,41 @@
     </script>
     @endif
     <!-- Errores de validación -->
-    @if ($errors->any())
+    @if ($errors->has('nueva_contrasena') || $errors->has('confirmar_contrasena'))
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var modalElemento = document.getElementById('registroModal');
-            var modal = new bootstrap.Modal(modalElemento);
-            
-            let editarID = "{{ old('editing_id') }}"; 
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('passNombreUsuario').textContent = "{{ session('nom_pass_error') }}";
+                document.getElementById('passBibliotecaUsuario').textContent = " ({{ session('bib_pass_error') }})";
+                
+                document.getElementById('passwordForm').action = '/usuarios/password/' + "{{ session('id_pass_error') }}";
+                
+                var modalPassword = new bootstrap.Modal(document.getElementById('passwordModal'));
+                modalPassword.show();
+            });
+        </script>
+    @elseif ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalElemento = document.getElementById('registroModal');
+                var modal = new bootstrap.Modal(modalElemento);
+                
+                let editarID = "{{ old('editing_id') }}"; 
 
-            if (editarID) {
-                document.getElementById('modalTitle').textContent = 'Editar Trabajador';
-                document.getElementById('btnModal').textContent = 'Actualizar';
-                document.getElementById('registerForm').action = '/socios/editar/' + editarID;
-            } else {
-                document.getElementById('modalTitle').textContent = 'Nuevo socio';
-                document.getElementById('btnModal').textContent = 'Registrar';
-                document.getElementById('registerForm').action = "{{ route('socio.store') }}";
-            }
+                if (editarID) {
+                    document.getElementById('modalTitle').textContent = 'Editar Trabajador';
+                    document.getElementById('btnModal').textContent = 'Actualizar';
+                    document.getElementById('registerForm').action = '/usuarios/editar/' + editarID;
+                    document.getElementById('contrasena').parentElement.style.display = 'none';
+                } else {
+                    document.getElementById('modalTitle').textContent = 'Nuevo trabajador';
+                    document.getElementById('btnModal').textContent = 'Registrar';
+                    document.getElementById('registerForm').action = "{{ route('usuario.store') }}";
+                    document.getElementById('contrasena').parentElement.style.display = 'block';
+                }
 
-            modal.show();
-        });
-    </script>
+                modal.show();
+            });
+        </script>
     @endif
 @endsection
 </html>

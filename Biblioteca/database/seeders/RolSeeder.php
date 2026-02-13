@@ -11,8 +11,7 @@ class RolSeeder extends Seeder
     {
         DB::table('roles')->insert([
             ['nombre' => 'Administrador'],
-            ['nombre' => 'Bibliotecario'],
-            ['nombre' => 'Asistente'],
+            ['nombre' => 'Trabajador'],
         ]);
     }
 }
