@@ -16,6 +16,20 @@ class SociosController extends Controller
         return view('socio.index', compact('socios', 'estados', 'bibliotecas'));
     }
 
+    public function buscar(Request $request)
+    {
+        $busqueda = $request->nombre; 
+    $socios = Socio::with(['estado', 'biblioteca'])
+        ->where(function($query) use ($busqueda) {
+            $query->where('nombre', 'LIKE', "%$busqueda%")
+                  ->orWhere('dni', 'LIKE', "%$busqueda%")
+                  ->orWhere('email', 'LIKE', "%$busqueda%");
+        })
+        ->get();
+
+    return response()->json($socios);
+    }
+
     public function store(Request $request)
     {
 

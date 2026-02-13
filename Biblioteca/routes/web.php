@@ -62,6 +62,9 @@ Route::post('/socios', [SociosController::class, 'store'])->name('socio.store');
 Route::post('/socios/editar/{id}', [SociosController::class, 'update'])->name('socio.update');
 Route::post('/socios/eliminar/{id}', [SociosController::class, 'destroy'])->name('socio.destroy');
 Route::post('/socios/reactivar/{id}', [SociosController::class, 'reactivar'])->name('socio.reactivar');
+Route::post('/socios/buscar', [SociosController::class, 'buscar'])->name('socio.buscar');
+
+
 // usuarios
 Route::get('/usuarios', [UsuariosController::class, 'index'])->name('usuario.index');
 Route::get('/usuarios/crearUsuario', [UsuariosController::class, 'create'])->name('usuario.create');
