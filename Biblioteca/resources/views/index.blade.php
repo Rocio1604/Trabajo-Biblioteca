@@ -69,8 +69,6 @@
                 </select>
             </div>
         </div>
-        <p class="mb-3">Mostrando <span class="fw-bold">{{ $totalejemplares }}</span> resultados</p>
-
         <!-- Lista de libros -->
         <div class="row g-3 px-2" id="contenedor-tarjetas">
             @include('partials.tabla')

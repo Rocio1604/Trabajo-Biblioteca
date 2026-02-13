@@ -1,4 +1,5 @@
 
+<p class="mb-3">Mostrando <span class="fw-bold">{{ $ejemplares->count() }}</span> resultados</p>
 @foreach($ejemplares as $ejemplar)
             <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                 <div class="tarjeta bg-white p-3 border rounded-3">
