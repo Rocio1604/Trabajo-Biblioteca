@@ -14,9 +14,10 @@
                         <i class="fas fa-plus"></i> Nuevo Recibo
                     </button>
                 </div>
+                <!-- Buscadores  -->
                 <div class="card-body border-bottom">
                     <div class="row g-3">
-                        <div class="col-12 col-md-8">
+                        <div class="col-12 col-md-6">
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="bi bi-search"></i>
@@ -26,8 +27,29 @@
                                     class="form-control" 
                                     placeholder="Buscar por nombre de socio o número de recibo...">
                             </div>
+                    </div>
+        
+                        
+                        <div class="col-12 col-md-2">
+                            <select id="selectTipo" class="form-select">
+                                <option value="todos">Todos los tipos</option>
+                                @foreach($tipos as $tipo)
+                                    <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="col-12 col-md-4">
+                        
+                        
+                        <div class="col-12 col-md-2">
+                            <select id="selectEstado" class="form-select">
+                                <option value="todos">Todos los estados</option>
+                                @foreach($estados as $estado)
+                                    <option value="{{ $estado->id }}">{{ $estado->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="col-12 col-md-2">
                             <button id="btnBuscar" class="btn btn-primary w-100">
                                 <i class="bi bi-search"></i> Buscar
                             </button>
@@ -279,99 +301,102 @@
         let inputBusqueda = document.getElementById('buscador');
         let busqueda = inputBusqueda.value.trim();
         
-        if (busqueda !== '') {
-            fetch("{{ route('recibo.buscar') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    busqueda: busqueda
-                })
+        let selectTipo = document.getElementById('selectTipo');
+        let tipo = selectTipo.value;
+        
+        let selectEstado = document.getElementById('selectEstado');
+        let estado = selectEstado.value;
+        
+        fetch("{{ route('recibo.buscar') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                busqueda: busqueda,
+                tipo: tipo,         
+                estado: estado      
             })
-            .then(response => response.json())
-            .then(data => {
-                let tablaRecibos = document.getElementById('tablaRecibos');
-                tablaRecibos.innerHTML = '';
+        })
+        .then(response => response.json())
+        .then(data => {
+            let tablaRecibos = document.getElementById('tablaRecibos');
+            tablaRecibos.innerHTML = '';
 
-                if (data.length === 0) {
-                    tablaRecibos.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No se encontraron resultados</td></tr>';
-                    return;
+            if (data.length === 0) {
+                tablaRecibos.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No se encontraron resultados</td></tr>';
+                return;
+            }
+
+            data.forEach(recibo => {
+                
+                let tipoBadge = '';
+                if (recibo.tipo.nombre === 'Suscripcion' || recibo.tipo.nombre === 'Suscripción') {
+                    tipoBadge = '<span class="badge bg-primary">Suscripción</span>';
+                } else {
+                    tipoBadge = '<span class="badge bg-danger">Multa</span>';
                 }
 
-                data.forEach(recibo => {
-                    
-   
-                    let tipoBadge = '';
-                    if (recibo.tipo.nombre === 'Suscripcion' || recibo.tipo.nombre === 'Suscripción') {
-                        tipoBadge = '<span class="badge bg-primary">Suscripción</span>';
-                    } else {
-                        tipoBadge = '<span class="badge bg-danger">Multa</span>';
-                    }
+                let estadoBadge = '';
+                if (recibo.estado.nombre === 'Pagado') {
+                    estadoBadge = '<span class="badge bg-success">Pagado</span>';
+                } else {
+                    estadoBadge = '<span class="badge bg-warning text-dark">Pendiente</span>';
+                }
 
-                    let estadoBadge = '';
-                    if (recibo.estado.nombre === 'Pagado') {
-                        estadoBadge = '<span class="badge bg-success">Pagado</span>';
-                    } else {
-                        estadoBadge = '<span class="badge bg-warning text-dark">Pendiente</span>';
-                    }
+                let fecha = new Date(recibo.fecha).toLocaleDateString('es-ES');
 
-                    let fecha = new Date(recibo.fecha).toLocaleDateString('es-ES');
+                let concepto = recibo.concepto.length > 40 
+                    ? recibo.concepto.substring(0, 40) + '...' 
+                    : recibo.concepto;
 
-                    let concepto = recibo.concepto.length > 40 
-                        ? recibo.concepto.substring(0, 40) + '...' 
-                        : recibo.concepto;
+                let importe = parseFloat(recibo.importe).toFixed(2);
 
-                    let importe = parseFloat(recibo.importe).toFixed(2);
+                let nombreSocio = recibo.socio ? recibo.socio.nombre : 'N/A';
 
-                    let nombreSocio = recibo.socio ? recibo.socio.nombre : 'N/A';
-
-                    let botonesAccion = '';
-                    if (recibo.es_activo) {
-                        botonesAccion = `
-                            <div class="btn-group" role="group">
-                                <button type="button" 
-                                        class="btn btn-sm" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#modalEditarRecibo${recibo.id}"
-                                        title="Editar">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                <button type="button" 
-                                        class="btn btn-sm btn-danger" 
-                                        onclick="confirmarEliminar(${recibo.id})"
-                                        title="Dar de baja">
-                                    <i class="bi bi-trash3"></i>
-                                </button>
-                            </div>
-                        `;
-                    }
-
-                    tablaRecibos.innerHTML += `
-                    <tr>
-                        <td>
-                            <small class="text-muted">${recibo.numero_recibo}</small>
-                        </td>
-                        <td>${tipoBadge}</td>
-                        <td>${nombreSocio}</td>
-                        <td>${concepto}</td>
-                        <td>${fecha}</td>
-                        <td><strong>€${importe}</strong></td>
-                        <td>${estadoBadge}</td>
-                        <td>${botonesAccion}</td>
-                    </tr>
+                let botonesAccion = '';
+                if (recibo.es_activo) {
+                    botonesAccion = `
+                        <div class="btn-group" role="group">
+                            <button type="button" 
+                                    class="btn btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEditarRecibo${recibo.id}"
+                                    title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button type="button" 
+                                    class="btn btn-sm btn-danger" 
+                                    onclick="confirmarEliminar(${recibo.id})"
+                                    title="Dar de baja">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
                     `;
-                });
+                }
 
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('No se pudo realizar la búsqueda');
+                tablaRecibos.innerHTML += `
+                <tr>
+                    <td>
+                        <small class="text-muted">${recibo.numero_recibo}</small>
+                    </td>
+                    <td>${tipoBadge}</td>
+                    <td>${nombreSocio}</td>
+                    <td>${concepto}</td>
+                    <td>${fecha}</td>
+                    <td><strong>€${importe}</strong></td>
+                    <td>${estadoBadge}</td>
+                    <td>${botonesAccion}</td>
+                </tr>
+                `;
             });
-        } else {
-            alert('Por favor ingresa un término de búsqueda');
-        }
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('No se pudo realizar la búsqueda');
+        });
     });
 
     function confirmarEliminar(id) {
@@ -389,6 +414,14 @@
         if (e.key === 'Enter') {
             btnBuscar.click();
         }
+    });
+
+    document.getElementById('selectTipo').addEventListener('change', () => {
+        btnBuscar.click();
+    });
+
+    document.getElementById('selectEstado').addEventListener('change', () => {
+        btnBuscar.click();
     });
 </script>
 @endsection

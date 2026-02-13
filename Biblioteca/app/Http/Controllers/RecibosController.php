@@ -26,31 +26,44 @@ class RecibosController extends Controller
     public function buscar(Request $request)
     {
         $busqueda = $request->busqueda;
+        $tipo = $request->tipo;
+        $estado = $request->estado;
 
-        
-        $idExtraido = null;
-        if (preg_match('/REC-\d{4}-(\d+)/', $busqueda, $matches)) {
-            $idExtraido = (int)$matches[1]; 
+        $query = Recibo::with(['socio', 'tipo', 'estado']);
+
+        if ($busqueda) {
+            $idExtraido = null;
+            if (preg_match('/REC-\d{4}-(\d+)/', $busqueda, $matches)) {
+                $idExtraido = (int)$matches[1];
+            }
+
+            $query->where(function($q) use ($busqueda, $idExtraido) {
+                $q->whereHas('socio', function($subQ) use ($busqueda) {
+                $subQ->where('nombre', 'LIKE', "%$busqueda%");
+            })
+            ->orWhere('concepto', 'LIKE', "%$busqueda%");
+            
+                if ($idExtraido) {
+                    $q->orWhere('id', $idExtraido);
+                } else {
+                    $q->orWhere('id', 'LIKE', "%$busqueda%");
+                }
+            });
         }
 
-        $recibos = Recibo::with(['socio', 'tipo', 'estado'])
-            ->where(function($query) use ($busqueda, $idExtraido) {
-                $query->whereHas('socio', function($q) use ($busqueda) {
-                    $q->where('nombre', 'LIKE', "%$busqueda%");
-                })
-                ->orWhere('concepto', 'LIKE', "%$busqueda%");
-                
-                if ($idExtraido) {
-                    $query->orWhere('id', $idExtraido);
-                } else {
-                    $query->orWhere('id', 'LIKE', "%$busqueda%");
-                }
-            })
-            ->get();
+        if ($tipo && $tipo !== 'todos') {
+            $query->where('tipo_id', $tipo);
+        }
+
+        if ($estado && $estado !== 'todos') {
+            $query->where('estado_id', $estado);
+        }
+
+        $recibos = $query->get();
 
         return response()->json($recibos);
     }
-
+    
     public function store(Request $request)
     {
         $mensajes = [
