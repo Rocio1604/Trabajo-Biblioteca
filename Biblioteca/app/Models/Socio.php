@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Socio;
+
 use App\Models\EstadoCuota;
 use App\Models\Biblioteca;
 use Illuminate\Database\Eloquent\Model;

@@ -5,7 +5,7 @@ use App\Http\Controllers\LibrosController;
 use App\Http\Controllers\AutoresController;
 use App\Http\Controllers\BibliotecasController;
 use App\Http\Controllers\EjemplareController;
-use App\Http\Controllers\PrestamosController;
+use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\RecibosController;
 use App\Http\Controllers\SociosController;
 use App\Http\Controllers\UsuariosController;
@@ -62,12 +62,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/biblioteca/buscar', [BibliotecasController::class, 'buscar'])->name('biblio.buscar');  
 
     // prestamos
-    Route::get('/prestamos', [PrestamosController::class, 'index'])->name('prestamo.index');
-    Route::get('/prestamos/crearPrestamo', [PrestamosController::class, 'create'])->name('prestamo.create');
-    Route::post('/prestamos', [PrestamosController::class, 'store'])->name('prestamo.store');
-    Route::get('/prestamos/editar/{id}', [PrestamosController::class, 'edit'])->name('prestamo.edit');
-    Route::post('/prestamos/editar/{id}', [PrestamosController::class, 'update'])->name('prestamo.update');
-    Route::post('/prestamos/eliminar/{id}', [PrestamosController::class, 'destroy'])->name('prestamo.destroy');
+    Route::get('/prestamos', [PrestamoController::class, 'index'])->name('prestamo.index');
+    Route::get('/prestamos/crearPrestamo', [PrestamoController::class, 'create'])->name('prestamo.create');
+    Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamo.store');
+    Route::get('/prestamos/editar/{id}', [PrestamoController::class, 'edit'])->name('prestamo.edit');
+    Route::post('/prestamos/editar/{id}', [PrestamoController::class, 'update'])->name('prestamo.update');
+    Route::post('/prestamos/eliminar/{id}', [PrestamoController::class, 'destroy'])->name('prestamo.destroy');
+    Route::post('/prestamos/buscar', [PrestamoController::class, 'buscar'])->name('prestamo.buscar');
     
     // recibos
     Route::get('/recibos', [RecibosController::class, 'index'])->name('recibo.index');
