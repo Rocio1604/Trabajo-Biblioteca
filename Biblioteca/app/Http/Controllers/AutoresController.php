@@ -16,7 +16,7 @@ class AutoresController extends Controller
         $nombre = $request->nombre;
 
         $autores = Autor::where('nombre', 'LIKE', "%$nombre%")
-            ->get();
+            ->orderBy('es_activo', 'desc')->latest()->get();
 
         return response()->json($autores);
     }
@@ -49,7 +49,7 @@ class AutoresController extends Controller
             ]);
 
             return redirect()
-                ->route('autores.index')
+                ->route('autor.index')
                 ->with('success', 'Autor guardado correctamente');
 
         } catch (\Exception $e) {
@@ -61,10 +61,19 @@ class AutoresController extends Controller
     }
 
     public function update(Request $request,$id){
-            $request->validate([
-            'nombre' => 'required|min:3|max:100',
-            'fecha_nacimiento' => 'required|date|before:today',
-             ]);
+        $mensajes = [
+            'nombre.required' => 'El nombre es obligatorio',
+            'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
+
+            'fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria',
+            'fecha_nacimiento.date' => 'Debe ingresar una fecha válida',
+            'fecha_nacimiento.before' => 'La fecha debe ser anterior a hoy',
+        ];
+
+        $request->validate([
+        'nombre' => 'required|min:3|max:100',
+        'fecha_nacimiento' => 'required|date|before:today',
+        ], $mensajes);
 
         $autor = Autor::findOrFail($id);
 

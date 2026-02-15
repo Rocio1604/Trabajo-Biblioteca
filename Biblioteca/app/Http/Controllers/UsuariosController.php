@@ -6,6 +6,7 @@ use App\Models\Biblioteca;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -35,7 +36,7 @@ class UsuariosController extends Controller
         }
         $usuarios = $query->orderBy('es_activo', 'desc')->latest()->get();
         $roles = Role::all();
-        $bibliotecas = Biblioteca::all();
+        $bibliotecas = Biblioteca::where('es_activo', 1)->get();
         if ($request->ajax()) {
             return view('trabajadores.partials.tabla', compact('usuarios'))->render();
         }
@@ -55,7 +56,7 @@ class UsuariosController extends Controller
             'rol_id.required' => 'El rol es obligatorio',
             'contrasena.required' => 'La contraseña es obligatoria',
             'contrasena.min' => 'La contraseña debe tener al menos 6 caracteres',
-            'biblioteca.required' => 'Debes seleccionar una biblioteca',
+            'biblioteca_id.required' => 'Debes seleccionar una biblioteca',
            
         ];
         $request->validate([
@@ -64,7 +65,7 @@ class UsuariosController extends Controller
         'telefono'  => ['required', 'regex:/^[6789]\d{8}$/'],
         'contrasena' => 'required|min:6',
         'rol_id' => 'required|integer|exists:roles,id',
-        'biblioteca' => 'required|integer|exists:bibliotecas,id',
+        'biblioteca_id' => 'required|integer|exists:bibliotecas,id',
         ],$mensajes);
 
       
@@ -74,7 +75,7 @@ class UsuariosController extends Controller
                 'correo' => $request->correo,
                 'telefono' => $request->telefono,
                 'rol_id' => $request->rol_id,
-                'biblioteca_id' => $request->biblioteca,
+                'biblioteca_id' => $request->biblioteca_id,
                 'es_activo' => true,
             ]);
             DB::table('validaciones_sistema')->insert([
@@ -92,7 +93,7 @@ class UsuariosController extends Controller
         $usuario =Usuario::findOrFail($id);
 
         $mensajes = [
-             'nombre.required' => 'El nombre es obligatorio',
+            'nombre.required' => 'El nombre es obligatorio',
             'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
             'correo.required' => 'El correo electrónico es necesario',
             'correo.email' => 'Ingresa un formato de correo válido',
@@ -100,7 +101,7 @@ class UsuariosController extends Controller
             'telefono.required' => 'El teléfono es obligatorio',
             'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9',
             'rol_id.required' => 'El rol es obligatorio',
-            'biblioteca.required' => 'Debes seleccionar una biblioteca',
+            'biblioteca_id.required' => 'Debes seleccionar una biblioteca',
         ];
 
         $request->validate([
@@ -108,7 +109,7 @@ class UsuariosController extends Controller
             'correo' => 'required|email|unique:usuarios,correo,'. $id.'|max:255',
             'telefono'  => ['required', 'regex:/^[6789]\d{8}$/'],
             'rol_id' => 'required|integer|exists:roles,id',
-            'biblioteca' => 'required|integer|exists:bibliotecas,id',
+            'biblioteca_id' => 'required|integer|exists:bibliotecas,id',
             ],$mensajes);
 
         try {
@@ -131,9 +132,8 @@ class UsuariosController extends Controller
             'confirmar_contrasena' => 'bail|required|same:nueva_contrasena',
             'nueva_contrasena' => 'bail|required|min:6', 
         ], $mensajes);
-
+        $usuario = Usuario::findOrFail($id);
         if ($validator->fails()) {
-            $usuario = Usuario::findOrFail($id);
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput()
@@ -149,6 +149,12 @@ class UsuariosController extends Controller
                     'firma_digital' => Hash::make($request->nueva_contrasena),
                 ]
             );
+            if (Auth::id() === $usuario->id) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('login')->with('success', 'Contraseña cambiada correctamente. Por favor, inicia sesión de nuevo.');
+            }
             return redirect()->back()->with('success', 'Contraseña actualizada correctamente.');
 
         } catch (\Exception $e) {

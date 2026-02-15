@@ -1,5 +1,5 @@
 @foreach($usuarios as $usuario)
-            <tr>
+            <tr @if($usuario->es_activo==0) class="table-light opacity-50" @endif>
                 <td class="px-4 py-3">
                     <div>
                         <p class="m-0 fw-semibold">{{ $usuario->nombre }}</p>
@@ -42,11 +42,11 @@
                             <button class="bg-transparent border-0 " onclick="abrirModalPassword('{{ $usuario->id }}', '{{ $usuario->nombre }}', '{{ $usuario->biblioteca->nombre }}')">
                                 <i class="bi bi-key text-warning"></i>
                             </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $usuario->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $usuario->id }}','usuario','usuarios')">
                                 <i class="bi bi-trash icono-eliminar"></i>
                             </button>
                         @else
-                            <button class="bg-transparent border-0 " onclick="reactivarTrabajador('{{ $usuario->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarReactivar('{{ $usuario->id }}','usuario','usuarios')">
                                 <i class="bi bi-arrow-counterclockwise text-success"></i>
                             </button>
                         @endif

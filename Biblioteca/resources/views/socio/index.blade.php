@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
 @extends('layout.menu')
 @section('title', 'Socios')
 @section('content')
@@ -13,13 +11,20 @@
                         <i class="bi bi-plus-lg fs-5"></i>Nuevo Socio</button>
     </div>
     <div class="row g-3">
-        <div class="col-12 col-xl-6 ">
-            <div class="input-group rounded-4 input-focus">
-                <span class="input-group-text border-0 bg-white rounded-start-4 bg-transparent">
+        <div class="col-12 col-xl-6">
+            <div class="input-group rounded-4  bg-white  shadow-sm input-focus">
+                <span class="input-group-text border-0 bg-transparent ps-3">
                     <i class="bi bi-search fs-5 color-input"></i>
                 </span>
-                <input type="text" id="buscador" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre, email o DNI...">
-                <button id="buscar"><i class="bi bi-search fs-5 color-input"></i>Buscar</button>
+                
+                <input type="text" id="buscador" 
+                    class="form-control border-0 py-2 bg-transparent" 
+                    placeholder="Buscar por nombre, email o DNI...">
+                
+                <button id="buscar" class="btn btn-naranja px-4 d-flex align-items-center gap-2">
+                    <i class="bi bi-search"></i>
+                    <span class="d-none d-sm-inline">Buscar</span>
+                </button>
             </div>
         </div>
         <div class="col-12 col-md-6 col-xl-3">
@@ -57,7 +62,7 @@
         </thead>
         <tbody id="tablaSocios">
             @foreach($socios as $socio)
-            <tr>
+            <tr @if($socio->es_activo==0) class="table-light opacity-50" @endif>
                 <td class="px-4 py-3">
                     <div>
                         <p class="m-0 fw-semibold">{{ $socio->nombre }}</p>
@@ -111,11 +116,11 @@
                                     data-biblioteca="{{ $socio->biblioteca_id }}">
                                 <i class="bi bi-pencil-square icono-editar"></i>
                             </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $socio->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $socio->id }}','socio','socios')">
                                 <i class="bi bi-trash icono-eliminar"></i>
                             </button>
                         @else
-                            <button class="bg-transparent border-0 " onclick="reactivarSocio('{{ $socio->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarReactivar('{{ $socio->id }}','socio','socios')">
                                 <i class="bi bi-arrow-counterclockwise text-success"></i>
                             </button>
                         @endif
@@ -177,8 +182,8 @@
                         </div>
                         <div class="mb-3">
                                 <label for="biblioteca" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Biblioteca</label>
-                                <select name="biblioteca" id="biblioteca"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca') is-invalid @enderror">
-                                    <option value="" selected disabled>Seleccione una biblioteca</option>
+                                <select name="biblioteca_id" id="biblioteca"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca') is-invalid @enderror">
+                                    <option value="">Seleccione una biblioteca</option>
                                     @foreach($bibliotecas as $biblioteca)
                                         <option value="{{ $biblioteca->id }}" {{ old('biblioteca') == $biblioteca->id ? 'selected' : '' }}>
                                             {{ $biblioteca->nombre }}
@@ -202,80 +207,70 @@
         </div>
     </div>
 </div>
-    
-    <!-- <div class="mb-3">
-        <label for="estado_cuota" class="form-label">Estado de la Cuota</label>
-        <select name="estado_cuota" id="estado_cuota" class="form-select @error('estado_cuota') is-invalid @enderror" required>
-            <option value="" selected disabled>-- Seleccione un estado --</option>
-            
-            @foreach($estados as $estado)
-                <option value="{{ $estado->id }}">
-                    {{ $estado->nombre }}
-                </option>
-            @endforeach
-        </select>
-
-    </div> -->
 @endsection
 @section('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            let modalRegistrar = document.querySelector("#registrarSocio");
-            let registerForm = document.querySelector("#registerForm");
-            let modalTitle = document.getElementById('modalTitle');
-            let btnModal = document.getElementById('btnModal');
-            let btnBuscar = document.getElementById('buscar');
+        let modalRegistrar = document.querySelector("#registrarSocio");
+        let registerForm = document.querySelector("#registerForm");
+        let modalTitle = document.getElementById('modalTitle');
+        let btnModal = document.getElementById('btnModal');
+        let btnBuscar = document.getElementById('buscar');
+        let selectCuota = document.getElementById('cuota');
+        let selectEstado = document.getElementById('estado');
+        let inputEditar = document.getElementById('editing_id');
 
-            let selectCuota = document.getElementById('cuota');
-            let selectEstado = document.getElementById('estado');
-            console.log('=== VERIFICACIÓN INICIAL ===');
-            console.log('btnBuscar:', btnBuscar);
-            console.log('selectCuota:', selectCuota);
-            console.log('selectEstado:', selectEstado);
+        let configurarModal = (titulo, btnTexto, accion, id = "") => {
+            modalTitle.textContent = titulo;
+            btnModal.textContent = btnTexto;
+            registerForm.action = accion;
+            inputEditar.value = id;
+        };
+        let limpiarErrorValidacion = () => {
+            registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        };
 
-            // Eventos de filtrado automático
-            selectCuota.addEventListener('change', () => {
-                console.log('Cambió cuota'); // DEBUG
-                btnBuscar.click(); 
-            });
-
-            selectEstado.addEventListener('change', () => {
-                console.log('Cambió estado'); // DEBUG
-                btnBuscar.click(); 
-            });
-
-            // Modal events
-            modalRegistrar.addEventListener('show.bs.modal',(event)=>{
+        modalRegistrar.addEventListener('show.bs.modal',(event)=>{
                 let boton = event.relatedTarget;
-                if (boton && boton.hasAttribute('data-id')) {
+                if (!boton) return;
+                if (boton.hasAttribute('data-id')) {
                     let id = boton.getAttribute('data-id');
-                    modalTitle.textContent = 'Editar socio';
-                    btnModal.textContent = 'Actualizar';
-                    registerForm.action = '/socios/editar/' + id;
+                    configurarModal('Editar socio', 'Actualizar', '/socios/editar/' + id, id);
                     document.getElementById('editing_id').value = id;
                     document.getElementById('dni').value = boton.getAttribute('data-dni');
                     document.getElementById('nombre').value = boton.getAttribute('data-nombre');
                     document.getElementById('email').value = boton.getAttribute('data-email');
                     document.getElementById('telefono').value = boton.getAttribute('data-telefono');
                     document.getElementById('biblioteca').value = boton.getAttribute('data-biblioteca');
-                } else if (boton){
-                    modalTitle.textContent = 'Nuevo socio';
-                    btnModal.textContent = 'Registrar';
-                    registerForm.action = "{{ route('socio.store') }}";
-                    document.getElementById('biblioteca').value = "";
+                } else{
+                    configurarModal('Nuevo socio', 'Registrar', "{{ route('socio.store') }}");
+                    if (biblioteca) {
+                        biblioteca.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+                    }
                     registerForm.reset();
+                    document.getElementById('dni').value = "";
+                    document.getElementById('nombre').value = "";
+                    document.getElementById('email').value = "";
+                    document.getElementById('telefono').value = "";
+                    document.getElementById('biblioteca').value = "";
                 }
+        });
+
+        modalRegistrar.addEventListener('hidden.bs.modal', () => {
+            registerForm.reset();
+            limpiarErrorValidacion();
+            inputEditar.value = "";
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            selectCuota.addEventListener('change', () => {
+                btnBuscar.click(); 
             });
 
-            modalRegistrar.addEventListener('hidden.bs.modal', () => {
-                registerForm.reset();
-                registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            selectEstado.addEventListener('change', () => {
+                btnBuscar.click(); 
             });
 
-            // Búsqueda
             btnBuscar.addEventListener('click', () => {
-                console.log('Botón buscar clickeado'); // DEBUG
                 let inputNombre = document.getElementById('buscador');
                 let nombre = inputNombre.value.trim();
 
@@ -285,8 +280,6 @@
                 let selectEstado = document.getElementById('estado');
                 let estado = selectEstado.value;
                 
-                console.log('Filtros:', { nombre, cuota, estado }); // DEBUG
-
                 fetch("{{ route('socio.buscar') }}", {
                     method: "POST",
                     headers: {
@@ -301,7 +294,6 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Resultados:', data); // DEBUG
                     let tablaSocios = document.getElementById('tablaSocios');
                     tablaSocios.innerHTML = '';
 
@@ -404,101 +396,25 @@
                 });
             });
 
-        }); // FIN DOMContentLoaded
-        
-        // Funciones globales (fuera de DOMContentLoaded porque se llaman desde onclick)
-        function confirmarEliminar(id) {
-            Swal.fire({
-                title: '¿Desactivar socio?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ff8000',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, desactivar',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-4' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/socios/eliminar/' + id;
-                    form.innerHTML = `@csrf`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-
-        function reactivarSocio(id) {
-            Swal.fire({
-                title: '¿Reactivar socio?',
-                text: "El socio volverá a tener acceso completo.",
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#198754',
-                confirmButtonText: 'Sí, reactivar',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-4' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/socios/reactivar/' + id;
-                    form.innerHTML = `@csrf`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-    </script>
-
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                title: '¡Éxito!',
-                text: '{{ session("success") }}',
-                icon: 'success',
-                confirmButtonColor: '#ff8000',
-                confirmButtonText: 'Aceptar',
-                customClass: {
-                    popup: 'rounded-4',
-                }
-            });
-        </script>
-    @endif
-
-    @if(session('error'))
-    <script>
-        Swal.fire({
-            title: 'Error Crítico',
-            text: '{{ session("error") }}',
-            icon: 'error',
-            confirmButtonColor: '#ff8000'
         });
+        
     </script>
-    @endif
 
     @if ($errors->any())
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var modalElemento = document.getElementById('registrarSocio');
-            var modal = new bootstrap.Modal(modalElemento);
-            
-            let editarID = "{{ old('editing_id') }}"; 
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalElemento = document.getElementById('registrarSocio');
+                var modal = new bootstrap.Modal(modalElemento);
+                
+                let editarID = "{{ old('editing_id') }}"; 
 
-            if (editarID) {
-                document.getElementById('modalTitle').textContent = 'Editar socio';
-                document.getElementById('btnModal').textContent = 'Actualizar';
-                document.getElementById('registerForm').action = '/socios/editar/' + editarID;
-            } else {
-                document.getElementById('modalTitle').textContent = 'Nuevo socio';
-                document.getElementById('btnModal').textContent = 'Registrar';
-                document.getElementById('registerForm').action = "{{ route('socio.store') }}";
-            }
-
-            modal.show();
-        });
-    </script>
+                if (editarID) {
+                    configurarModal('Editar socio', 'Actualizar', '/socios/editar/' + editarID, editarID);
+                } else {
+                    configurarModal('Nuevo socio', 'Registrar', "{{ route('socio.store') }}");
+                }
+                modal.show();
+            });
+        </script>
     @endif
 @endsection
-</html>

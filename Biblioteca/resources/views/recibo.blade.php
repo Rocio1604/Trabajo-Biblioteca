@@ -10,8 +10,8 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">Gestión de Recibos</h3>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearRecibo">
-                        <i class="fas fa-plus"></i> Nuevo Recibo
+                    <button type="button" class="btn btn-naranja d-flex gap-3" data-bs-toggle="modal" data-bs-target="#modalForm">
+                        <i class="bi bi-plus-lg"></i>Nuevo Recibo
                     </button>
                 </div>
                 <!-- Buscadores  -->
@@ -50,26 +50,12 @@
                         </div>
                         
                         <div class="col-12 col-md-2">
-                            <button id="btnBuscar" class="btn btn-primary w-100">
+                            <button id="btnBuscar" class="btn btn-naranja w-100">
                                 <i class="bi bi-search"></i> Buscar
                             </button>
                         </div>
                     </div>
                 </div>
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-striped table-hover">
@@ -93,10 +79,10 @@
                                             <small class="text-muted">{{ $recibo->numero_recibo }}</small>
                                         </td>
                                         <td>
-                                            @if($recibo->tipo->nombre == 'Suscripcion' || $recibo->tipo->nombre == 'Suscripción')
-                                                <span class="badge bg-info">Suscripción</span>
+                                            @if($recibo->tipo->id == 1)
+                                                <span class="badge bg-info">{{ $recibo->tipo->nombre }}</span>
                                             @else
-                                                <span class="badge bg-danger">Multa</span>
+                                                <span class="badge bg-danger">{{ $recibo->tipo->nombre }}</span>
                                             @endif
                                         </td>
                                         <td>{{ $recibo->socio->nombre }}</td>
@@ -117,104 +103,29 @@
                                                 <button type="button" 
                                                         class="btn btn-sm" 
                                                         data-bs-toggle="modal" 
-                                                        data-bs-target="#modalEditarRecibo{{ $recibo->id }}"
-                                                        title="Editar">
+                                                        data-bs-target="#modalForm"
+                                                        data-id="{{ $recibo->id }}"
+                                                        data-socio="{{ $recibo->socio->id }}"
+                                                        data-tipo="{{ $recibo->tipo->id }}" 
+                                                        data-concepto="{{ $recibo->concepto }}"
+                                                        data-importe="{{ $recibo->importe }}">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
 
                                                 <!-- Botón Eliminar -->
-                                                <form action="{{ route('recibo.destroy', $recibo->id) }}" 
-                                                      method="POST" 
-                                                      class="d-inline"
-                                                      onsubmit="return confirm('¿Estás seguro de dar de baja este recibo?')">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-danger" title="Dar de baja">
-                                                        <i class="bi bi-trash3"></i>
-                                                    </button>
-                                                </form>
+                                                <button class="bg-transparent border-0"
+                                                    onclick="confirmarEliminar('{{ $recibo->id }}','recibo','recibos')">
+                                                    <i class="bi bi-trash icono-eliminar"></i>
+                                                </button>
                                             </div>
                                             @endif
                                         </td>
                                     </tr>
-
-                                    <!-- Modal Editar Recibo -->
-                                    <div class="modal fade" id="modalEditarRecibo{{ $recibo->id }}" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Editar Recibo</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <form action="{{ route('recibo.update', $recibo->id) }}" method="POST">
-                                                    @csrf
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Socio *</label>
-                                                            <select name="socio_id" class="form-select" required>
-                                                                @foreach($socios as $socio)
-                                                                    <option value="{{ $socio->id }}" 
-                                                                        {{ $recibo->socio_id == $socio->id ? 'selected' : '' }}>
-                                                                        {{ $socio->nombre }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Tipo *</label>
-                                                            <select name="tipo_id" class="form-select" required>
-                                                                @foreach($tipos as $tipo)
-                                                                    <option value="{{ $tipo->id }}" 
-                                                                        {{ $recibo->tipo_id == $tipo->id ? 'selected' : '' }}>
-                                                                        {{ $tipo->nombre }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Concepto *</label>
-                                                            <input type="text" name="concepto" class="form-control" 
-                                                                   value="{{ $recibo->concepto }}" required>
-                                                        </div>
-
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Importe (€) *</label>
-                                                            <input type="number" step="0.01" name="importe" 
-                                                                   class="form-control" value="{{ $recibo->importe }}" required>
-                                                        </div>
-
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Fecha *</label>
-                                                            <input type="date" name="fecha" class="form-control" 
-                                                                   value="{{ $recibo->fecha->format('Y-m-d') }}" required>
-                                                        </div>
-
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Estado *</label>
-                                                            <select name="estado_id" class="form-select" required>
-                                                                @foreach($estados as $estado)
-                                                                    <option value="{{ $estado->id }}" 
-                                                                        {{ $recibo->estado_id == $estado->id ? 'selected' : '' }}>
-                                                                        {{ $estado->nombre }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-primary">Actualizar</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
                                 @empty
                                     <tr>
                                         <td colspan="8" class="text-center">No hay recibos registrados</td>
                                     </tr>
+
                                 @endforelse
                             </tbody>
                         </table>
@@ -226,67 +137,66 @@
 </div>
 
 <!-- Modal Crear Recibo -->
-<div class="modal fade" id="modalCrearRecibo" tabindex="-1">
+<div class="modal fade" id="modalForm" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nuevo Recibo</h5>
+                <h5 class="modal-title" id="modalTitle">Nuevo Recibo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('recibo.store') }}" method="POST">
+            <form method="POST" id="registerForm">
                 @csrf
+                <input type="hidden" id="editing_id" name="editing_id" value="{{ old('editing_id') }}">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Socio *</label>
-                        <select name="socio_id" class="form-select" required>
-                            <option value="">Selecciona un socio</option>
+                        <select name="socio_id" id="socio_id" class="form-select @error('socio_id') is-invalid @enderror" >
+                            <option value="">Seleccione un socio</option>
                             @foreach($socios as $socio)
-                                <option value="{{ $socio->id }}">{{ $socio->nombre }} - {{ $socio->dni }}</option>
+                                <option value="{{ $socio->id }}" {{ old('socio_id') == $socio->id ? 'selected' : '' }}>
+                                    {{ $socio->nombre }} - {{ $socio->dni }}
+                                </option>
                             @endforeach
                         </select>
+                        @error('socio_id')
+                                <div class="invalid-feedback fs-8">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Tipo *</label>
-                        <select name="tipo_id" class="form-select" required>
+                        <select name="tipo_id" id="tipo_id" class="form-select  @error('tipo_id') is-invalid @enderror" >
                             <option value="">Selecciona un tipo</option>
                             @foreach($tipos as $tipo)
-                                <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                <option value="{{ $tipo->id }}" {{ old('tipo_id') == $tipo->id ? 'selected' : '' }}>{{ $tipo->nombre }}</option>
                             @endforeach
                         </select>
+                        @error('tipo_id')
+                                <div class="invalid-feedback fs-8">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Concepto *</label>
-                        <input type="text" name="concepto" class="form-control" 
-                               placeholder="Ej: Cuota anual 2026" required>
+                        <input type="text" id="concepto" name="concepto" class="form-control  @error('concepto') is-invalid @enderror" 
+                               placeholder="Ej: Cuota anual 2026" value="{{ old('concepto') }}" >
+                        @error('concepto')
+                            <div class="invalid-feedback fs-8">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Importe (€) *</label>
-                        <input type="number" step="0.01" name="importe" class="form-control" 
-                               placeholder="50.00" required>
+                        <input type="number" step="0.01" name="importe" id="importe" class="form-control  @error('importe') is-invalid @enderror" 
+                               placeholder="50.00" value="{{ old('importe') }}" >
+                        @error('importe')
+                            <div class="invalid-feedback fs-8">{{ $message }}</div>
+                        @enderror
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Fecha *</label>
-                        <input type="date" name="fecha" class="form-control" 
-                               value="{{ date('Y-m-d') }}" required>
-                    </div>
-
-                    <!-- <div class="mb-3">
-                        <label class="form-label">Estado *</label>
-                        <select name="estado_id" class="form-select" required>
-                            <option value="">Selecciona un estado</option>
-                            @foreach($estados as $estado)
-                                <option value="{{ $estado->id }}">{{ $estado->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div> -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Crear Recibo</button>
+                    <button type="submit" class="btn btn-primary" id="btnModal">Crear Recibo</button>
                 </div>
             </form>
         </div>
@@ -295,7 +205,56 @@
 @endsection
 @section('scripts')
 <script>
+
+    let modalRegistrar = document.querySelector("#modalForm");
+    let registerForm = document.querySelector("#registerForm");
+    let modalTitle = document.getElementById('modalTitle');
+    let slTipo = document.getElementById('tipo_id');
+    let slSocio = document.getElementById('socio_id');
+    let btnModal = document.getElementById('btnModal');
     let btnBuscar = document.getElementById('btnBuscar');
+    let inputEditar = document.getElementById('editing_id');
+
+    let configurarModal = (titulo, btnTexto, accion, id = "") => {
+        modalTitle.textContent = titulo;
+        btnModal.textContent = btnTexto;
+        registerForm.action = accion;
+        inputEditar.value = id;
+    };
+
+    let limpiarErrorValidacion = () => {
+        registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    };
+
+    modalRegistrar.addEventListener('show.bs.modal',(event)=>{
+        let boton = event.relatedTarget;
+        if (!boton) return;
+        if (boton.hasAttribute('data-id')) {
+            let id = boton.getAttribute('data-id');
+            configurarModal('Editar Recibo', 'Actualizar', '/recibos/editar/' + id, id);
+            document.getElementById('editing_id').value = id;
+            slSocio.value = boton.getAttribute('data-socio');
+            slTipo.value = boton.getAttribute('data-tipo');
+            document.getElementById('concepto').value = boton.getAttribute('data-concepto');
+            document.getElementById('importe').value = boton.getAttribute('data-importe');
+        } else if (boton){
+            configurarModal('Nuevo Recibo', 'Registrar', "{{ route('recibo.store') }}");
+            registerForm.reset();
+            if (slSocio) {
+                slSocio.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+            }
+            if (slTipo) {
+                slTipo.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+            }
+            document.getElementById('concepto').value = '';
+            document.getElementById('importe').value = '';
+        }
+    })
+    modalRegistrar.addEventListener('hidden.bs.modal', () => {
+            registerForm.reset();
+            limpiarErrorValidacion();
+            inputEditar.value = "";        
+    });
 
     btnBuscar.addEventListener('click', () => {
         let inputBusqueda = document.getElementById('buscador');
@@ -332,17 +291,17 @@
             data.forEach(recibo => {
                 
                 let tipoBadge = '';
-                if (recibo.tipo.nombre === 'Suscripcion' || recibo.tipo.nombre === 'Suscripción') {
-                    tipoBadge = '<span class="badge bg-primary">Suscripción</span>';
+                if (recibo.tipo.id == 1) {
+                    tipoBadge = `<span class="badge bg-info">${recibo.tipo.nombre}</span>`;
                 } else {
-                    tipoBadge = '<span class="badge bg-danger">Multa</span>';
+                    tipoBadge = `<span class="badge bg-danger">${recibo.tipo.nombre}</span>`;
                 }
 
                 let estadoBadge = '';
                 if (recibo.estado.nombre === 'Pagado') {
-                    estadoBadge = '<span class="badge bg-success">Pagado</span>';
+                    estadoBadge = `<span class="badge bg-success">Pagado</span>`;
                 } else {
-                    estadoBadge = '<span class="badge bg-warning text-dark">Pendiente</span>';
+                    estadoBadge = `<span class="badge bg-warning text-dark">Pendiente</span>`;
                 }
 
                 let fecha = new Date(recibo.fecha).toLocaleDateString('es-ES');
@@ -362,15 +321,20 @@
                             <button type="button" 
                                     class="btn btn-sm" 
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#modalEditarRecibo${recibo.id}"
+                                    data-bs-target="#modalForm"
+                                    data-id="${recibo.id}"
+                                    data-socio="${recibo.socio_id}"
+                                    data-tipo="${recibo.tipo_id}"
+                                    data-concepto="${recibo.concepto}"
+                                    data-importe="${recibo.importe}"
                                     title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
                             <button type="button" 
-                                    class="btn btn-sm btn-danger" 
-                                    onclick="confirmarEliminar(${recibo.id})"
+                                    class="btn btn-sm" 
+                                    onclick="confirmarEliminar(${recibo.id}, 'recibo', 'recibos')"
                                     title="Dar de baja">
-                                <i class="bi bi-trash3"></i>
+                                <i class="bi bi-trash icono-eliminar"></i>
                             </button>
                         </div>
                     `;
@@ -399,16 +363,6 @@
         });
     });
 
-    function confirmarEliminar(id) {
-        if (confirm('¿Estás seguro de dar de baja este recibo?')) {
-            let form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/recibos/eliminar/' + id;
-            form.innerHTML = `@csrf`;
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
 
     document.getElementById('buscador').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -424,4 +378,20 @@
         btnBuscar.click();
     });
 </script>
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalElemento = document.getElementById('modalForm');
+                var modal = new bootstrap.Modal(modalElemento);
+                let editarID = "{{ old('editing_id') }}"; 
+                if (editarID) {
+                    configurarModal('Editar Recibo', 'Actualizar', '/recibos/editar/' + editarID, editarID);
+                } else {
+                    configurarModal('Nuevo Recibo', 'Registrar', "{{ route('recibo.store') }}");
+                }
+
+                modal.show();
+            });
+        </script>
+    @endif
 @endsection

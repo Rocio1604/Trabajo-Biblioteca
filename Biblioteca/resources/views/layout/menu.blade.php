@@ -21,8 +21,8 @@
     <div class="container-fluid">
         <div class="row">
 
-            <nav id="sidebarMenu" class="col-lg-2 sidebar vh-100 offcanvas-lg offcanvas-start text-white position-fixed">
-                <div class="offcanvas-header d-lg-none">
+            <nav id="sidebarMenu" class="col-xl-2 sidebar vh-100 offcanvas-xl offcanvas-start text-white position-fixed">
+                <div class="offcanvas-header d-xl-none">
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu"></button>
                 </div>
                 <div class="offcanvas-body flex-column">
@@ -97,18 +97,97 @@
                 </div>
             </nav>
 
-            <div class="col-lg-10 ms-lg-auto p-4 bg-light vh-100 overflow-auto">
-                    <button class="btn btn-primary d-lg-none m-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+            <div style="height: 80px; background-color: transparent; background-color: #292524;" class="d-xl-none d-flex align-items-center justify-content-between px-3">
+                    <button class="btn btn-naranja  m-2 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
                         <i class="bi bi-list"></i>
                     </button>
+                    <div class="d-flex flex-wrap gap-3 align-items-center px-3 sidebar-borde sidebar-header-prop">
+                        <i class="bi bi-book icono fs-1" ></i>
+                        <div>
+                            <h1 class="mb-0 fs-5 text-white">BiblioERP</h1>
+                            <p class="fs-8 mb-0 text-white-50">Sistema de gestión</p>
+                        </div>
+                    </div>
+                </div>
+
+            <div class="col-xl-10 ms-xl-auto p-4 bg-light vh-100 overflow-auto ">
+                    
                 @yield('content')
             </div>
         </div>
     </div>
     <script>
+        function confirmarReactivar(id,mensaje,url) {
+            Swal.fire({
+                title: '¿Reactivar ' + mensaje + '?',
+                text: "El " + mensaje + " volverá a estar disponible.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'Sí, reactivar',
+                cancelButtonText: 'Cancelar',
+                customClass: { popup: 'rounded-4' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/' + url + '/reactivar/' + id;
+                    form.innerHTML = `@csrf`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+        function confirmarEliminar(id,mensaje,url) {
+            Swal.fire({
+                title: '¿Desactivar ' + mensaje + '?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff8000',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, desactivar',
+                cancelButtonText: 'Cancelar',
+                customClass: { popup: 'rounded-4' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/' + url + '/eliminar/' + id;
+                    form.innerHTML = `@csrf`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.6/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Alerta de exito -->
+    @if(session('success'))
+        <script>
+            Swal.fire({
+                title: '¡Éxito!',
+                text: '{{ session("success") }}',
+                icon: 'success',
+                confirmButtonColor: '#ff8000',
+                confirmButtonText: 'Aceptar',
+                customClass: {
+                    popup: 'rounded-4',
+                }
+            });
+        </script>
+    @endif
+    <!-- Errores de base -->
+    @if(session('error'))
+    <script>
+        Swal.fire({
+            title: 'Error Crítico',
+            text: '{{ session("error") }}',
+            icon: 'error',
+            confirmButtonColor: '#ff8000'
+        });
+    </script>
+    @endif
     @yield('scripts')
 </body>
 </html>

@@ -12,7 +12,7 @@ class SociosController extends Controller
     public function index(){
         $socios = Socio::with(['estado', 'biblioteca'])->orderBy('es_activo', 'desc')->latest()->get();
         $estados = EstadoCuota::all();
-        $bibliotecas = Biblioteca::all();
+        $bibliotecas = Biblioteca::where('es_activo', 1)->get();
         return view('socio.index', compact('socios', 'estados', 'bibliotecas'));
     }
 
@@ -40,7 +40,6 @@ class SociosController extends Controller
             $esActivo = (int)$estado;
             $query->where('es_activo', $esActivo);
             
-            \Log::info('Filtrando por estado:', ['es_activo' => $esActivo]);
         }
 
         $socios = $query->get();
@@ -59,7 +58,7 @@ class SociosController extends Controller
             'email.required' => 'El correo electrónico es necesario',
             'email.email' => 'Ingresa un formato de correo válido',
             'email.unique' => 'Este correo ya está registrado',
-            'biblioteca.required' => 'Debes seleccionar una biblioteca',
+            'biblioteca_id.required' => 'Debes seleccionar una biblioteca',
             'telefono.required' => 'El teléfono es obligatorio',
             'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9'
         ];
@@ -67,7 +66,7 @@ class SociosController extends Controller
         $request->validate([
             'dni' => 'required|string|unique:socios,dni',
             'nombre' => 'required|string|min:3|max:100',
-            'biblioteca' => 'required|integer|exists:bibliotecas,id',
+            'biblioteca_id' => 'required|integer|exists:bibliotecas,id',
             'email' => 'required|email|unique:socios,email|max:255',
             'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
         ],$mensajes);
@@ -99,7 +98,7 @@ class SociosController extends Controller
             'email.required' => 'El correo electrónico es necesario',
             'email.email' => 'Ingresa un formato de correo válido',
             'email.unique' => 'Este correo ya está registrado',
-            'biblioteca.required' => 'Debes seleccionar una biblioteca',
+            'biblioteca_id.required' => 'Debes seleccionar una biblioteca',
             'telefono.required' => 'El teléfono es obligatorio',
             'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9'
         ];
@@ -107,7 +106,7 @@ class SociosController extends Controller
         $request->validate([
             'dni' => 'required|string|unique:socios,dni,' . $id,
             'nombre' => 'required|string|min:3|max:100',
-            'biblioteca' => 'required|integer|exists:bibliotecas,id',
+            'biblioteca_id' => 'required|integer|exists:bibliotecas,id',
             'email' => 'required|email|unique:socios,email,' . $id,
             'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
         ],$mensajes);

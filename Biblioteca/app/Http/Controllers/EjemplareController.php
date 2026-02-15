@@ -100,16 +100,16 @@ class EjemplareController extends Controller
             return redirect()->route('ejemplares.index')->with('success', 'Ejemplar desactivado correctamente');
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'No se pudo desactivar el ejemplar: ' . $e->getMessage());
+            return redirect()->route('ejemplares.index')->with('error', 'No se pudo desactivar el ejemplar: ' . $e->getMessage());
         }
     }
     public function reactivar($id) {
         $ejemplar = Ejemplare::findOrFail($id);
         try{
             $ejemplar->update(['es_activo' => 1]);
-            return redirect()->back()->with('success', 'Ejemplar reactivado correctamente');
+            return redirect()->route('ejemplares.index')->with('success', 'Ejemplar reactivado correctamente');
         }catch (\Exception $e) {
-            return redirect()->back()->with('error', 'No se pudo reactivar el ejemplar: ' . $e->getMessage());
+            return redirect()->route('ejemplares.index')->with('error', 'No se pudo reactivar el ejemplar: ' . $e->getMessage());
         }
     }
     private function aplicarFiltros(Request $request)

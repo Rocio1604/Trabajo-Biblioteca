@@ -12,11 +12,11 @@ class RecibosController extends Controller
 {
     public function index()
     {
-        $recibos = Recibo::with(['socio', 'tipo', 'estado'])->orderBy('id', 'desc')
+        $recibos = Recibo::with(['socio', 'tipo', 'estado'])->orderBy('es_activo', 'desc')->orderBy('id', 'desc')
             ->latest()
             ->get();
         
-        $socios = Socio::all();
+        $socios = Socio::where('es_activo', 1)->get();;
         $tipos = TipoRecibo::all();
         $estados = EstadoRecibo::all();
         
@@ -29,7 +29,8 @@ class RecibosController extends Controller
         $tipo = $request->tipo;
         $estado = $request->estado;
 
-        $query = Recibo::with(['socio', 'tipo', 'estado']);
+        $query = Recibo::with(['socio', 'tipo', 'estado'])->orderBy('es_activo', 'desc')->orderBy('id', 'desc')
+            ->latest();
 
         if ($busqueda) {
             $idExtraido = null;
@@ -75,8 +76,6 @@ class RecibosController extends Controller
             'importe.required' => 'El importe es obligatorio',
             'importe.numeric' => 'El importe debe ser un número',
             'importe.min' => 'El importe debe ser mayor a 0',
-            'fecha.required' => 'La fecha es obligatoria',
-            'fecha.date' => 'La fecha no es válida',
         ];
 
         $request->validate([
@@ -84,7 +83,6 @@ class RecibosController extends Controller
             'concepto' => 'required|string|min:5|max:255',
             'tipo_id' => 'required|integer|exists:tipos_recibos,id',
             'importe' => 'required|numeric|min:0.01',
-            'fecha' => 'required|date',
         ], $mensajes);
 
         try {
@@ -93,8 +91,8 @@ class RecibosController extends Controller
                 'concepto' => $request->concepto,
                 'tipo_id' => $request->tipo_id,
                 'importe' => $request->importe,
-                'fecha' => $request->fecha,
-                'estado_id' => 1,
+                'fecha' => now()->format('Y-m-d'),
+                'estado_id' => 2, // Pendiente
                 'es_activo' => true
             ]);
 
@@ -113,8 +111,6 @@ class RecibosController extends Controller
             'concepto.required' => 'El concepto es obligatorio',
             'tipo_id.required' => 'Debes seleccionar un tipo de recibo',
             'importe.required' => 'El importe es obligatorio',
-            'fecha.required' => 'La fecha es obligatoria',
-            'estado_id.required' => 'Debes seleccionar un estado'
         ];
 
         $request->validate([
@@ -122,8 +118,6 @@ class RecibosController extends Controller
             'concepto' => 'required|string|min:5|max:255',
             'tipo_id' => 'required|integer|exists:tipos_recibos,id',
             'importe' => 'required|numeric|min:0.01',
-            'fecha' => 'required|date',
-            'estado_id' => 'required|integer|exists:estados_recibos,id'
         ], $mensajes);
 
         try {
@@ -132,8 +126,6 @@ class RecibosController extends Controller
                 'concepto' => $request->concepto,
                 'tipo_id' => $request->tipo_id,
                 'importe' => $request->importe,
-                'fecha' => $request->fecha,
-                'estado_id' => $request->estado_id
             ]);
             
             return redirect()->route('recibo.index')->with('success', 'Recibo actualizado correctamente');

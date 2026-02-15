@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+
 @extends('layout.menu')
 @section('title', 'Trabajadores')
 @section('content')
@@ -103,9 +102,9 @@
                             <div class="col-6">
                                 <label for="rol" class="fs-7 icono-editar fw-semibold mb-1">Rol</label>
                                 <select name="rol_id" id="rol"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('rol_id') is-invalid @enderror">
-                                    <option value="" selected disabled>Seleccione un rol</option>
+                                    <option value="">Seleccione un rol</option>
                                     @foreach($roles as $rol)
-                                        <option value="{{ $rol->id }}" {{ old('rol') == $rol->id ? 'selected' : '' }}>
+                                        <option value="{{ $rol->id }}" {{ old('rol_id') == $rol->id ? 'selected' : '' }}>
                                             {{ $rol->nombre }}
                                         </option>
                                     @endforeach
@@ -124,15 +123,15 @@
                         </div>
                         <div class="mb-3">
                                 <label for="biblioteca" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Biblioteca</label>
-                                <select name="biblioteca" id="biblioteca"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca') is-invalid @enderror">
-                                    <option value="" selected disabled>Seleccione una biblioteca</option>
+                                <select name="biblioteca_id" id="biblioteca"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca_id') is-invalid @enderror">
+                                    <option value="">Seleccione una biblioteca</option>
                                     @foreach($bibliotecas as $biblioteca)
-                                        <option value="{{ $biblioteca->id }}" {{ old('biblioteca') == $biblioteca->id ? 'selected' : '' }}>
+                                        <option value="{{ $biblioteca->id }}" {{ old('biblioteca_id') == $biblioteca->id ? 'selected' : '' }}>
                                             {{ $biblioteca->nombre }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('biblioteca')
+                                @error('biblioteca_id')
                                     <div class="invalid-feedback fs-8">{{ $message }}</div>
                                 @enderror
                         </div>
@@ -160,7 +159,7 @@
             <form id="passwordForm" method="POST">
                 @csrf
                 <div class="modal-body p-4">
-                    <p class="text-muted fs-7">Usuario: <strong id="passNombreUsuario"></strong> <span id="passBibliotecaUsuario"></span></p>
+                    <p class="text-muted fs-7">Nombres: <strong id="passNombreUsuario"></strong> <span id="passBibliotecaUsuario"></span></p>
                     
                     <div class="mb-3">
                         <label class="fs-7 fw-semibold mb-1">Nueva Contraseña</label>
@@ -200,95 +199,69 @@
         let registerForm = document.querySelector("#registerForm");
         let modalTitle = document.getElementById('modalTitle');
         let btnModal = document.getElementById('btnModal');
+        let inputEditar = document.getElementById('editing_id');
+
+        let configurarModal = (titulo, btnTexto, accion, id = "") => {
+            modalTitle.textContent = titulo;
+            btnModal.textContent = btnTexto;
+            registerForm.action = accion;
+            inputEditar.value = id;
+        };
+
+        let limpiarErrorValidacion = () => {
+            registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        };
 
         modalRegistrar.addEventListener('show.bs.modal',(event)=>{
             let boton = event.relatedTarget;
+            if (!boton) return;
             if (boton.hasAttribute('data-id')) {
                 let id = boton.getAttribute('data-id');
-                console.log(id);
-                modalTitle.textContent = 'Editar Trabajador';
-                btnModal.textContent = 'Actualizar';
-                registerForm.action = '/usuarios/editar/' + id;
+                configurarModal('Editar Trabajador', 'Actualizar', '/usuarios/editar/' + id, id);
                 document.getElementById('editing_id').value = id;
                 document.getElementById('nombre').value = boton.getAttribute('data-nombre');
                 document.getElementById('correo').value = boton.getAttribute('data-correo');
                 document.getElementById('telefono').value = boton.getAttribute('data-telefono');
                 document.getElementById('rol').value = boton.getAttribute('data-rol'); 
                 document.getElementById('biblioteca').value = boton.getAttribute('data-biblioteca');
-
                 document.getElementById('contrasena').parentElement.style.display = 'none'
             } else if (boton){
-                modalTitle.textContent = 'Nuevo Trabajador';
-                btnModal.textContent = 'Registrar';
-                registerForm.action = "{{ route('usuario.store') }}";
-                document.getElementById('biblioteca').value = "";
-                document.getElementById('rol').value = "";
-                document.getElementById('contrasena').parentElement.style.display = 'block'
+                configurarModal('Nuevo Trabajador', 'Registrar', "{{ route('usuario.store') }}");
+                let biblioteca = document.getElementById('biblioteca');
                 registerForm.reset();
+                let rol = document.getElementById('rol');
+                if (biblioteca) {
+                    biblioteca.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+                }
+                if (rol) {
+                    rol.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+                }
+                document.getElementById('contrasena').parentElement.style.display = 'block'
+                document.getElementById('nombre').value = "";
+                document.getElementById('correo').value = "";
+                document.getElementById('telefono').value = "";
             }
         })
 
         modalRegistrar.addEventListener('hidden.bs.modal', () => {
             registerForm.reset();
-            registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        });
+            limpiarErrorValidacion();
+            inputEditar.value = "";        
+    });
 
-        function abrirModalPassword(id, nombre,biblioteca) {
-            let modalRegistroElement = document.getElementById('registroModal');
-            let modalRegistroBus = bootstrap.Modal.getInstance(modalRegistroElement);
-            if (modalRegistroBus) {
-                modalRegistroBus.hide();
-            }
-            let modal = new bootstrap.Modal(document.getElementById('passwordModal'));
-            let form = document.getElementById('passwordForm');
-            document.getElementById('passNombreUsuario').textContent = nombre;
-            document.getElementById('passBibliotecaUsuario').textContent =" ("+ biblioteca + ")";
-            form.action = '/usuarios/password/' + id;
-            modal.show();
+    function abrirModalPassword(id, nombre,biblioteca) {
+        let modalRegistroElement = document.getElementById('registroModal');
+        let modalRegistroBus = bootstrap.Modal.getInstance(modalRegistroElement);
+        if (modalRegistroBus) {
+            modalRegistroBus.hide();
         }
-
-        function confirmarEliminar(id) {
-            Swal.fire({
-                title: '¿Desactivar trabajador?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ff8000',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, desactivar',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-4' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/usuarios/eliminar/' + id;
-                    form.innerHTML = `@csrf`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-        function reactivarTrabajador(id) {
-            Swal.fire({
-                title: '¿Reactivar trabajador?',
-                text: "El trabajador volverá a estar disponible.",
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#198754',
-                confirmButtonText: 'Sí, reactivar',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-4' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/usuarios/reactivar/' + id;
-                    form.innerHTML = `@csrf`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
+        let modal = new bootstrap.Modal(document.getElementById('passwordModal'));
+        let form = document.getElementById('passwordForm');
+        document.getElementById('passNombreUsuario').textContent = nombre;
+        document.getElementById('passBibliotecaUsuario').textContent =" ("+ biblioteca + ")";
+        form.action = '/usuarios/password/' + id;
+        modal.show();
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
     let buscador = document.getElementById('inputBuscar'); 
@@ -309,7 +282,7 @@
         })
         .then(response => response.text())
         .then(html => {
-            contenedorTabla.innerHTML = html;
+            document.querySelector('tbody').innerHTML = html
         })
         .catch(error => console.error('Error filtrando:', error));
     }
@@ -319,39 +292,11 @@
             timeout = setTimeout(aplicarFiltros, 200);
         });
 
-        // Escuchamos cuando el usuario cambia un select
         selectRol.addEventListener('change', aplicarFiltros);
         selectEstado.addEventListener('change', aplicarFiltros);
     });
 
     </script>
-    <!-- Alerta de exito -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                title: '¡Éxito!',
-                text: '{{ session("success") }}',
-                icon: 'success',
-                confirmButtonColor: '#ff8000',
-                confirmButtonText: 'Aceptar',
-                customClass: {
-                    popup: 'rounded-4',
-                }
-            });
-        </script>
-    @endif
-    <!-- Errores de base -->
-    @if(session('error'))
-    <script>
-        Swal.fire({
-            title: 'Error Crítico',
-            text: '{{ session("error") }}',
-            icon: 'error',
-            confirmButtonColor: '#ff8000'
-        });
-    </script>
-    @endif
     <!-- Errores de validación -->
     @if ($errors->has('nueva_contrasena') || $errors->has('confirmar_contrasena'))
         <script>
@@ -374,14 +319,10 @@
                 let editarID = "{{ old('editing_id') }}"; 
 
                 if (editarID) {
-                    document.getElementById('modalTitle').textContent = 'Editar Trabajador';
-                    document.getElementById('btnModal').textContent = 'Actualizar';
-                    document.getElementById('registerForm').action = '/usuarios/editar/' + editarID;
+                    configurarModal('Editar Trabajador', 'Actualizar', '/usuarios/editar/' + editarID, editarID);
                     document.getElementById('contrasena').parentElement.style.display = 'none';
                 } else {
-                    document.getElementById('modalTitle').textContent = 'Nuevo trabajador';
-                    document.getElementById('btnModal').textContent = 'Registrar';
-                    document.getElementById('registerForm').action = "{{ route('usuario.store') }}";
+                    configurarModal('Nuevo Trabajador', 'Registrar', "{{ route('usuario.store') }}");
                     document.getElementById('contrasena').parentElement.style.display = 'block';
                 }
 
@@ -390,4 +331,3 @@
         </script>
     @endif
 @endsection
-</html>

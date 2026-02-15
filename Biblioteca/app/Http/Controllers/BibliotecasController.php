@@ -17,10 +17,11 @@ class BibliotecasController extends Controller
 
     public function buscar(Request $request)
     {
-        $provincia = $request->provincia;
+        $busqueda = $request->busqueda;
 
-        $bibliotecas = Biblioteca::where('provincia', 'LIKE', "%$provincia%")
-            ->get();
+        $bibliotecas = Biblioteca::where('provincia', 'LIKE', "%$busqueda%")
+            ->orWhere('nombre', 'LIKE', "%$busqueda%")
+            ->orderBy('es_activo', 'desc')->latest()->get();
 
         return response()->json($bibliotecas);
     }
@@ -82,6 +83,7 @@ class BibliotecasController extends Controller
     }
 
     public function update(Request $request, $id){
+        $biblioteca =Biblioteca::findOrFail($id);
         $mensajes = [
             'nombre.required' => 'El nombre es obligatorio',
             'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
@@ -104,11 +106,10 @@ class BibliotecasController extends Controller
             'nombre' => 'required|min:3|max:100',
             'provincia' => 'required|min:3|max:100',
             'direccion' => 'required|min:5|max:255',
-            'correo' => 'required|email|max:255',
+            'correo' => 'required|email|unique:bibliotecas,correo,'. $id.'|max:255',
             'telefono' => ['required','regex:/^[6789]\d{8}$/'],
         ], $mensajes);
 
-        $biblioteca = Biblioteca::findOrFail($id);
         try {
             $biblioteca->update($request->all());
             return redirect()->route('biblio.index')

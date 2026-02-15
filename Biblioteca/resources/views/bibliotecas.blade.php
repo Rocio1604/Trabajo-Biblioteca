@@ -1,4 +1,4 @@
-@extends('layout.menu')
+ @extends('layout.menu')
 @section('title', 'Bibliotecas')
 
 @section('content')
@@ -18,18 +18,17 @@
         </button>
     </div>
 </div>
-<div class="d-flex flex-wrap align-items-center">
-    <div class="col-9">
-        <div class="input-group rounded-4 input-focus">
+<div class="mb-4 g-2">
+        <div class="input-group rounded-4  input-focus">
                 <span class="input-group-text border-0 bg-white rounded-start-4 bg-transparent">
                     <i class="bi bi-search fs-5 color-input"></i>
                 </span>
-                <input type="text" id="buscador" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre, email o DNI...">
-            </div>
-    </div>
-    <div class="col-3 rounded-4 ">
-        <button id="buscar"><i class="bi bi-search fs-5 color-input"></i>Buscar</button>
-    </div>
+                <input type="text" id="buscador" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre o provincia...">
+                <button id="buscar" class="btn btn-naranja px-4 d-flex align-items-center gap-2">
+                    <i class="bi bi-search"></i>
+                    <span class="d-none d-sm-inline">Buscar</span>
+                </button>
+        </div>
 </div>
 
 <div class="row g-4" id="caja">
@@ -60,7 +59,7 @@
 
                     <!-- DESACTIVAR -->
                     <button class="bg-transparent border-0"
-                        onclick="confirmarEliminar('{{ $biblio->id }}')">
+                        onclick="confirmarEliminar('{{ $biblio->id }}','biblioteca','biblioteca')">
                         <i class="bi bi-trash icono-eliminar"></i>
                     </button>
 
@@ -68,7 +67,7 @@
 
                         <!-- REACTIVAR -->
                         <button class="bg-transparent border-0"
-                            onclick="reactivarBiblioteca('{{ $biblio->id }}')">
+                            onclick="confirmarReactivar('{{ $biblio->id }}','biblioteca','biblioteca')">
                             <i class="bi bi-arrow-counterclockwise text-success"></i>
                         </button>
 
@@ -205,25 +204,30 @@
 @section('scripts')
 <script>
 
-let btnBuscar= document.getElementById('buscar');
-let modal = document.querySelector("#modalBiblioteca");
-let form = document.querySelector("#bibliotecaForm");
-let modalTitle = document.getElementById('modalTitle');
-let btnModal = document.getElementById('btnModal');
+    let btnBuscar= document.getElementById('buscar');
+    let modal = document.querySelector("#modalBiblioteca");
+    let form = document.querySelector("#bibliotecaForm");
+    let modalTitle = document.getElementById('modalTitle');
+    let btnModal = document.getElementById('btnModal');
+    let inputEditar = document.getElementById('editing_id');
+
+    let configurarModal = (titulo, btnTexto, accion, id = "") => {
+        modalTitle.textContent = titulo;
+        btnModal.textContent = btnTexto;
+        form.action = accion;
+        inputEditar.value = id;
+    };
+
+    let limpiarErrorValidacion = () => {
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    };
 
     modal.addEventListener('show.bs.modal', (event) => {
-
         let boton = event.relatedTarget;
-
+        if (!boton) return;
         if (boton.hasAttribute('data-id')) {
-
             let id = boton.getAttribute('data-id');
-
-            modalTitle.textContent = 'Editar Biblioteca';
-            btnModal.textContent = 'Actualizar';
-
-            form.action = '/biblioteca/editar/' + id;
-
+            configurarModal('Editar Biblioteca', 'Actualizar', '/biblioteca/editar/' + id, id);
             document.getElementById('editing_id').value = id;
             document.getElementById('nombre').value = boton.getAttribute('data-nombre');
             document.getElementById('provincia').value = boton.getAttribute('data-provincia');
@@ -231,232 +235,146 @@ let btnModal = document.getElementById('btnModal');
             document.getElementById('telefono').value = boton.getAttribute('data-telefono');
             document.getElementById('correo').value = boton.getAttribute('data-correo');
 
-        } else if (boton){
-
-            modalTitle.textContent = 'Nueva Biblioteca';
-            btnModal.textContent = 'Registrar';
-
-            form.action = "{{ route('biblio.store') }}";
+        } else{
+            configurarModal('Nueva Biblioteca', 'Registrar', "{{ route('biblio.store') }}");
             form.reset();
+            document.getElementById('nombre').value = "";
+            document.getElementById('provincia').value = "";
+            document.getElementById('direccion').value = "";
+            document.getElementById('telefono').value = "";
+            document.getElementById('correo').value = "";
+
         }
     });
-        
+            
     modal.addEventListener('hidden.bs.modal', () => {
         form.reset();
-        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        limpiarErrorValidacion();
+        inputEditar.value = "";
     });
 
+    btnBuscar.addEventListener('click', () => {
 
-function confirmarEliminar(id) {
-
-    Swal.fire({
-        title: '¿Desactivar biblioteca?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ff8000',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, desactivar',
-        cancelButtonText: 'Cancelar',
-        customClass: { popup: 'rounded-4' }
-    }).then((result) => {
-
-        if (result.isConfirmed) {
-            let form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/biblioteca/eliminar/' + id;
-            form.innerHTML = `@csrf`;
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-    });
-
-}
-function reactivarBiblioteca(id) {
-
-    Swal.fire({
-        title: '¿Reactivar biblioteca?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#ff8000',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, reactivar',
-        cancelButtonText: 'Cancelar',
-        customClass: { popup: 'rounded-4' }
-    }).then((result) => {
-
-        if (result.isConfirmed) {
-
-            let form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/biblioteca/reactivar/' + id;
-            form.innerHTML = `@csrf`;
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-    });
-}
-btnBuscar.addEventListener('click', () => {
-
-    let inputProvincia = document.getElementById('buscador');
-    let provincia = inputProvincia.value.trim(); 
-    
-    if (provincia !== '') {
-        fetch("{{ route('biblio.buscar') }}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            },
-            body: JSON.stringify({
-                provincia: provincia  
+        let inputProvincia = document.getElementById('buscador');
+        let provincia = inputProvincia.value.trim(); 
+        
+            fetch("{{ route('biblio.buscar') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    busqueda: provincia ,
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
+            .then(response => response.json())
+            .then(data => {
 
-            let caja = document.getElementById('caja');
-            caja.innerHTML = '';
+                let caja = document.getElementById('caja');
+                caja.innerHTML = '';
 
-            if (data.length === 0) {
-                caja.innerHTML = '<p class="text-muted">No se encontraron resultados</p>';
-                return;
-            }
+                if (data.length === 0) {
+                    caja.innerHTML = '<p class="text-muted">No se encontraron resultados</p>';
+                    return;
+                }
 
-            data.forEach(biblio => {
-                
-                // Determinar clases CSS según estado
-                let cardClass = !biblio.es_activo ? 'bg-light text-muted opacity-75' : '';
-                
-                // Botón de eliminar o reactivar según estado
-                let actionButton = biblio.es_activo 
-                    ? `<button class="bg-transparent border-0" onclick="confirmarEliminar('${biblio.id}')">
-                        <i class="bi bi-trash icono-eliminar"></i>
-                       </button>`
-                    : `<button class="bg-transparent border-0" onclick="reactivarBiblioteca('${biblio.id}')">
-                        <i class="bi bi-arrow-counterclockwise text-success"></i>
-                       </button>`;
+                data.forEach(biblio => {
+                    
+                    // Determinar clases CSS según estado
+                    let cardClass = !biblio.es_activo ? 'bg-light text-muted opacity-75' : '';
+                    
+                    // Botón de eliminar o reactivar según estado
+                    let actionButton = biblio.es_activo 
+                        ? `
+                        <!-- EDITAR -->
+                        <button class="bg-transparent border-0"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalBiblioteca"
+                            data-id="${biblio.id}"
+                            data-nombre="${biblio.nombre}"
+                            data-provincia="${biblio.provincia}"
+                            data-direccion="${biblio.direccion}"
+                            data-telefono="${biblio.telefono}"
+                            data-correo="${biblio.correo}">
+                            <i class="bi bi-pencil-square icono-editar"></i>
+                        </button>
+                        <button class="bg-transparent border-0" onclick="confirmarEliminar('${biblio.id}','biblioteca','biblioteca')">
+                            <i class="bi bi-trash icono-eliminar"></i>
+                        </button>`
+                        : `<button class="bg-transparent border-0" onclick="confirmarReactivar('${biblio.id}','biblioteca','biblioteca')">
+                            <i class="bi bi-arrow-counterclockwise text-success"></i>
+                        </button>`;
 
-                caja.innerHTML += `
-                <div class="col-12 col-md-6">
-                    <div class="card shadow-sm rounded-4 p-4 position-relative h-100 ${cardClass}">
+                    caja.innerHTML += `
+                    <div class="col-12 col-md-6">
+                        <div class="card shadow-sm rounded-4 p-4 position-relative h-100 ${cardClass}">
 
-                        <!-- BOTONES -->
-                        <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
-                            
-                            <!-- EDITAR -->
-                            <button class="bg-transparent border-0"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalBiblioteca"
-                                data-id="${biblio.id}"
-                                data-nombre="${biblio.nombre}"
-                                data-provincia="${biblio.provincia}"
-                                data-direccion="${biblio.direccion}"
-                                data-telefono="${biblio.telefono}"
-                                data-correo="${biblio.correo}">
-                                <i class="bi bi-pencil-square icono-editar"></i>
-                            </button>
+                            <!-- BOTONES -->
+                            <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
 
-                            <!-- ELIMINAR / REACTIVAR -->
-                            ${actionButton}
+                                <!-- ELIMINAR / REACTIVAR -->
+                                ${actionButton}
+
+                            </div>
+
+                            <!-- CONTENIDO -->
+                            <h5 class="fw-semibold mb-3">${biblio.nombre}</h5>
+
+                            <p class="mb-2">
+                                <i class="bi bi-geo-alt me-2"></i>
+                                ${biblio.provincia}
+                            </p>
+
+                            <p class="mb-2">
+                                <i class="bi bi-house me-2"></i>
+                                ${biblio.direccion}
+                            </p>
+
+                            <p class="mb-2">
+                                <i class="bi bi-telephone me-2"></i>
+                                ${biblio.telefono}
+                            </p>
+
+                            <p class="mb-0">
+                                <i class="bi bi-envelope me-2"></i>
+                                ${biblio.correo}
+                            </p>
 
                         </div>
-
-                        <!-- CONTENIDO -->
-                        <h5 class="fw-semibold mb-3">${biblio.nombre}</h5>
-
-                        <p class="mb-2">
-                            <i class="bi bi-geo-alt me-2"></i>
-                            ${biblio.provincia}
-                        </p>
-
-                        <p class="mb-2">
-                            <i class="bi bi-house me-2"></i>
-                            ${biblio.direccion}
-                        </p>
-
-                        <p class="mb-2">
-                            <i class="bi bi-telephone me-2"></i>
-                            ${biblio.telefono}
-                        </p>
-
-                        <p class="mb-0">
-                            <i class="bi bi-envelope me-2"></i>
-                            ${biblio.correo}
-                        </p>
-
                     </div>
-                </div>
-                `;
-            });
+                    `;
+                });
 
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo realizar la búsqueda'
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo realizar la búsqueda'
+                });
             });
-        });
-    } else {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Atención',
-            text: 'Por favor ingresa una provincia para buscar'
-        });
-    }
-});
+    });
 </script>
-<!-- Alerta de exito -->
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                title: '¡Éxito!',
-                text: '{{ session("success") }}',
-                icon: 'success',
-                confirmButtonColor: '#ff8000',
-                confirmButtonText: 'Aceptar',
-                customClass: {
-                    popup: 'rounded-4',
-                }
-            });
-        </script>
-    @endif
-    <!-- Errores de base -->
-    @if(session('error'))
-    <script>
-        Swal.fire({
-            title: 'Error Crítico',
-            text: '{{ session("error") }}',
-            icon: 'error',
-            confirmButtonColor: '#ff8000'
-        });
-    </script>
-    @endif
     <!-- Errores de validación -->
     @if ($errors->any())
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var modalElemento = document.getElementById('modalBiblioteca');
-            var modal = new bootstrap.Modal(modalElemento);
-            
-            let editarID = "{{ old('editing_id') }}"; 
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalElemento = document.getElementById('modalBiblioteca');
+                var modal = new bootstrap.Modal(modalElemento);
+                
+                let editarID = "{{ old('editing_id') }}"; 
 
-            if (editarID) {
-                document.getElementById('modalTitle').textContent = 'Editar biblioteca';
-                document.getElementById('btnModal').textContent = 'Actualizar';
-                document.getElementById('bibliotecaForm').action = '/biblioteca/editar/' + editarID;
-            } else {
-                document.getElementById('modalTitle').textContent = 'Nueva biblioteca';
-                document.getElementById('btnModal').textContent = 'Registrar';
-                document.getElementById('bibliotecaForm').action = "{{ route('biblio.store') }}";
-            }
+                if (editarID) {
+                    configurarModal('Editar Biblioteca', 'Actualizar', '/biblioteca/editar/' + editarID, editarID);
+                } else {
+                    configurarModal('Nueva Biblioteca', 'Registrar', "{{ route('biblio.store') }}");
+                }
 
-            modal.show();
-        });
-    </script>
+                modal.show();
+            });
+        </script>
     @endif
 @endsection
 </html>

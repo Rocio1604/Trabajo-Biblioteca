@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
 @extends('layout.menu')
 @section('title', 'Ejemplares')
 @section('content')
@@ -113,9 +111,9 @@
                                 @enderror
                             </div>
                             <div class="col-6">
-                                <label for="biblioteca_id" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Biblioteca</label>
-                                <select name="biblioteca_id" id="biblioteca_id"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca_id') is-invalid @enderror">
-                                    <option value="" selected disabled>Seleccione una biblioteca</option>
+                                <label for="biblioteca_id_form" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Biblioteca</label>
+                                <select name="biblioteca_id" id="biblioteca_id_form"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca_id') is-invalid @enderror">
+                                    <option value="" >Seleccione una biblioteca</option>
                                     @foreach($bibliotecas as $biblioteca)
                                         <option value="{{ $biblioteca->id }}" {{ old('biblioteca_id') == $biblioteca->id ? 'selected' : '' }}>
                                             {{ $biblioteca->nombre }}
@@ -128,9 +126,9 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="estado_id" class="fs-7 icono-editar fw-semibold mb-1">Estado</label>
-                            <select name="estado_id" id="estado_id" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent @error('estado_id') is-invalid @enderror">
-                                    <option value="" selected disabled>Seleccione un estado</option>
+                            <label for="estado_id_form" class="fs-7 icono-editar fw-semibold mb-1">Estado</label>
+                            <select name="estado_id" id="estado_id_form" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent @error('estado_id') is-invalid @enderror">
+                                    <option value="" >Seleccione un estado</option>
                                 @foreach($estados as $estado)
                                     <option value="{{ $estado->id }}" {{ old('estado_id') == $estado->id ? 'selected' : '' }}>
                                         {{ $estado->nombre }}
@@ -156,223 +154,121 @@
 </div>
 @endsection
 @section('scripts')
-    <script>
-        let categoriaSelect, libroSelect;
-        let modalRegistrar = document.querySelector("#registroModal");
-        let registerForm = document.querySelector("#registerForm");
-        let modalTitle = document.getElementById('modalTitle');
-        let btnModal = document.getElementById('btnModal');
+<script>
+    let categoriaSelect, libroSelect;
+    let modalRegistrar = document.querySelector("#registroModal");
+    let registerForm = document.querySelector("#registerForm");
+    let modalTitle = document.getElementById('modalTitle');
+    let btnModal = document.getElementById('btnModal');
+    let inputEditar = document.getElementById('editing_id');
 
-        modalRegistrar.addEventListener('show.bs.modal',(event)=>{
-            let boton = event.relatedTarget;
-            if (boton.hasAttribute('data-id')) {
-                let id = boton.getAttribute('data-id');
-                console.log(id);
-                modalTitle.textContent = 'Editar ejemplar';
-                btnModal.textContent = 'Actualizar';
-                registerForm.action = '/ejemplares/editar/' + id;
-                document.getElementById('editing_id').value = id;
+    let configurarModal = (titulo, btnTexto, accion, id = "") => {
+        modalTitle.textContent = titulo;
+        btnModal.textContent = btnTexto;
+        registerForm.action = accion;
+        inputEditar.value = id;
+    };
 
-                 
-                libroSelect.clear(); 
-                libroSelect.setValue(boton.getAttribute('data-libro'));
-                document.getElementById('biblioteca_id').value = boton.getAttribute('data-biblioteca');
-                document.getElementById('estado_id').value = boton.getAttribute('data-estado');
-            } else if (boton){
-                modalTitle.textContent = 'Nuevo ejemplar';
-                btnModal.textContent = 'Registrar';
-                registerForm.action = "{{ route('ejemplares.store') }}";
-                document.getElementById('biblioteca_id').value = "";
-                document.getElementById('estado_id').value = "";
+    let limpiarErrorValidacion = () => {
+        registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    };
+
+    modalRegistrar.addEventListener('show.bs.modal', (event) => {
+        let btn = event.relatedTarget;
+        if (!btn) return;
+        if (btn.hasAttribute('data-id')) {
+            let id = btn.getAttribute('data-id');
+            configurarModal('Editar ejemplar', 'Actualizar', `/ejemplares/editar/${id}`, id);
+            if (libroSelect) {
+                libroSelect.setValue(btn.getAttribute('data-libro'));
+            }
+            document.getElementById('biblioteca_id_form').value = btn.getAttribute('data-biblioteca');
+            document.getElementById('estado_id_form').value = btn.getAttribute('data-estado');
+        } else {
+            configurarModal('Nuevo ejemplar', 'Registrar', "{{ route('ejemplares.store') }}");
+            registerForm.reset();
+            let biblioteca = document.getElementById('biblioteca_id_form');
+            let estado = document.getElementById('estado_id_form');
+                if (biblioteca) {
+                    biblioteca.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+                }
+                if (estado) {
+                    estado.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+                }
+                if (libroSelect) libroSelect.clear();
                 registerForm.reset();
             }
-        })
+    });
 
-        modalRegistrar.addEventListener('hidden.bs.modal', () => {
-            libroSelect.clear(); 
-            registerForm.reset();
-            registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        });
+    modalRegistrar.addEventListener('hidden.bs.modal', () => {
+        registerForm.reset();
+        if (libroSelect) libroSelect.clear(true);
+        limpiarErrorValidacion();
+        inputEditar.value = "";
+    });
 
-        function confirmarEliminar(id) {
-            Swal.fire({
-                title: '¿Desactivar ejemplar?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ff8000',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, desactivar',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-4' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/ejemplares/eliminar/' + id;
-                    form.innerHTML = `@csrf`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-        
-
-        
-
-        function reactivarEjemplar(id) {
-            Swal.fire({
-                title: '¿Reactivar ejemplar?',
-                text: "El ejemplar volverá a estar disponible.",
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#198754',
-                confirmButtonText: 'Sí, reactivar',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-4' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/ejemplares/reactivar/' + id;
-                    form.innerHTML = `@csrf`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
     document.addEventListener('DOMContentLoaded', function() {
-    categoriaSelect = new TomSelect("#categoria_id", {
-        create: false,
-        maxItems: 1, 
-        persist: false,
-        plugins: ['clear_button'], 
-        render: {
-            no_results: function(data, escape) {
-                return '<div class="no-results p-2 text-muted">No se encontró la categoría "' + escape(data.input) + '"</div>';
-            }
-        }
-    });
-
-    libroSelect = new TomSelect("#libro_id", {
-        create: false,
-        maxItems: 1, 
-        valueField: 'value',
-        labelField: 'text',
-        searchField: ['text', 'isbn'], 
-        dataAttr: 'data', 
-        persist: false,
-        plugins: ['clear_button'], 
-        render: {
-            option: function(data, escape) {
-                return `<div>
-                            <span class="fw-bold">${escape(data.text)}</span>
-                            <br>
-                            <small class="text-muted">ISBN: ${escape(data.isbn)}</small>
-                        </div>`;
-            },
-            item: function(data, escape) {
-                return `<div>${escape(data.text)} <small class="text-muted">(${escape(data.isbn)})</small></div>`;
-            },
-            no_results: function(data, escape) {
-                return '<div class="no-results">No se encontró el libro "' + escape(data.input) + '"</div>';
-            }
-        }
-    });
-
-    const buscador = document.getElementById('inputBuscar'); 
-    const selectEstado = document.getElementById('estado_id');
-    const selectActivo = document.getElementById('activo');
-    const selectBiblioteca = document.getElementById('biblioteca_id');
-    
-    const contenedorTabla = document.querySelector('tbody');
-
-    function aplicarFiltros() {
-        const buscar = buscador ? buscador.value : '';
-        const cat = (categoriaSelect && categoriaSelect.getValue()) ? categoriaSelect.getValue() : 'todas';
-        const est = selectEstado ? selectEstado.value : 'todas';
-        const act = selectActivo ? selectActivo.value : 'todas';
-        let bib = selectBiblioteca ? selectBiblioteca.value : 'todas';
-
-        const url = `{{ route('ejemplares.index') }}?buscar=${buscar}&categoria_id=${cat}&estado_id=${est}&activo=${act}&biblioteca_id=${bib}`;
-
-        // Petición AJAX (Fetch)
-        fetch(url, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest"
-            }
-        })
-        .then(response => 
-            response.text())
-        .then(html => {
-            contenedorTabla.innerHTML = html;
-        })
-        .catch(error => console.error('Error filtrando ejemplares:', error));
-    }
-    let timeout = null;
-        buscador.addEventListener('input', function() {
-            clearTimeout(timeout);
-            timeout = setTimeout(aplicarFiltros, 200);
-    });
-        [selectEstado, selectActivo, selectBiblioteca].forEach(select => {
-            if (select) {
-                select.addEventListener('change', aplicarFiltros);
+        categoriaSelect = new TomSelect("#categoria_id", { 
+            plugins: ['clear_button'],
+            persist: false,
+            create: false
+        });
+        libroSelect = new TomSelect("#libro_id", {
+            valueField: 'value', labelField: 'text', searchField: ['text', 'isbn'],
+            plugins: ['clear_button'],
+            render: {
+                option: (data, escape) => `<div><b>${escape(data.text)}</b><br><small>ISBN: ${escape(data.isbn)}</small></div>`,
+                item: (data, escape) => `<div>${escape(data.text)} <small>(${escape(data.isbn)})</small></div>`
             }
         });
-        categoriaSelect.on('change', function(value) {
-            aplicarFiltros();
-        });
-    });
+        let filtros = {
+            buscar: document.getElementById('inputBuscar'),
+            estado: document.getElementById('estado_id'),
+            activo: document.getElementById('activo'),
+            biblio: document.getElementById('biblioteca_id')
+        };
 
-    </script>
-    <!-- Alerta de exito -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                title: '¡Éxito!',
-                text: '{{ session("success") }}',
-                icon: 'success',
-                confirmButtonColor: '#ff8000',
-                confirmButtonText: 'Aceptar',
-                customClass: {
-                    popup: 'rounded-4',
-                }
+        let aplicarFiltros = () => {
+            let params = new URLSearchParams({
+                buscar: filtros.buscar?.value || '',
+                categoria_id: categoriaSelect?.getValue() || 'todas',
+                estado_id: filtros.estado?.value || 'todas',
+                activo: filtros.activo?.value || 'todas',
+                biblioteca_id: filtros.biblio?.value || 'todas'
             });
-        </script>
-    @endif
-    <!-- Errores de base -->
-    @if(session('error'))
-    <script>
-        Swal.fire({
-            title: 'Error Crítico',
-            text: '{{ session("error") }}',
-            icon: 'error',
-            confirmButtonColor: '#ff8000'
+
+            fetch(`{{ route('ejemplares.index') }}?${params}`, {
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(res => res.text())
+            .then(html => document.querySelector('tbody').innerHTML = html)
+            .catch(err => console.error('Error:', err));
+        };
+
+        let timer;
+        filtros.buscar?.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(aplicarFiltros, 300);
         });
-    </script>
-    @endif
+
+        [filtros.estado, filtros.activo, filtros.biblio].forEach(el => el?.addEventListener('change', aplicarFiltros));
+        categoriaSelect.on('change', aplicarFiltros);
+    });
+</script>
+    
     <!-- Errores de validación -->
     @if ($errors->any())
-        <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let modalElemento = document.getElementById('registroModal');
-            let modal = new bootstrap.Modal(modalElemento);
-            
-            let editarID = "{{ old('editing_id') }}"; 
-
-            if (editarID) {
-                document.getElementById('modalTitle').textContent = 'Editar Ejemplar';
-                document.getElementById('btnModal').textContent = 'Actualizar';
-                document.getElementById('registerForm').action = '/ejemplares/editar/' + editarID;
+            let editarID = "{{ old('editing_id') }}";
+            let modal = new bootstrap.Modal(document.getElementById('registroModal'));
+        if (editarID) {
+                configurarModal('Editar Ejemplar', 'Actualizar', `/ejemplares/editar/${editarID}`, editarID);
             } else {
-                document.getElementById('modalTitle').textContent = 'Nuevo ejemplar';
-                document.getElementById('btnModal').textContent = 'Registrar';
-                document.getElementById('registerForm').action = "{{ route('ejemplares.store') }}";
+                configurarModal('Nuevo ejemplar', 'Registrar', "{{ route('ejemplares.store') }}");
             }
-
             modal.show();
         });
     </script>
     @endif
 @endsection
-</html>

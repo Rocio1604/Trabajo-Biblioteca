@@ -13,7 +13,7 @@ class LibrosController extends Controller
    public function index(){
         $libros = Libro::with([ 'autores','categoria'])->orderBy('es_activo', 'desc')->latest()->get();
         $categorias = Categoria::all();
-        $autores = Autor::all();
+        $autores = Autor::where('es_activo', 1)->get();
         return view('libro.index', compact('libros', 'categorias', 'autores'));
     }
 

@@ -22,7 +22,8 @@
             </div>
         </div>
         <div class="col-12 col-md-6 col-xl-3">
-            <select name="categoria" id="categoria" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
+            <select name="categoria" id="buscar_categoria_id" class="w-100 input-focus bg-transparent" style="
+    border-radius: 15px;">
                 <option value="todas">Todos las categorias</option>
                 @foreach($categorias as $categoria)
                     <option value="{{ $categoria->id }}">
@@ -56,7 +57,7 @@
         </thead>
         <tbody>
             @foreach($libros as $libro)
-            <tr>
+            <tr @if($libro->es_activo==0) class="table-light opacity-50" @endif>
                 <td class="px-4 py-3 fs-6 fw-semibold">{{ $libro->titulo }}</td>
                 <td class="px-4 py-3 fs-7">{{ $libro->isbn }}</td>
                 <td class="px-4 py-3 fs-7">
@@ -85,11 +86,11 @@
                                     data-autores="{{ json_encode($libro->autores->pluck('id')) }}">
                                 <i class="bi bi-pencil-square icono-editar"></i>
                             </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $libro->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $libro->id }}','libro','libros')">
                                 <i class="bi bi-trash icono-eliminar"></i>
                             </button>
                         @else
-                            <button class="bg-transparent border-0 " onclick="reactivarLibro('{{ $libro->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarReactivar('{{ $libro->id }}','libro','libros')">
                                 <i class="bi bi-arrow-counterclockwise text-success"></i>
                             </button>
                         @endif
@@ -155,7 +156,8 @@
                                     <div class="invalid-feedback fs-8">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="mb-3">
+                        </div>
+                        <div class="mb-3">
                                 <label for="autores" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Autores</label>
                                 <select id="autores" name="autores[]" multiple placeholder="Seleccione uno o varios autores" autocomplete="off" class="input-focus @error('autores') is-invalid @enderror">
                                         <option value="" selected disabled>Seleccione uno o varios autores</option>
@@ -169,7 +171,6 @@
                                     <div class="invalid-feedback fs-8">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
                         <div class="row g-3">
                             <div class="col-6">
                                 <button type="button" class="w-100 btn bg-transparent border rounded-3 px-4 py-2" data-bs-dismiss="modal">Cancelar</button>
@@ -185,161 +186,76 @@
 </div>
 @endsection
 @section('scripts')
-    <script>
-        let modalRegistrar = document.querySelector("#registroModal");
-        let registerForm = document.querySelector("#registerForm");
-        let modalTitle = document.getElementById('modalTitle');
-        let btnModal = document.getElementById('btnModal');
+<script>
+    let categoriaSelect, autoresSelect, buscarCategoriaSelect;
+    let modalRegistrar = document.querySelector("#registroModal");
+    let registerForm = document.querySelector("#registerForm");
+    let modalTitle = document.getElementById('modalTitle');
+    let btnModal = document.getElementById('btnModal');
+    let inputEditar = document.getElementById('editing_id');
 
-        modalRegistrar.addEventListener('show.bs.modal',(event)=>{
-            let boton = event.relatedTarget;
-            if (boton.hasAttribute('data-id')) {
-                let id = boton.getAttribute('data-id');
-                console.log(id);
-                modalTitle.textContent = 'Editar libro';
-                btnModal.textContent = 'Actualizar';
-                registerForm.action = '/libros/editar/' + id;
-                document.getElementById('editing_id').value = id;
+    let configurarModal = (titulo, btnTexto, accion, id = "") => {
+        modalTitle.textContent = titulo;
+        btnModal.textContent = btnTexto;
+        registerForm.action = accion;
+        inputEditar.value = id;
+    };
+    let limpiarErrorValidacion = () => {
+        registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    };
 
-                var autoresIds = JSON.parse(boton.getAttribute('data-autores'));
-                autoresSelect.clear(); 
-                categoriaSelect.clear();
-                autoresSelect.setValue(autoresIds);
-                document.getElementById('isbn').value = boton.getAttribute('data-isbn');
-                document.getElementById('titulo').value = boton.getAttribute('data-titulo');
-                categoriaSelect.setValue(boton.getAttribute('data-categoria'));
-                document.getElementById('precio').value = boton.getAttribute('data-precio');
-            } else if (boton){
-                modalTitle.textContent = 'Nuevo libro';
-                btnModal.textContent = 'Registrar';
-                registerForm.action = "{{ route('libros.store') }}";
-                document.getElementById('biblioteca').value = "";
-                document.getElementById('estado').value = "";
-                
-                registerForm.reset();
-            }
-        })
-
-        modalRegistrar.addEventListener('hidden.bs.modal', () => {
+    modalRegistrar.addEventListener('show.bs.modal', (event) => {
+        let boton = event.relatedTarget;
+        if (!boton) return;
+        if (boton.hasAttribute('data-id')) {
+            let id = boton.getAttribute('data-id');
+            configurarModal('Editar libro', 'Actualizar', `/libros/editar/${id}`, id);
+            document.getElementById('isbn').value = boton.getAttribute('data-isbn');
+            document.getElementById('titulo').value = boton.getAttribute('data-titulo');
+            document.getElementById('precio').value = boton.getAttribute('data-precio');
+            categoriaSelect.setValue(boton.getAttribute('data-categoria'));
+            autoresSelect.setValue(JSON.parse(boton.getAttribute('data-autores')));
+        } else {
+            configurarModal('Nuevo libro', 'Registrar', "{{ route('libros.store') }}");
             registerForm.reset();
-            autoresSelect.clear(); 
-            categoriaSelect.clear();
-            registerForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        });
-
-        function confirmarEliminar(id) {
-            Swal.fire({
-                title: '¿Desactivar libro?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ff8000',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, desactivar',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-4' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/libros/eliminar/' + id;
-                    form.innerHTML = `@csrf`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
+            document.getElementById('isbn').value ="";
+            document.getElementById('titulo').value ="";
+            document.getElementById('precio').value ="";
+            if(categoriaSelect) categoriaSelect.clear();
+            if(autoresSelect) autoresSelect.clear();
         }
-
-        let categoriaSelect = new TomSelect("#categoria_id", {
-            create: false,
-            maxItems: 1, 
-            persist: false,
-            plugins: ['clear_button'], 
-            render: {
-                no_results: function(data, escape) {
-                    return '<div class="no-results p-2 text-muted">No se encontró la categoría "' + escape(data.input) + '"</div>';
-                }
-            }
-        });
-
-        let autoresSelect = new TomSelect("#autores", {
+    });
+    modalRegistrar.addEventListener('hidden.bs.modal', () => {
+        registerForm.reset();
+        [categoriaSelect, autoresSelect].forEach(select => select?.clear(true));
+        limpiarErrorValidacion();
+        inputEditar.value = "";
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        let tsConfig = { 
+            create: false, persist: false, plugins: ['clear_button'],
+            render: { no_results: (data, escape) => `<div class="no-results p-2 text-muted">No se encontró "${escape(data.input)}"</div>` }
+        };
+        categoriaSelect = new TomSelect("#categoria_id", tsConfig);
+        buscarCategoriaSelect = new TomSelect("#buscar_categoria_id", tsConfig);
+        autoresSelect = new TomSelect("#autores", {
+            ...tsConfig,
             plugins: ['remove_button', 'clear_button'],
-            create: false, 
-            maxItems: null,
-            persist: false,
-            render: {
-                no_results: function(data, escape) {
-                    return '<div class="no-results">No se encontró el autor "' + escape(data.input) + '"</div>';
-                }
-            }
+            maxItems: null
         });
-
-        function reactivarLibro(id) {
-            Swal.fire({
-                title: '¿Reactivar libro?',
-                text: "El libro volverá a estar disponible.",
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#198754',
-                confirmButtonText: 'Sí, reactivar',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-4' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/libros/reactivar/' + id;
-                    form.innerHTML = `@csrf`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-
-    </script>
-    <!-- Alerta de exito -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                title: '¡Éxito!',
-                text: '{{ session("success") }}',
-                icon: 'success',
-                confirmButtonColor: '#ff8000',
-                confirmButtonText: 'Aceptar',
-                customClass: {
-                    popup: 'rounded-4',
-                }
-            });
-        </script>
-    @endif
-    <!-- Errores de base -->
-    @if(session('error'))
-    <script>
-        Swal.fire({
-            title: 'Error Crítico',
-            text: '{{ session("error") }}',
-            icon: 'error',
-            confirmButtonColor: '#ff8000'
-        });
-    </script>
-    @endif
-    <!-- Errores de validación -->
+    });
+</script>
     @if ($errors->any())
         <script>
         document.addEventListener('DOMContentLoaded', function() {
             let modalElemento = document.getElementById('registroModal');
             let modal = new bootstrap.Modal(modalElemento);
-            
             let editarID = "{{ old('editing_id') }}"; 
 
             if (editarID) {
-                document.getElementById('modalTitle').textContent = 'Editar Libro';
-                document.getElementById('btnModal').textContent = 'Actualizar';
-                document.getElementById('registerForm').action = '/libros/editar/' + editarID;
+                configurarModal('Editar libro', 'Actualizar', `/libros/editar/${editarID}`, editarID);
             } else {
-                document.getElementById('modalTitle').textContent = 'Nuevo libro';
-                document.getElementById('btnModal').textContent = 'Registrar';
-                document.getElementById('registerForm').action = "{{ route('libros.store') }}";
+                configurarModal('Nuevo libro', 'Registrar', "{{ route('libros.store') }}");
             }
 
             modal.show();

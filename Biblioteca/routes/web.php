@@ -97,7 +97,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/usuarios/reactivar/{id}', [UsuariosController::class, 'reactivar'])->name('usuario.reactivar')->middleware('can:admin');
     Route::post('/usuarios/password/{id}', [UsuariosController::class, 'updatePassword'])->name('usuario.password');
 
-    //log on
+    //log out
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 });

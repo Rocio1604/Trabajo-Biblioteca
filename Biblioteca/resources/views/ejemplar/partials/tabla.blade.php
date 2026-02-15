@@ -1,5 +1,5 @@
  @foreach($ejemplares as $ejemplar)
-            <tr>
+            <tr @if($ejemplar->es_activo==0) class="table-light opacity-50" @endif>
                 <td class="px-4 py-3">
                     <div>
                         <p class="m-0 fw-semibold">{{ $ejemplar->libro->titulo }}</p>
@@ -43,14 +43,12 @@
                     <!-- color verde con icono de caja -->
                     @if($ejemplar->disponibilidad->id === 1)
                         <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-check2-circle fs-8"></i>
                             <span class="fs-8">Disponible</span>
                         </div>
                     @endif
                     <!-- color gris -->
                     @if($ejemplar->disponibilidad->id === 2)   
                         <div class="d-flex flex-wrap align-items-center etiqueta-gris rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                            <i class="bi bi-x-circle fs-8"></i>
                             <span class="fs-8">No disponible</span>
                         </div>
                     @endif
@@ -74,11 +72,11 @@
                                     data-estado="{{ $ejemplar->estado->id }}">
                                 <i class="bi bi-pencil-square icono-editar"></i>
                             </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $ejemplar->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $ejemplar->id }}','ejemplar','ejemplares')">
                                 <i class="bi bi-trash icono-eliminar"></i>
                             </button>
                         @else
-                            <button class="bg-transparent border-0 " onclick="reactivarEjemplar('{{ $ejemplar->id }}')">
+                            <button class="bg-transparent border-0 " onclick="confirmarReactivar('{{ $ejemplar->id }}','ejemplar','ejemplares')">
                                 <i class="bi bi-arrow-counterclockwise text-success"></i>
                             </button>
                         @endif
