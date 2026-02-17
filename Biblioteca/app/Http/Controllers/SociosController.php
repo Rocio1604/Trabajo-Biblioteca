@@ -75,7 +75,7 @@ class SociosController extends Controller
             Socio::create([
                 'dni' => $request->dni,
                 'nombre' => $request->nombre,
-                'biblioteca_id' => $request->biblioteca,
+                'biblioteca_id' => $request->biblioteca_id,
                 'email' => $request->email,
                 'telefono' => $request->telefono,
                 'estado_cuota' => 1,

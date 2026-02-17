@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 class EjemplareController extends Controller
 {
     public function index(Request $request){
-        $ejemplares = $this->aplicarFiltros($request)->get();
+        $ejemplares = $this->aplicarFiltros($request)->orderBy('biblioteca_id', 'asc')->get();
         /* $ejemplares = Ejemplare::with(['libro', 'biblioteca', 'estado', 'disponibilidad'])->where('es_activo', 1)->latest()->get(); */
         if ($request->ajax()) {
             return view('ejemplar.partials.tabla', compact('ejemplares'))->render();
