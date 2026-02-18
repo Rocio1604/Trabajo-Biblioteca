@@ -397,6 +397,11 @@
             });
 
         });
+        document.getElementById('buscador').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                btnBuscar.click();
+            }
+        });
         
     </script>
 

@@ -281,6 +281,11 @@
                 });
             }); 
     });
+    document.getElementById('buscador').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            btnBuscar.click();
+        }
+    });
 </script>
 <!-- Errores de validación -->
 @if ($errors->any())
