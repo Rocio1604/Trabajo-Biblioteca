@@ -59,7 +59,7 @@
 
                     <!-- DESACTIVAR -->
                     <button class="bg-transparent border-0"
-                        onclick="confirmarEliminar('{{ $biblio->id }}','biblioteca','biblioteca')">
+                        onclick="confirmarEliminar('{{ $biblio->id }}','biblioteca','biblioteca','Se desactivará todo relacionado con la biblioteca (trabajadores, socios y ejemplares).')">
                         <i class="bi bi-trash icono-eliminar"></i>
                     </button>
 

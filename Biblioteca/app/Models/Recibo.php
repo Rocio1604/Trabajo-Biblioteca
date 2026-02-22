@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Recibo extends Model
 {
@@ -10,11 +11,15 @@ class Recibo extends Model
     
     protected $fillable = [
         'socio_id',
+        'biblioteca_id',
         'concepto',
         'tipo_id',
         'importe',
         'fecha',
+        'fecha_pago',
+        'metodo_id',
         'estado_id',
+        'prestamo_id',
         'es_activo'
     ];
 
@@ -41,11 +46,19 @@ class Recibo extends Model
     }
 
     public function biblioteca()
-{
-    return $this->belongsTo(Biblioteca::class);
-}
+    {
+        return $this->belongsTo(Biblioteca::class);
+    }
     public function getNumeroReciboAttribute()
     {
         return 'REC-' . date('Y', strtotime($this->fecha)) . '-' . str_pad($this->id, 3, '0', STR_PAD_LEFT);
+    }
+    public function prestamo(): BelongsTo
+    {
+        return $this->belongsTo(Prestamo::class);
+    }
+    public function metodoPago()
+    {
+        return $this->belongsTo(MetodoPago::class, 'metodo_id');
     }
 }

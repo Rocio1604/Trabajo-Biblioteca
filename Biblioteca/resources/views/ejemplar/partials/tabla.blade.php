@@ -52,6 +52,11 @@
                             <span class="fs-8">No disponible</span>
                         </div>
                     @endif
+                    @if($ejemplar->disponibilidad->id === 3)   
+                        <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
+                            <span class="fs-8">Perdido</span>
+                        </div>
+                    @endif
                 </td>
                 <td class="px-4 py-3">
                     <!-- color verde con icono de caja -->

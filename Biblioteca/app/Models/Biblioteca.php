@@ -21,4 +21,15 @@ class Biblioteca extends Model
     {
         return $this->hasMany(Prestamo::class, 'biblioteca_id');
     }
+    public function trabajadores() {
+        return $this->hasMany(Usuario::class, 'biblioteca_id');
+    }
+
+    public function ejemplares() {
+        return $this->hasMany(Ejemplare::class, 'biblioteca_id');
+    }
+
+    public function socios() {
+        return $this->hasMany(Socio::class, 'biblioteca_id');
+    }
 }

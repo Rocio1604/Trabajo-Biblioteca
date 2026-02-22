@@ -66,7 +66,6 @@
                 <td class="px-4 py-3 fs-7">{{ $libro->categoria->nombre }}</td>
                 <td class="px-4 py-3 fs-7">€{{ number_format($libro->precio, 2) }}</td>
                 <td class="px-4 py-3">
-                    <!-- color verde con icono de caja -->
                     @if($libro->es_activo)
                         Sí
                     @else
@@ -86,7 +85,7 @@
                                     data-autores="{{ json_encode($libro->autores->pluck('id')) }}">
                                 <i class="bi bi-pencil-square icono-editar"></i>
                             </button>
-                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $libro->id }}','libro','libros')">
+                            <button class="bg-transparent border-0 " onclick="confirmarEliminar('{{ $libro->id }}','libro','libros','Se desactivará todo ejemplar relacionado con el libro.')">
                                 <i class="bi bi-trash icono-eliminar"></i>
                             </button>
                         @else
@@ -162,8 +161,10 @@
                                 <select id="autores" name="autores[]" multiple placeholder="Seleccione uno o varios autores" autocomplete="off" class="input-focus @error('autores') is-invalid @enderror">
                                         <option value="" selected disabled>Seleccione uno o varios autores</option>
                                     @foreach($autores as $autor)
-                                        <option value="{{ $autor->id }}" {{ old('autores') && in_array($autor->id, old('autores')) ? 'selected' : '' }}>
-                                            {{ $autor->nombre }}
+                                        <option value="{{ $autor->id }}" 
+                                            data-activo="{{ $autor->es_activo }}"
+                                            {{ (old('autores') && in_array($autor->id, old('autores'))) ? 'selected' : '' }}>
+                                            {{ $autor->nombre }} {{ !$autor->es_activo ? '(Inactivo)' : '' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -193,6 +194,7 @@
     let modalTitle = document.getElementById('modalTitle');
     let btnModal = document.getElementById('btnModal');
     let inputEditar = document.getElementById('editing_id');
+    let originalAutoresHTML = document.getElementById('autores').innerHTML;
 
     let configurarModal = (titulo, btnTexto, accion, id = "") => {
         modalTitle.textContent = titulo;
@@ -207,17 +209,35 @@
     modalRegistrar.addEventListener('show.bs.modal', (event) => {
         let boton = event.relatedTarget;
         if (!boton) return;
+        document.getElementById('autores').innerHTML = originalAutoresHTML;
+        
         if (boton.hasAttribute('data-id')) {
             let id = boton.getAttribute('data-id');
+
+            let autoresAsignados = JSON.parse(boton.getAttribute('data-autores'));
+            let selectOriginal = document.getElementById('autores');
+            selectOriginal.querySelectorAll('option').forEach(opt => {
+                if (opt.dataset.activo == '0' && !autoresAsignados.includes(parseInt(opt.value))) {
+                    opt.remove();
+                }
+            });
+            
+            autoresSelect.sync();
             configurarModal('Editar libro', 'Actualizar', `/libros/editar/${id}`, id);
             document.getElementById('isbn').value = boton.getAttribute('data-isbn');
             document.getElementById('titulo').value = boton.getAttribute('data-titulo');
             document.getElementById('precio').value = boton.getAttribute('data-precio');
             categoriaSelect.setValue(boton.getAttribute('data-categoria'));
-            autoresSelect.setValue(JSON.parse(boton.getAttribute('data-autores')));
+            if(categoriaSelect) categoriaSelect.setValue(boton.getAttribute('data-categoria'));
+            if(autoresSelect) autoresSelect.setValue(autoresAsignados);
         } else {
             configurarModal('Nuevo libro', 'Registrar', "{{ route('libros.store') }}");
             registerForm.reset();
+            let selectOriginal = document.getElementById('autores');
+            selectOriginal.querySelectorAll('option').forEach(opt => {
+                if (opt.dataset.activo == '0') opt.remove();
+            });
+            autoresSelect.sync();
             document.getElementById('isbn').value ="";
             document.getElementById('titulo').value ="";
             document.getElementById('precio').value ="";
@@ -254,9 +274,29 @@
 
             if (editarID) {
                 configurarModal('Editar libro', 'Actualizar', `/libros/editar/${editarID}`, editarID);
+                let autoresViejos = @json(old('autores', [])).map(Number);
+                let selectAutores = document.getElementById('autores');
+                
+                selectAutores.querySelectorAll('option').forEach(opt => {
+                    if (opt.value !== "" && opt.dataset.activo == '0' && !autoresViejos.includes(Number(opt.value))) {
+                        opt.remove();
+                    }
+                });
             } else {
                 configurarModal('Nuevo libro', 'Registrar', "{{ route('libros.store') }}");
+                document.getElementById('autores').querySelectorAll('option').forEach(opt => {
+                    if (opt.dataset.activo == '0') opt.remove();
+                });
             }
+            setTimeout(() => {
+                if (autoresSelect) {
+                    autoresSelect.sync();
+                    autoresSelect.setValue(@json(old('autores', [])));
+                }
+                if (categoriaSelect) {
+                    categoriaSelect.setValue("{{ old('categoria_id') }}");
+                }
+            }, 150);
 
             modal.show();
         });

@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             TipoReciboSeeder::class,
             EjemplarSeeder::class,
             PrestamoSeeder::class,
+            MetodoPagoSeeder::class,
             ReciboSeeder::class,
             RolSeeder::class,
             UsuarioSeeder::class,

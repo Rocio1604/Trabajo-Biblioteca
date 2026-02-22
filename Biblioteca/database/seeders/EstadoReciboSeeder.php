@@ -12,7 +12,7 @@ class EstadoReciboSeeder extends Seeder
         DB::table('estados_recibos')->insert([
             ['nombre' => 'Pagado'],
             ['nombre' => 'Pendiente'],
-            ['nombre' => 'Cancelado'],
+            ['nombre' => 'Anulado'],
         ]);
     }
 }

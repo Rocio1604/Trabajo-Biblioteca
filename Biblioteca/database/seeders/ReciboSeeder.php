@@ -29,12 +29,13 @@ class ReciboSeeder extends Seeder
             
             $recibos[] = [
                 'socio_id' => rand(1, 7),
+                'biblioteca_id' => rand(1, 5),
                 'concepto' => $conceptos[$tipoId],
                 'tipo_id' => $tipoId,
                 'importe' => $importes[$tipoId],
                 'fecha' => Carbon::now()->subDays(rand(1, 365)),
-                'estado_id' => rand(1, 2),
-                'es_activo' => rand(0, 10) > 1, 
+                'estado_id' => rand(1, 3),
+                'es_activo' => 1, 
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

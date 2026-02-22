@@ -7,6 +7,7 @@ use App\Models\Biblioteca;
 use App\Models\EstadoPrestamo;
 use App\Models\Ejemplare;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Prestamo extends Model
 {
@@ -18,13 +19,16 @@ class Prestamo extends Model
         'biblioteca_id',
         'fecha_prestamo',
         'fecha_devolucion',
+        'fecha_devolucion_real',
         'multa',
-        'estado_id'
+        'estado_id',
+        'es_activo'
     ];
 
     protected $casts = [
-        'fecha_prestamo'  => 'date',
-        'fecha_devolucion'=> 'date',
+        'fecha_prestamo'  => 'date:Y-m-d',
+        'fecha_devolucion'=> 'date:Y-m-d',
+        'fecha_devolucion_real'=> 'date:Y-m-d',
         'multa'           => 'decimal:2'
     ];
 
@@ -53,5 +57,15 @@ class Prestamo extends Model
     public function getNumeroPrestamoAttribute()
     {
         return 'PRES-' . date('Y', strtotime($this->fecha_prestamo)) . '-' . str_pad($this->id, 3, '0', STR_PAD_LEFT);
+    }
+    public function recibos(): HasMany
+    {
+        return $this->hasMany(Recibo::class);
+    }
+    public static function actualizarAtrasados()
+    {
+        return self::where('estado_id', 1)
+                ->where('fecha_devolucion', '<', now())
+                ->update(['estado_id' => 3]);
     }
 }

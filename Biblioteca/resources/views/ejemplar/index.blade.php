@@ -23,9 +23,11 @@
             <select name="biblioteca_id" id="biblioteca_id" class="form-select py-2 px-3 rounded-4 col-2 input-focus bg-transparent">
                 <option value="todas">Todos las bibliotecas</option>
                 @foreach($bibliotecas as $biblioteca)
-                    <option value="{{ $biblioteca->id }}">
-                        {{ $biblioteca->nombre }}
-                    </option>
+                    @if($biblioteca->es_activo == 1)
+                        <option value="{{ $biblioteca->id }}">
+                            {{ $biblioteca->nombre }}
+                        </option>
+                    @endif
                 @endforeach
             </select>
         </div>
@@ -98,11 +100,14 @@
                         <div class="row gx-3">
                             <div class="col-6">
                                 <label for="libro_id" class="fs-7 icono-editar fw-semibold mb-1">Libro</label>
-                                <select name="libro_id" id="libro_id"  class="w-100 input-focus bg-transparent @error('libro_id') is-invalid @enderror" placeholder="Seleccione un libro">
+                                <select name="libro_id" id="libro_id" class="w-100 input-focus bg-transparent @error('libro_id') is-invalid @enderror" placeholder="Seleccione un libro">
                                     <option value="" selected disabled>Seleccione un libro</option> 
                                     @foreach($libros as $libro)
-                                        <option value="{{ $libro->id }}" data-isbn="{{ $libro->isbn }}" {{ old('libro_id') == $libro->id ? 'selected' : '' }} >
-                                            {{ $libro->titulo }}
+                                        <option value="{{ $libro->id }}" 
+                                                data-isbn="{{ $libro->isbn }}" 
+                                                data-activo="{{ $libro->es_activo }}"
+                                                {{ old('libro_id') == $libro->id ? 'selected' : '' }} >
+                                            {{ $libro->titulo }}{{ $libro->es_activo == 0 ? ' (Inactiva)' : '' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -115,8 +120,8 @@
                                 <select name="biblioteca_id" id="biblioteca_id_form"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca_id') is-invalid @enderror">
                                     <option value="" >Seleccione una biblioteca</option>
                                     @foreach($bibliotecas as $biblioteca)
-                                        <option value="{{ $biblioteca->id }}" {{ old('biblioteca_id') == $biblioteca->id ? 'selected' : '' }}>
-                                            {{ $biblioteca->nombre }}
+                                        <option value="{{ $biblioteca->id }}" data-activo="{{ $biblioteca->es_activo }}" {{ old('biblioteca_id') == $biblioteca->id ? 'selected' : '' }}>
+                                            {{ $biblioteca->nombre }} {{ $biblioteca->es_activo == 0 ? ' (Inactiva)' : '' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -162,6 +167,11 @@
     let btnModal = document.getElementById('btnModal');
     let inputEditar = document.getElementById('editing_id');
 
+    let bibliotecaSelectForm= document.getElementById('biblioteca_id_form');
+    let opcionesBibliotecasOriginales = bibliotecaSelectForm.innerHTML;
+    let libroSelectForm = document.getElementById('libro_id');
+    let opcionesLibrosOriginales = libroSelectForm.innerHTML;
+
     let configurarModal = (titulo, btnTexto, accion, id = "") => {
         modalTitle.textContent = titulo;
         btnModal.textContent = btnTexto;
@@ -176,6 +186,40 @@
     modalRegistrar.addEventListener('show.bs.modal', (event) => {
         let btn = event.relatedTarget;
         if (!btn) return;
+        bibliotecaSelectForm.innerHTML = opcionesBibliotecasOriginales;
+        libroSelectForm.innerHTML = opcionesLibrosOriginales;
+
+        let bibIdAsignada = btn.getAttribute('data-biblioteca');
+        let libroIdAsignado = btn.getAttribute('data-libro');
+
+        bibliotecaSelectForm.querySelectorAll('option').forEach(opt => {
+            if (opt.value === "") return;
+            if (opt.dataset.activo == '0' && opt.value != bibIdAsignada) {
+                opt.remove();
+            }
+        });
+
+        libroSelectForm.querySelectorAll('option').forEach(opt => {
+            if (opt.value === "") return;
+            if (opt.dataset.activo == '0' && opt.value != libroIdAsignado) {
+                opt.remove();
+            }
+        });
+        if (libroSelect) {
+            libroSelect.clearOptions(); 
+            libroSelect.sync();    
+        }
+
+        if (bibIdAsignada) {
+            bibliotecaSelectForm.value = bibIdAsignada;
+        }
+        if (libroIdAsignado) {
+            libroSelectForm.value = libroIdAsignado;
+        }
+
+
+
+        
         if (btn.hasAttribute('data-id')) {
             let id = btn.getAttribute('data-id');
             configurarModal('Editar ejemplar', 'Actualizar', `/ejemplares/editar/${id}`, id);
@@ -187,20 +231,21 @@
         } else {
             configurarModal('Nuevo ejemplar', 'Registrar', "{{ route('ejemplares.store') }}");
             registerForm.reset();
-            let biblioteca = document.getElementById('biblioteca_id_form');
             let estado = document.getElementById('estado_id_form');
-                if (biblioteca) {
-                    biblioteca.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+                if (bibliotecaSelectForm) {
+                    bibliotecaSelectForm.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
                 }
                 if (estado) {
                     estado.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
                 }
-                if (libroSelect) libroSelect.clear();
-                registerForm.reset();
+                if (libroSelectForm) libroSelectForm.clear();
+                
             }
     });
 
     modalRegistrar.addEventListener('hidden.bs.modal', () => {
+        bibliotecaSelectForm.innerHTML = opcionesBibliotecasOriginales;
+        libroSelectForm.innerHTML = opcionesLibrosOriginales;
         registerForm.reset();
         if (libroSelect) libroSelect.clear(true);
         limpiarErrorValidacion();
@@ -264,8 +309,50 @@
             let modal = new bootstrap.Modal(document.getElementById('registroModal'));
         if (editarID) {
                 configurarModal('Editar Ejemplar', 'Actualizar', `/ejemplares/editar/${editarID}`, editarID);
+                let bibIdAsignada = "{{ old('biblioteca_id') }}";
+                let libroIdAsignado = "{{ old('libro_id') }}";
+
+                bibliotecaSelectForm.querySelectorAll('option').forEach(opt => {
+                    if (opt.value === "") return;
+                    if (opt.dataset.activo == '0' && opt.value != bibIdAsignada) {
+                        opt.remove();
+                    }
+                });
+
+                libroSelectForm.querySelectorAll('option').forEach(opt => {
+                    if (opt.value === "") return;
+                    if (opt.dataset.activo == '0' && opt.value != libroIdAsignado) {
+                        opt.remove();
+                    }
+                });
+                if (libroSelect) {
+                    libroSelect.clearOptions();
+                    libroSelect.sync();
+                    libroSelect.setValue(libroIdAsignado);
+                }
             } else {
                 configurarModal('Nuevo ejemplar', 'Registrar', "{{ route('ejemplares.store') }}");
+                let bibIdAsignada = "{{ old('biblioteca_id') }}";
+                let libroIdAsignado = "{{ old('libro_id') }}";
+
+                bibliotecaSelectForm.querySelectorAll('option').forEach(opt => {
+                    if (opt.value === "") return;
+                    if (opt.dataset.activo == '0' && opt.value != bibIdAsignada) {
+                        opt.remove();
+                    }
+                });
+
+                libroSelectForm.querySelectorAll('option').forEach(opt => {
+                    if (opt.value === "") return;
+                    if (opt.dataset.activo == '0' && opt.value != libroIdAsignado) {
+                        opt.remove();
+                    }
+                });
+                if (libroSelect) {
+                    libroSelect.clearOptions();
+                    libroSelect.sync();
+                    if(libroIdAsignado) libroSelect.setValue(libroIdAsignado);
+                }
             }
             modal.show();
         });

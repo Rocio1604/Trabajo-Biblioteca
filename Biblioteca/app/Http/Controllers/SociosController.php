@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Biblioteca;
 use App\Models\EstadoCuota;
+use App\Models\Recibo;
 use App\Models\Socio;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 
 class SociosController extends Controller
 {
     public function index(){
+        Socio::actualizarCuotasVencidas();
         $socios = Socio::with(['estado', 'biblioteca'])->orderBy('es_activo', 'desc')->latest()->get();
         $estados = EstadoCuota::all();
-        $bibliotecas = Biblioteca::where('es_activo', 1)->get();
+        $bibliotecas = Biblioteca::all();
         return view('socio.index', compact('socios', 'estados', 'bibliotecas'));
     }
 
@@ -72,14 +75,26 @@ class SociosController extends Controller
         ],$mensajes);
 
         try {
-            Socio::create([
+            $socio=Socio::create([
                 'dni' => $request->dni,
                 'nombre' => $request->nombre,
                 'biblioteca_id' => $request->biblioteca_id,
                 'email' => $request->email,
                 'telefono' => $request->telefono,
-                'estado_cuota' => 1,
+                'estado_cuota' => 3,
+                'fecha_vencimiento' => Carbon::now()->addYear(),
                 'es_activo' => true,
+            ]);
+
+            Recibo::create([
+                'socio_id' => $socio->id,
+                'biblioteca_id' => $socio->biblioteca_id,
+                'concepto' => 'Cuota anual '.Carbon::now()->year,
+                'tipo_id' => 1,//suscripcion anual
+                'importe' =>10,
+                'fecha' => now()->format('Y-m-d'),
+                'estado_id' => 2, //Pendiente
+                'es_activo' => true
             ]);
             return redirect()->route('socio.index')->with('success', 'Socio guardado');
         } catch (\Exception $e) {

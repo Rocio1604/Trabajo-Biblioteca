@@ -65,10 +65,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/prestamos', [PrestamoController::class, 'index'])->name('prestamo.index');
     Route::get('/prestamos/crearPrestamo', [PrestamoController::class, 'create'])->name('prestamo.create');
     Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamo.store');
-    Route::get('/prestamos/editar/{id}', [PrestamoController::class, 'edit'])->name('prestamo.edit');
+    //Route::get('/prestamos/editar/{id}', [PrestamoController::class, 'edit'])->name('prestamo.edit');
     Route::post('/prestamos/editar/{id}', [PrestamoController::class, 'update'])->name('prestamo.update');
     Route::post('/prestamos/eliminar/{id}', [PrestamoController::class, 'destroy'])->name('prestamo.destroy');
+    Route::post('/prestamos/{id}/devolver', [PrestamoController::class, 'devolver'])->name('prestamo.devolver');
+    Route::post('/prestamos/{id}/perdido', [PrestamoController::class, 'marcarPerdido'])->name('prestamo.perdido');
+    Route::post('/prestamos/{id}/encontrado', [PrestamoController::class, 'marcarEncontrado'])->name('prestamo.encontrado');
     Route::post('/prestamos/buscar', [PrestamoController::class, 'buscar'])->name('prestamo.buscar');
+    Route::post('/prestamos/reactivar/{id}', [PrestamoController::class, 'reactivar'])->name('prestamo.reactivar');
     
     // recibos
     Route::get('/recibos', [RecibosController::class, 'index'])->name('recibo.index');
@@ -76,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/recibos/editar/{id}', [RecibosController::class, 'update'])->name('recibo.update');
     Route::post('/recibos/eliminar/{id}', [RecibosController::class, 'destroy'])->name('recibo.destroy');
     Route::post('/recibos/buscar', [RecibosController::class, 'buscar'])->name('recibo.buscar');
+    Route::post('/recibos/pagar/{id}', [RecibosController::class, 'pagarRecibo'])->name('recibo.pagar');
 
     // socios
     Route::get('/socios', [SociosController::class, 'index'])->name('socio.index');

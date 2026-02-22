@@ -15,7 +15,7 @@ class UsuarioSeeder extends Seeder
                 'correo' => 'admin@biblioteca.com',
                 'telefono' => '911111111',
                 'rol_id' => 1,
-                'biblioteca_id' => 1,
+                'biblioteca_id' => null,
                 'es_activo' => true,
                 'created_at' => now(),
                 'updated_at' => now(),

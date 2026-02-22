@@ -43,7 +43,7 @@
 <div class="border rounded-4 overflow-hidden shadow-sm">
     <table class="table mb-0 align-middle" id="tabla-usuarios">
         <thead class="table-light">
-            <tr>
+            <tr class="text-center">
                 <th class="px-4 py-12">TRABAJADOR</th>
                 <th class="px-4 py-12">CONTACTO</th>
                 <th class="px-4 py-12">ROL</th>
@@ -123,11 +123,13 @@
                         </div>
                         <div class="mb-3">
                                 <label for="biblioteca" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Biblioteca</label>
-                                <select name="biblioteca_id" id="biblioteca"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca_id') is-invalid @enderror">
+                                <select name="biblioteca_id" id="biblioteca" class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca_id') is-invalid @enderror">
                                     <option value="">Seleccione una biblioteca</option>
                                     @foreach($bibliotecas as $biblioteca)
-                                        <option value="{{ $biblioteca->id }}" {{ old('biblioteca_id') == $biblioteca->id ? 'selected' : '' }}>
-                                            {{ $biblioteca->nombre }}
+                                        <option value="{{ $biblioteca->id }}" 
+                                                data-activo="{{ $biblioteca->es_activo }}" 
+                                                {{ old('biblioteca_id') == $biblioteca->id ? 'selected' : '' }}>
+                                            {{ $biblioteca->nombre }} {{ $biblioteca->es_activo == 0 ? '(Inactivo)' : '' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -200,6 +202,8 @@
         let modalTitle = document.getElementById('modalTitle');
         let btnModal = document.getElementById('btnModal');
         let inputEditar = document.getElementById('editing_id');
+        let bibliotecaSelect = document.getElementById('biblioteca');
+        let opcionesBibliotecasOriginales = bibliotecaSelect.innerHTML;
 
         let configurarModal = (titulo, btnTexto, accion, id = "") => {
             modalTitle.textContent = titulo;
@@ -215,6 +219,20 @@
         modalRegistrar.addEventListener('show.bs.modal',(event)=>{
             let boton = event.relatedTarget;
             if (!boton) return;
+            bibliotecaSelect.innerHTML = opcionesBibliotecasOriginales;
+            let bibIdAsignada = boton.getAttribute('data-biblioteca');
+            bibliotecaSelect.querySelectorAll('option').forEach(opt => {
+                if (opt.value === "") return;
+                let activa = opt.dataset.activo; 
+                if (activa == '0' && opt.value != bibIdAsignada) {
+                    opt.remove();
+                }
+            });
+
+            if (bibIdAsignada) {
+                bibliotecaSelect.value = bibIdAsignada;
+            }
+
             if (boton.hasAttribute('data-id')) {
                 let id = boton.getAttribute('data-id');
                 configurarModal('Editar Trabajador', 'Actualizar', '/usuarios/editar/' + id, id);
@@ -227,11 +245,10 @@
                 document.getElementById('contrasena').parentElement.style.display = 'none'
             } else if (boton){
                 configurarModal('Nuevo Trabajador', 'Registrar', "{{ route('usuario.store') }}");
-                let biblioteca = document.getElementById('biblioteca');
                 registerForm.reset();
                 let rol = document.getElementById('rol');
-                if (biblioteca) {
-                    biblioteca.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+                if (bibliotecaSelect) {
+                    bibliotecaSelect.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
                 }
                 if (rol) {
                     rol.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
@@ -244,6 +261,7 @@
         })
 
         modalRegistrar.addEventListener('hidden.bs.modal', () => {
+            bibliotecaSelect.innerHTML = opcionesBibliotecasOriginales;
             registerForm.reset();
             limpiarErrorValidacion();
             inputEditar.value = "";        
@@ -317,13 +335,29 @@
                 var modal = new bootstrap.Modal(modalElemento);
                 
                 let editarID = "{{ old('editing_id') }}"; 
-
+                bibliotecaSelect.innerHTML=opcionesBibliotecasOriginales;
                 if (editarID) {
                     configurarModal('Editar Trabajador', 'Actualizar', '/usuarios/editar/' + editarID, editarID);
                     document.getElementById('contrasena').parentElement.style.display = 'none';
+                    let bibIdAsignada = "{{ old('biblioteca_id') }}";
+                    bibliotecaSelect.querySelectorAll('option').forEach(opt => {
+                        if (opt.value === "") return;
+                        let activa = opt.dataset.activo; 
+                        if (activa == '0' && opt.value != bibIdAsignada) {
+                            opt.remove();
+                        }
+                    });
                 } else {
                     configurarModal('Nuevo Trabajador', 'Registrar', "{{ route('usuario.store') }}");
                     document.getElementById('contrasena').parentElement.style.display = 'block';
+                    let bibIdAsignada = "{{ old('biblioteca_id') }}";
+                    bibliotecaSelect.querySelectorAll('option').forEach(opt => {
+                        if (opt.value === "") return;
+                        let activa = opt.dataset.activo; 
+                        if (activa == '0' && opt.value != bibIdAsignada) {
+                            opt.remove();
+                        }
+                    });
                 }
 
                 modal.show();

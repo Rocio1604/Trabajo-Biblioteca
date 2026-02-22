@@ -12,7 +12,7 @@
     </div>
     <div class="row g-3">
         <div class="col-12 col-xl-6">
-            <div class="input-group rounded-4  bg-white  shadow-sm input-focus">
+            <div class="input-group rounded-4 input-focus">
                 <span class="input-group-text border-0 bg-transparent ps-3">
                     <i class="bi bi-search fs-5 color-input"></i>
                 </span>
@@ -56,6 +56,7 @@
                 <th class="px-4 py-12">DNI</th>
                 <th class="px-4 py-12">BIBLIOTECA</th>
                 <th class="px-4 py-12">ESTADO CUOTA</th>
+                <th class="px-4 py-12">VENCIMIENTO</th>
                 <th class="px-4 py-12">¿ACTIVO?</th>
                 <th class="px-4 py-12">ACCIONES</th>
             </tr>
@@ -79,23 +80,25 @@
                 <td class="px-4 py-3 fs-7">{{ $socio->biblioteca->nombre }}</td>
                 <td class="px-4 py-3">
                     @if($socio->estado)
-                        @if($socio->estado->nombre === 'Vencida')
-                            <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
-                                <i class="bi bi-x-circle fs-8"></i>
-                                <span class="fs-8">Vencida</span>
-                            </div>
-                        @elseif($socio->estado->nombre === 'Activa')   
+                        @if($socio->estado_cuota == 1)
                             <div class="d-flex flex-wrap align-items-center disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
                                 <i class="bi bi-check2-circle fs-8"></i>
-                                <span class="fs-8">Activa</span>
+                                <span class="fs-8">{{$socio->estado->nombre}}</span>
                             </div>
-                        @else
-                            <span class="text-muted fs-8">{{ $socio->estado->nombre }}</span>
+                        @elseif($socio->estado_cuota == 2) 
+                            <div class="d-flex flex-wrap align-items-center no-disponible rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
+                                <i class="bi bi-x-circle fs-8"></i>
+                                <span class="fs-8">{{$socio->estado->nombre}}</span>
+                            </div>
+                        @elseif($socio->estado_cuota == 3) 
+                            <div class="d-flex flex-wrap align-items-center etiqueta rounded-3 px-2 py-1 gap-1 fw-semibold" style="width: fit-content;">
+                                <i class="bi bi-hourglass"></i>
+                                <span class="fs-8">{{$socio->estado->nombre}}</span>
+                            </div>
                         @endif
-                    @else
-                        <span class="text-danger fs-8">Sin estado</span>
                     @endif
                 </td>
+                <td class="px-4 py-3 fs-7">{{ \Carbon\Carbon::parse($socio->fecha_vencimiento)->format('d/m/Y') }}</td>
                 <td class="px-4 py-3">
                     @if($socio->es_activo)
                     Sí
@@ -182,15 +185,17 @@
                         </div>
                         <div class="mb-3">
                                 <label for="biblioteca" class="fs-7 icono-editar fw-semibold mb-1 mt-0">Biblioteca</label>
-                                <select name="biblioteca_id" id="biblioteca"  class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca') is-invalid @enderror">
+                                <select name="biblioteca_id" id="biblioteca" class="form-select py-2 px-3 rounded-3 col-2 input-focus bg-transparent @error('biblioteca_id') is-invalid @enderror">
                                     <option value="">Seleccione una biblioteca</option>
                                     @foreach($bibliotecas as $biblioteca)
-                                        <option value="{{ $biblioteca->id }}" {{ old('biblioteca') == $biblioteca->id ? 'selected' : '' }}>
-                                            {{ $biblioteca->nombre }}
+                                        <option value="{{ $biblioteca->id }}" 
+                                                data-activo="{{ $biblioteca->es_activo }}" 
+                                                {{ old('biblioteca_id') == $biblioteca->id ? 'selected' : '' }}>
+                                            {{ $biblioteca->nombre }} {{ $biblioteca->es_activo == 0 ? '(Inactiva)' : '' }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('biblioteca')
+                                @error('biblioteca_id')
                                     <div class="invalid-feedback fs-8">{{ $message }}</div>
                                 @enderror
                         </div>
@@ -218,6 +223,8 @@
         let selectCuota = document.getElementById('cuota');
         let selectEstado = document.getElementById('estado');
         let inputEditar = document.getElementById('editing_id');
+        let bibliotecaSelect = document.getElementById('biblioteca');
+        let opcionesBibliotecasOriginales = bibliotecaSelect.innerHTML;
 
         let configurarModal = (titulo, btnTexto, accion, id = "") => {
             modalTitle.textContent = titulo;
@@ -232,6 +239,20 @@
         modalRegistrar.addEventListener('show.bs.modal',(event)=>{
                 let boton = event.relatedTarget;
                 if (!boton) return;
+
+                bibliotecaSelect.innerHTML = opcionesBibliotecasOriginales;
+                let bibIdAsignada = boton.getAttribute('data-biblioteca');
+                bibliotecaSelect.querySelectorAll('option').forEach(opt => {
+                    let activa = opt.dataset.activo; 
+                    if (activa == '0' && opt.value != bibIdAsignada) {
+                        opt.remove();
+                    }
+                }); 
+
+                if (bibIdAsignada) {
+                    bibliotecaSelect.value = bibIdAsignada;
+                }
+
                 if (boton.hasAttribute('data-id')) {
                     let id = boton.getAttribute('data-id');
                     configurarModal('Editar socio', 'Actualizar', '/socios/editar/' + id, id);
@@ -243,10 +264,10 @@
                     document.getElementById('biblioteca').value = boton.getAttribute('data-biblioteca');
                 } else{
                     configurarModal('Nuevo socio', 'Registrar', "{{ route('socio.store') }}");
-                    if (biblioteca) {
-                        biblioteca.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
-                    }
                     registerForm.reset();
+                    if (bibliotecaSelect) {
+                        bibliotecaSelect.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
+                    }
                     document.getElementById('dni').value = "";
                     document.getElementById('nombre').value = "";
                     document.getElementById('email').value = "";
@@ -256,6 +277,7 @@
         });
 
         modalRegistrar.addEventListener('hidden.bs.modal', () => {
+            bibliotecaSelect.innerHTML=opcionesBibliotecasOriginales;
             registerForm.reset();
             limpiarErrorValidacion();
             inputEditar.value = "";
@@ -298,7 +320,7 @@
                     tablaSocios.innerHTML = '';
 
                     if (data.length === 0) {
-                        tablaSocios.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No se encontraron resultados</td></tr>';
+                        tablaSocios.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No se encontraron resultados</td></tr>';
                         return;
                     }
 
@@ -354,7 +376,7 @@
 
                         let fechaAlta = new Date(socio.created_at).toLocaleDateString('es-ES');
                         let bibliotecaNombre = socio.biblioteca ? socio.biblioteca.nombre : 'N/A';
-
+                        let fecha_vencimiento=new Date(socio.fecha_vencimiento).toLocaleDateString('es-ES');
                         tablaSocios.innerHTML += `
                         <tr>
                             <td class="px-4 py-3">
@@ -373,6 +395,9 @@
                             <td class="px-4 py-3 fs-7">${bibliotecaNombre}</td>
                             <td class="px-4 py-3">
                                 ${estadoBadge}
+                            </td>
+                            <td class="px-4 py-3">
+                                ${fecha_vencimiento}
                             </td>
                             <td class="px-4 py-3">
                                 ${socio.es_activo ? 'Sí' : 'No'}
@@ -412,10 +437,24 @@
                 var modal = new bootstrap.Modal(modalElemento);
                 
                 let editarID = "{{ old('editing_id') }}"; 
-
+                bibliotecaSelect.innerHTML=opcionesBibliotecasOriginales;
                 if (editarID) {
                     configurarModal('Editar socio', 'Actualizar', '/socios/editar/' + editarID, editarID);
+                    let bibIdAsignada = "{{ old('biblioteca_id') }}";
+                    bibliotecaSelect.querySelectorAll('option').forEach(opt => {
+                        let activa = opt.dataset.activo; 
+                        if (activa == '0' && opt.value != bibIdAsignada) {
+                            opt.remove();
+                        }
+                    });
                 } else {
+                    let bibIdAsignada = "{{ old('biblioteca_id') }}";
+                    bibliotecaSelect.querySelectorAll('option').forEach(opt => {
+                        let activa = opt.dataset.activo; 
+                        if (activa == '0' && opt.value != bibIdAsignada) {
+                            opt.remove();
+                        }
+                    });
                     configurarModal('Nuevo socio', 'Registrar', "{{ route('socio.store') }}");
                 }
                 modal.show();

@@ -18,8 +18,8 @@ class EjemplareController extends Controller
         if ($request->ajax()) {
             return view('ejemplar.partials.tabla', compact('ejemplares'))->render();
         }
-        $libros = Libro::where('es_activo', 1)->get();
-        $bibliotecas = Biblioteca::where('es_activo', 1)->get();
+        $libros = Libro::all();
+        $bibliotecas = Biblioteca::all();
         $estados = EstadoLibro::all();
         $disponibilidades = DisponibilidadLibro::all();
         $categorias = Categoria::all();

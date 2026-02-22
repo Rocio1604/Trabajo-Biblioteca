@@ -128,6 +128,9 @@ class BibliotecasController extends Controller
             $biblioteca->es_activo = 0;
             $biblioteca->save();
         }
+        $biblioteca->trabajadores()->update(['es_activo' => 0]);
+        $biblioteca->ejemplares()->update(['es_activo' => 0]);
+        $biblioteca->socios()->update(['es_activo' => 0]);
 
         return redirect()->route('biblio.index')
             ->with('success', 'Biblioteca desactivada correctamente');

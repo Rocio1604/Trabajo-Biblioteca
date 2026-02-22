@@ -36,7 +36,7 @@ class UsuariosController extends Controller
         }
         $usuarios = $query->orderBy('es_activo', 'desc')->latest()->get();
         $roles = Role::all();
-        $bibliotecas = Biblioteca::where('es_activo', 1)->get();
+        $bibliotecas = Biblioteca::all();
         if ($request->ajax()) {
             return view('trabajadores.partials.tabla', compact('usuarios'))->render();
         }

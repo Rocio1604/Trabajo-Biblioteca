@@ -90,15 +90,22 @@
                                         <td>{{ $recibo->fecha->format('Y-m-d') }}</td>
                                         <td><strong>€{{ number_format($recibo->importe, 2) }}</strong></td>
                                         <td>
-                                            @if($recibo->estado->nombre == 'Pagado')
-                                                <span class="badge bg-success">Pagado</span>
-                                            @else
-                                                <span class="badge bg-warning text-dark">Pendiente</span>
+                                            @if($recibo->estado_id == 1)
+                                                <span class="badge bg-success">{{$recibo->estado->nombre}}</span>
+                                            @elseif($recibo->estado_id == 2)
+                                                <span class="badge bg-warning text-dark">{{$recibo->estado->nombre}}</span>
+                                            @elseif($recibo->estado_id == 3)
+                                                <span class="badge bg-danger text-white">{{$recibo->estado->nombre}}</span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if($recibo->es_activo)
+                                            @if($recibo->es_activo==1 && $recibo->estado_id==2)
                                             <div class="btn-group" role="group">
+                                                <button type="button" 
+                                                        class="btn btn-sm" 
+                                                        onclick="cobrarRecibo('{{ $recibo->id }}', '{{ $recibo->importe }}')">
+                                                    <i class="bi bi-cash-stack text-success"></i>
+                                                </button>
                                                 <!-- Botón Editar -->
                                                 <button type="button" 
                                                         class="btn btn-sm" 
@@ -214,6 +221,46 @@
     let btnModal = document.getElementById('btnModal');
     let btnBuscar = document.getElementById('btnBuscar');
     let inputEditar = document.getElementById('editing_id');
+
+    let metodosPago = @json($metodos);
+
+    function cobrarRecibo(id, monto) {
+        Swal.fire({
+            title: 'Registrar Pago',
+            html: `Monto a cobrar: <strong>${monto}€</strong>`,
+            icon: 'info',
+            input: 'select',
+            inputOptions: metodosPago, 
+            inputPlaceholder: 'Seleccione método de pago',
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar Pago',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#28a745',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Seleccione un metodo de pago.';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                enviarPago(id, result.value);
+            }
+        });
+    }
+
+    function enviarPago(id, metodoId) {
+        let form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/recibos/pagar/${id}`; 
+        
+        form.innerHTML = `
+            @csrf
+            <input type="hidden" name="metodo_id" value="${metodoId}">
+        `;
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
 
     let configurarModal = (titulo, btnTexto, accion, id = "") => {
         modalTitle.textContent = titulo;

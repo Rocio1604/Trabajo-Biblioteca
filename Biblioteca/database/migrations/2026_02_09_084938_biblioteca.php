@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('telefono');
             $table->unsignedBigInteger('estado_cuota');
+            $table->date('fecha_vencimiento');
             $table->boolean('es_activo');
             $table->timestamps();
 
@@ -161,8 +162,10 @@ return new class extends Migration
             $table->unsignedBigInteger('biblioteca_id');
             $table->date('fecha_prestamo');
             $table->date('fecha_devolucion');
+            $table->date('fecha_devolucion_real')->nullable();
             $table->decimal('multa', 8, 2)->default(0);
             $table->unsignedBigInteger('estado_id');
+            $table->boolean('es_activo')->default(1);
             $table->timestamps();
 
             $table->foreign('socio_id')
@@ -179,17 +182,32 @@ return new class extends Migration
                   ->references('id')
                   ->on('estados_prestamos')
                   ->onDelete('cascade');
+
+            $table->foreign('biblioteca_id')
+                ->references('id')
+                ->on('bibliotecas')
+                ->onDelete('cascade');
+        });
+
+        //metodo de pago
+        Schema::create('metodos_pago', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
         });
 
         //recibos
         Schema::create('recibos', function (Blueprint $table) {
             $table->id('id');
+            $table->unsignedBigInteger('biblioteca_id');
             $table->unsignedBigInteger('socio_id');
             $table->string('concepto');
             $table->unsignedBigInteger('tipo_id');
             $table->decimal('importe', 8, 2);
             $table->date('fecha');
+            $table->date('fecha_pago')->nullable();
+            $table->unsignedBigInteger('metodo_id')->nullable();
             $table->unsignedBigInteger('estado_id');
+            $table->unsignedBigInteger("prestamo_id")->nullable(true);
             $table->boolean('es_activo');
             $table->timestamps();
 
@@ -207,6 +225,21 @@ return new class extends Migration
                 ->references('id')
                 ->on('estados_recibos')
                 ->onDelete('cascade');
+            
+            $table->foreign('prestamo_id')
+                ->references('id')
+                ->on('prestamos')
+                ->onDelete('cascade');
+            
+            $table->foreign('biblioteca_id')
+                ->references('id')
+                ->on('bibliotecas')
+                ->onDelete('cascade');
+
+            $table->foreign('metodo_id')
+                ->references('id')
+                ->on('metodos_pago')
+                ->onDelete('cascade');
         });
 
         //roles
@@ -222,7 +255,7 @@ return new class extends Migration
             $table->string('correo')->unique();
             $table->string('telefono');
             $table->unsignedBigInteger('rol_id');
-            $table->unsignedBigInteger('biblioteca_id');
+            $table->unsignedBigInteger('biblioteca_id')->nullable();
             $table->boolean('es_activo');
             $table->timestamps();
 
@@ -236,7 +269,7 @@ return new class extends Migration
                 ->on('bibliotecas')
                 ->onDelete('cascade');
         });
-        // coches
+        // validaciones
         Schema::create('validaciones_sistema', function (Blueprint $table) {
             $table->unsignedBigInteger('referencia_id');
             $table->string('firma_digital');

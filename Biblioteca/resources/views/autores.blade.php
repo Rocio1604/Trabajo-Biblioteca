@@ -185,6 +185,7 @@
             configurarModal('Editar autor', 'Actualizar', '/autores/editar/' + id, id);
             document.getElementById('editing_id').value = id;
             document.getElementById('nombre').value = boton.getAttribute('data-nombre');
+            console.log(boton.getAttribute('data-feche'))
             document.getElementById('fecha_nacimiento').value = boton.getAttribute('data-feche');
         } else {
             configurarModal('Nuevo autor', 'Guardar', "{{ route('autor.store') }}");

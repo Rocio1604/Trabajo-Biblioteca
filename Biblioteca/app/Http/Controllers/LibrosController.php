@@ -13,7 +13,7 @@ class LibrosController extends Controller
    public function index(){
         $libros = Libro::with([ 'autores','categoria'])->orderBy('es_activo', 'desc')->latest()->get();
         $categorias = Categoria::all();
-        $autores = Autor::where('es_activo', 1)->get();
+        $autores = Autor::all();
         return view('libro.index', compact('libros', 'categorias', 'autores'));
     }
 
@@ -96,8 +96,9 @@ class LibrosController extends Controller
 
         try {
             $libro->update(['es_activo' => 0]);
+            $libro->ejemplares()->update(['es_activo' => 0]);
+            
             return redirect()->route('libros.index')->with('success', 'Libro desactivado correctamente');
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'No se pudo desactivar el libro: ' . $e->getMessage());
         }

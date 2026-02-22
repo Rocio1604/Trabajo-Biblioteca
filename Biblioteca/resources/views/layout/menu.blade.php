@@ -84,7 +84,7 @@
                             <p class="fs-8 mb-0 text-white-50">{{ auth()->user()->rol?->nombre ?? 'Sin Rol'}}</p>
                             <div class="small text-warning mt-2">
                                 <i class="bi bi-geo-alt"></i> 
-                                {{ auth()->user()->biblioteca?->nombre ?? 'Sin biblioteca' }}
+                                {{ auth()->user()->biblioteca?->nombre ?? 'Administrador' }}
                             </div>
                         </div>
                         <form action="{{ route('logout') }}" method="POST">
@@ -138,9 +138,10 @@
                 }
             });
         }
-        function confirmarEliminar(id,mensaje,url) {
+        function confirmarEliminar(id,mensaje,url,body="") {
             Swal.fire({
-                title: '¿Desactivar ' + mensaje + '?',
+                title:mensaje=="recibo"?'¿Anular recibo?': '¿Desactivar ' + mensaje + '?',
+                text:body,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ff8000',
