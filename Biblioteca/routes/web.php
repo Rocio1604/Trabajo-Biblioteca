@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/libros/editar/{id}', [LibrosController::class, 'update'])->name('libros.update');
     Route::post('/libros/eliminar/{id}', [LibrosController::class, 'destroy'])->name('libros.destroy');
     Route::post('/libros/reactivar/{id}', [LibrosController::class, 'reactivar'])->name('libros.reactivar');
+    Route::post('/libros/buscar', [LibrosController::class, 'buscar'])->name('libros.buscar');
 
     // Ejemplares
     Route::get('/ejemplares', [EjemplareController::class, 'index'])->name('ejemplares.index');
