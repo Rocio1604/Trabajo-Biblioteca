@@ -10,14 +10,42 @@ use App\Models\Categoria;
 
 class LibrosController extends Controller
 {
-   public function index(){
+    public function index(){
         $libros = Libro::with([ 'autores','categoria'])->orderBy('es_activo', 'desc')->latest()->get();
         $categorias = Categoria::all();
         $autores = Autor::all();
         return view('libro.index', compact('libros', 'categorias', 'autores'));
     }
 
- public function store(Request $request)
+    public function buscar(Request $request)
+    {
+        $query = Libro::with(['categoria', 'autores']);
+
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function($q) use ($buscar) {
+                $q->where('titulo', 'LIKE', "%$buscar%")
+                ->orWhere('isbn', 'LIKE', "%$buscar%")
+                ->orWhereHas('autores', function($attr) use ($buscar) {
+                    $attr->where('nombre', 'LIKE', "%$buscar%");
+                });
+            });
+        }
+
+        if ($request->filled('categoria') && $request->categoria !== 'todas') {
+            $query->where('categoria_id', $request->categoria);
+        }
+
+        if ($request->filled('activo') && $request->activo !== 'todas') {
+            $query->where('es_activo', $request->activo);
+        }
+
+        $libros = $query->get();
+
+        return response()->json($libros);
+    }
+
+    public function store(Request $request)
     {
 
         $mensajes = [
@@ -57,7 +85,7 @@ class LibrosController extends Controller
         }
     }
    
- public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $libro =Libro::findOrFail($id);
 
