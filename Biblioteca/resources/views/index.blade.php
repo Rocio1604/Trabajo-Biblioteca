@@ -70,7 +70,7 @@
             </div>
         </div>
         <!-- Lista de libros -->
-        <div class="row g-3 px-2" id="contenedor-tarjetas">
+        <div class="row g-3 px-2 mb-4" id="contenedor-tarjetas">
             @include('partials.tabla')
         </div>
 

@@ -146,7 +146,7 @@
                 showCancelButton: true,
                 confirmButtonColor: '#ff8000',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, desactivar',
+                confirmButtonText: mensaje=="recibo"?'Sí, anular' : 'Sí, desactivar',
                 cancelButtonText: 'Cancelar',
                 customClass: { popup: 'rounded-4' }
             }).then((result) => {

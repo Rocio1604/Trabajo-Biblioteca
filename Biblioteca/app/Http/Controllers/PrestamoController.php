@@ -316,7 +316,7 @@ class PrestamoController extends Controller
 
         $prestamo->update([
             'estado_id' => 4,
-            'multa' => $request->multa_atraso + $request->precio_libro
+            'multa' => $request->multa_atraso + ($vecesPerdido?$request->precio_libro:5)
         ]);
 
         $prestamo->ejemplar->update(['disponibilidad_id' => 3]);

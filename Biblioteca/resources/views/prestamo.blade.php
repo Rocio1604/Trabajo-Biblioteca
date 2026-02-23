@@ -446,7 +446,7 @@
 
         let titulo = tieneMulta ? '¡Préstamo con Multa!' : '¿Confirmar devolución?';
         let icono = tieneMulta ? 'warning' : 'question';
-        let textoBoton = tieneMulta ? 'Sí, generar multa y devolver' : 'Sí, devolver libro';
+        let textoBoton = 'Sí';
         
         let mensaje = tieneMulta 
             ? `Se generará un recibo de €${montoMulta} automáticamente.` 
@@ -495,7 +495,7 @@
             showCancelButton: true,
             confirmButtonColor: '#198754',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, confirmar',
+            confirmButtonText: 'Sí',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -523,7 +523,7 @@
             showCancelButton: true,
             confirmButtonColor: '#198754',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, confirmar',
+            confirmButtonText: 'Sí',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {

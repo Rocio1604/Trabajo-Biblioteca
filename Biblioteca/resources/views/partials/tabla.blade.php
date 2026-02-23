@@ -42,11 +42,14 @@
                         </div>
                     </div>
                     @if($ejemplar->disponibilidad->id === 1)
-                        <p class="disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">Disponible</p>
+                        <p class="disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">{{$ejemplar->disponibilidad->nombre}}</p>
                     @endif
                     <!-- color gris -->
                     @if($ejemplar->disponibilidad->id === 2)   
-                        <p class="no-disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">No disponible</p>
+                        <p class="no-disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">{{$ejemplar->disponibilidad->nombre}}</p>
+                    @endif
+                    @if($ejemplar->disponibilidad->id === 3)   
+                        <p class="no-disponible fw-semibold fs-7 py-2 m-0 text-center rounded-3">{{$ejemplar->disponibilidad->nombre}}</p>
                     @endif
                 </div>
             </div>
