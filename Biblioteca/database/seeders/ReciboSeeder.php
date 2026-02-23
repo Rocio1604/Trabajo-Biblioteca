@@ -10,7 +10,7 @@ class ReciboSeeder extends Seeder
 {
     public function run(): void
     {
-        $recibos = [];
+       /*  $recibos = [];
         
         for ($i = 1; $i <= 15; $i++) {
             $tipoId = rand(1, 2); 
@@ -41,6 +41,6 @@ class ReciboSeeder extends Seeder
             ];
         }
         
-        DB::table('recibos')->insert($recibos);
+        DB::table('recibos')->insert($recibos); */
     }
 }

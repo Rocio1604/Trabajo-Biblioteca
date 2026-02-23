@@ -19,7 +19,7 @@ class EjemplarSeeder extends Seeder
                     'libro_id' => $libro_id,
                     'biblioteca_id' => $biblioteca_id,
                     'estado_id' => rand(1, 2), // Nuevo o Bueno
-                    'disponibilidad_id' => rand(1, 2), // Disponible o Prestado
+                    'disponibilidad_id' => 1, // Disponible o Prestado
                     'es_activo' => true,
                     'created_at' => now(),
                     'updated_at' => now(),

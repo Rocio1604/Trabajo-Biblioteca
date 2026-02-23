@@ -72,6 +72,7 @@ class RecibosController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        
         $mensajes = [
             'socio_id.required' => 'Debes seleccionar un socio',
             'socio_id.exists' => 'El socio seleccionado no existe',
@@ -90,10 +91,16 @@ class RecibosController extends Controller
             'importe' => 'required|numeric|min:0.01',
         ], $mensajes);
 
+        $socio = Socio::findOrFail($request->socio_id);
+
+        $bibliotecaId = ($user->id == 1 || $user->rol_id == 1) 
+                    ? $socio->biblioteca_id 
+                    : $user->biblioteca_id;
+
         try {
             Recibo::create([
                 'socio_id' => $request->socio_id,
-                'biblioteca_id' => $user->biblioteca_id,
+                'biblioteca_id' => $bibliotecaId,
                 'concepto' => $request->concepto,
                 'tipo_id' => $request->tipo_id,
                 'importe' => $request->importe,

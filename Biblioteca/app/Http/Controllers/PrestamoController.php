@@ -263,7 +263,11 @@ class PrestamoController extends Controller
     {
         $user = Auth::user();
         $prestamo = Prestamo::findOrFail($id);
+        $socio = $prestamo->socio;
         $monto = intval($request->monto_multa);
+        $bibliotecaId = ($user->id == 1 || $user->rol_id == 1) 
+                    ? $socio->biblioteca_id 
+                    : $user->biblioteca_id;
 
         $prestamo->update([
             'estado_id' => 2,
@@ -278,7 +282,7 @@ class PrestamoController extends Controller
         if ($monto > 0) {
             Recibo::create([
                 'socio_id' => $prestamo->socio_id,
-                'biblioteca_id' => $user->biblioteca_id,
+                'biblioteca_id' => $bibliotecaId,
                 'concepto' => 'Retraso en devolución de libro',
                 'tipo_id' =>2,
                 'importe' => $monto,
@@ -299,6 +303,11 @@ class PrestamoController extends Controller
     {
         $user = Auth::user();
         $prestamo = Prestamo::with(['ejemplar.libro', 'socio'])->findOrFail($id);
+        $socio = $socio = $prestamo->socio;
+
+        $bibliotecaId = ($user->id == 1 || $user->rol_id == 1) 
+                    ? $socio->biblioteca_id 
+                    : $user->biblioteca_id;
 
         $vecesPerdido = Prestamo::where('socio_id', $prestamo->socio_id)
         ->where('estado_id', 4)
@@ -314,7 +323,7 @@ class PrestamoController extends Controller
 
         Recibo::create([
             'socio_id' => $prestamo->socio_id,
-            'biblioteca_id' => $user->biblioteca_id,
+            'biblioteca_id' => $bibliotecaId,
             'prestamo_id' => $prestamo->id,
             'concepto' => "Libro perdido",
             'tipo_id' => 2,
@@ -327,7 +336,7 @@ class PrestamoController extends Controller
         if ($request->multa_atraso > 0) {
             Recibo::create([
                 'socio_id' => $prestamo->socio_id,
-                'biblioteca_id' => $user->biblioteca_id,
+                'biblioteca_id' => $bibliotecaId,
                 'prestamo_id' => $prestamo->id,
                 'concepto' => "Retraso en devolución de libro",
                 'tipo_id' => 2,

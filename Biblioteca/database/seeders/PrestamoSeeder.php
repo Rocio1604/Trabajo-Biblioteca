@@ -10,7 +10,7 @@ class PrestamoSeeder extends Seeder
 {
     public function run(): void
     {
-        $prestamos = [];
+        /* $prestamos = [];
         
         // Crear 20 préstamos de ejemplo
         for ($i = 1; $i <= 20; $i++) {
@@ -34,6 +34,6 @@ class PrestamoSeeder extends Seeder
             ];
         }
         
-        DB::table('prestamos')->insert($prestamos);
+        DB::table('prestamos')->insert($prestamos); */
     }
 }
