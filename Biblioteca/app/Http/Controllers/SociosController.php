@@ -77,8 +77,8 @@ class SociosController extends Controller
         ];
 
         $request->validate([
-            'dni' => 'required|string|unique:socios,dni|regex:/^[a-zA-Z0-9]+$',
-            'nombre' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
+            'dni' => 'required|string|unique:socios,dni',
+            'nombre' => 'required|string|min:3|max:100',
             'biblioteca_id' => 'required|integer|exists:bibliotecas,id',
             'email' => 'required|email|unique:socios,email|max:255',
             'telefono' => ['required', 'integer','regex:/^[6789]\d{8}$/'],

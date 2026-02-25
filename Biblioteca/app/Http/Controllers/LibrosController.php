@@ -66,6 +66,7 @@ class LibrosController extends Controller
             'categoria_id.exists' => 'La categoría seleccionado no existe',
 
             'precio.required' => 'El precio es necesario',
+            'precio.numeric' => 'El precio debe ser un número válido',
 
             'autores.required' => 'Debe seleccionar al menos un autor',
             'autores.exists' => 'Debe seleccionar al menos un autor',

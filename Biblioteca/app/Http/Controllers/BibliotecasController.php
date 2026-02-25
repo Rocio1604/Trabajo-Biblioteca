@@ -61,10 +61,10 @@ class BibliotecasController extends Controller
         ];
 
         $request->validate([
-            'nombre' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
-            'provincia' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
+            'nombre' => 'required|string|min:3|max:100',
+            'provincia' => 'required|string|min:3|max:100',
             'correo' => 'required|email|unique:bibliotecas,correo|max:255',
-            'direccion' => 'required|min:5|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s.,#-/ºª]+$/u',
+            'direccion' => 'required|min:5|max:255',
             'telefono' => ['required', 'integer','regex:/^[6789]\d{8}$/'],
         ], $mensajes);
 

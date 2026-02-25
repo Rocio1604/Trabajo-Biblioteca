@@ -63,8 +63,7 @@ class UsuariosController extends Controller
 
             'contrasena.required' => 'La contraseña es obligatoria',
             'contrasena.min' => 'La contraseña debe tener al menos 6 carácteres',
-            'contrasena.regex' => 'La contraseña es poco segura. Debe incluir: al menos 6 carácteres, una mayúscula, una minúscula, un número y un símbolo (@$!%*?&).',
-
+            
             'biblioteca_id.required' => 'Debes seleccionar una biblioteca',
            
         ];
@@ -72,7 +71,7 @@ class UsuariosController extends Controller
         'nombre' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
         'correo' => 'required|email|unique:usuarios,correo|max:255' ,
         'telefono'  => ['required', 'integer','regex:/^[6789]\d{8}$/'],
-        'contrasena' => 'required|min:6|regex:/^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{6,}$/',
+        'contrasena' => 'required|min:6',
         'rol_id' => 'required|integer|exists:roles,id',
         'biblioteca_id' => 'required|integer|exists:bibliotecas,id',
         ],$mensajes);
