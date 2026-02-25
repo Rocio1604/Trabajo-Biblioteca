@@ -28,7 +28,10 @@ class AutoresController extends Controller
     public function store(Request $request){
         $mensajes = [
             'nombre.required' => 'El nombre es obligatorio',
-            'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
+            'nombre.min' => 'El nombre debe tener al menos 3 carácteres',
+            'nombre.max' => 'El nombre debe tener menos de 100 carácteres',
+            'nombre.string' => 'El nombre debe ser tipo string',
+            'nombre.regex' => 'El nombre solo puede contener letras, espacios, tildes, diéresis y guiones.',
 
             'fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria',
             'fecha_nacimiento.date' => 'Debe ingresar una fecha válida',
@@ -36,7 +39,7 @@ class AutoresController extends Controller
         ];
 
         $request->validate([
-            'nombre' => 'required|string|min:3|max:100',
+            'nombre' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
             'fecha_nacimiento' => 'required|date|before:today',
         ], $mensajes);
 

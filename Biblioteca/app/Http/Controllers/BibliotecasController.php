@@ -34,28 +34,38 @@ class BibliotecasController extends Controller
        
         $mensajes = [
             'nombre.required' => 'El nombre es obligatorio',
-            'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
+            'nombre.min' => 'El nombre debe tener al menos 3 carácteres',
+            'nombre.regex' => 'El nombre solo puede contener letras, espacios, tildes, diéresis y guiones.',
+            'nombre.string'=>'El nombre solo puede ser string',
+            'nombre.max'=>'El nombre debe tener menos de 100 carácteres',
 
             'correo.required' => 'El correo electrónico es obligatorio',
             'correo.email' => 'Ingresa un formato de correo válido',
             'correo.unique' => 'Este correo ya está registrado',
+            'correo.max' => 'El correo no puede tener más de 255 carácteres',
+            
 
             'telefono.required' => 'El teléfono es obligatorio',
             'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9',
+            'telefono.integer' => 'El teléfono debe ser tipo número',
 
             'provincia.required' => 'La provincia es obligatoria',
-            'provincia.min' => 'La provincia debe tener al menos 3 caracteres',
+            'provincia.min' => 'La provincia debe tener al menos 3 carácteres',
+            'provincia.max' => 'La provincia debe tener menos de 100 carácteres',
+            'provincia.regex' => 'La provincia solo puede contener letras, espacios, tildes, diéresis y guiones.',
 
-            'direccion.required' => 'La direccion es obligatoria',
-            'direccion.min' => 'La direccion debe tener al menos 5 caracteres',
+            'direccion.required' => 'La dirección es obligatoria',
+            'direccion.min' => 'La dirección debe tener al menos 5 carácteres',
+            'direccion.max' => 'La dirección debe tener menos de 100 carácteres',
+            'direccion.regex' => 'La dirección contiene caracteres no permitidos. Solo se permiten letras, números, espacios y símbolos como º, ª, #, -, / , .',
         ];
 
         $request->validate([
-            'nombre' => 'required|string|min:3|max:100',
-            'provincia' => 'required|string|min:3|max:100',
+            'nombre' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
+            'provincia' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
             'correo' => 'required|email|unique:bibliotecas,correo|max:255',
-            'direccion' => 'required|min:5|max:255',
-            'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
+            'direccion' => 'required|min:5|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s.,#-/ºª]+$/u',
+            'telefono' => ['required', 'integer','regex:/^[6789]\d{8}$/'],
         ], $mensajes);
 
         try {

@@ -111,8 +111,10 @@ class PrestamoController extends Controller
         $mensajes = [
             'socio_id.required'         => 'Debes seleccionar un socio',
             'socio_id.exists'           => 'El socio seleccionado no existe',
+
             'ejemplar_id.required'      => 'Debes seleccionar un ejemplar',
             'ejemplar_id.exists'        => 'El ejemplar seleccionado no existe',
+            
             'fecha_devolucion.required' => 'La fecha de devolución es obligatoria',
             'fecha_devolucion.date'     => 'La fecha de devolución no es válida',
             'fecha_devolucion.after' => 'La fecha de devolución debe ser posterior a hoy',

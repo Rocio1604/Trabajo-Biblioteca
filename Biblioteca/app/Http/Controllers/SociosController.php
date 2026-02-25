@@ -56,22 +56,32 @@ class SociosController extends Controller
         $mensajes = [
             'dni.required' => 'El DNI es obligatorio',
             'dni.unique' => 'Este DNI ya pertenece a otro socio',
+            'dni.string' => 'Este DNI debe ser tipo string',
+            'dni.regex' => 'El documento solo puede contener letras y números (sin espacios, guiones ni puntos)',
+
             'nombre.required' => 'El nombre es obligatorio',
+            'nombre.string' => 'El nombre debe ser tipo string',
             'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
+            'nombre.max' => 'El nombre debe tener menos de 100 caráteres',
+            'nombre.regex' => 'El nombre solo puede contener letras, espacios, tildes, diéresis y guiones.',
+
             'email.required' => 'El correo electrónico es necesario',
             'email.email' => 'Ingresa un formato de correo válido',
             'email.unique' => 'Este correo ya está registrado',
+
             'biblioteca_id.required' => 'Debes seleccionar una biblioteca',
+
             'telefono.required' => 'El teléfono es obligatorio',
-            'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9'
+            'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9',
+            'telefono.integer' => 'El teléfono debe sesr tipo número'
         ];
 
         $request->validate([
-            'dni' => 'required|string|unique:socios,dni',
-            'nombre' => 'required|string|min:3|max:100',
+            'dni' => 'required|string|unique:socios,dni|regex:/^[a-zA-Z0-9]+$',
+            'nombre' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
             'biblioteca_id' => 'required|integer|exists:bibliotecas,id',
             'email' => 'required|email|unique:socios,email|max:255',
-            'telefono' => ['required', 'regex:/^[6789]\d{8}$/'],
+            'telefono' => ['required', 'integer','regex:/^[6789]\d{8}$/'],
         ],$mensajes);
 
         try {

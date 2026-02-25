@@ -76,9 +76,14 @@ class RecibosController extends Controller
         $mensajes = [
             'socio_id.required' => 'Debes seleccionar un socio',
             'socio_id.exists' => 'El socio seleccionado no existe',
+
             'concepto.required' => 'El concepto es obligatorio',
-            'concepto.min' => 'El concepto debe tener al menos 5 caracteres',
+            'concepto.min' => 'El concepto debe tener al menos 5 carácteres',
+            'concepto.max' => 'El concepto debe tener menos de 255 carácteres',
+            'concepto.regex' => 'La dirección contiene caracteres no permitidos. Solo se permiten letras, números, espacios y símbolos como º, ª, #, -, / , .',
+
             'tipo_id.required' => 'Debes seleccionar un tipo de recibo',
+
             'importe.required' => 'El importe es obligatorio',
             'importe.numeric' => 'El importe debe ser un número',
             'importe.min' => 'El importe debe ser mayor a 0',
@@ -86,7 +91,7 @@ class RecibosController extends Controller
 
         $request->validate([
             'socio_id' => 'required|integer|exists:socios,id',
-            'concepto' => 'required|string|min:5|max:255',
+            'concepto' => 'required|string|min:5|max:255|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ0-9\s.,#-/ºª]+$/u',
             'tipo_id' => 'required|integer|exists:tipos_recibos,id',
             'importe' => 'required|numeric|min:0.01',
         ], $mensajes);

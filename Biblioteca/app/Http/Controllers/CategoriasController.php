@@ -23,7 +23,7 @@ class CategoriasController extends Controller
       
         Categoria::create($request->all()); 
 
-        return redirect()->route('categorias.index')->with('funciona', 'Categoria guardado correctamente');
+        return redirect()->route('categorias.index')->with('funciona', 'Categoría guardado correctamente');
     }
     
     public function destroy($id) {

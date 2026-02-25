@@ -49,20 +49,31 @@ class LibrosController extends Controller
     {
 
         $mensajes = [
-            'titulo.required' => 'El titulo es obligatorio',
+            
             'isbn.required' => 'El ISBN es obligatorio',
-            'isbn.size' => 'El ISBN debe tener 17 caracteres',
-            'titulo.min' => 'El título debe tener al menos 3 caracteres',
+            'isbn.min' => 'El ISBN debe tener mínimo 10 dígitos',
             'isbn.unique' => 'El ISBN ya existe en los registros',
-            'categoria_id.required' => 'La categoria es necesaria',
+            'isbn.regex' => 'El código solo puede contener letras, números y guiones (sin espacios ni otros símbolos)',
+            'isbn.string'=>'El código debe ser tipo string',
+
+            'titulo.required' => 'El titulo es obligatorio',
+            'titulo.string' => 'El titulo debe ser tipo string',
+            'titulo.min' => 'El título debe tener al menos 3 carácteres',
+            'titulo.max' => 'El título debe tener menos de 100 carácteres',
+            
+            'categoria_id.required' => 'La categoría es necesaria',
+            'categoria_id.integer' => 'La categoría tiene que ser tipo número',
+            'categoria_id.exists' => 'La categoría seleccionado no existe',
+
             'precio.required' => 'El precio es necesario',
+
             'autores.required' => 'Debe seleccionar al menos un autor',
             'autores.exists' => 'Debe seleccionar al menos un autor',
         ];
 
         $request->validate([
-            'isbn' => 'required|unique:libros,isbn|string|size:17',
-            'titulo' => 'required|string|min:3|max:100',
+            'isbn' => 'required|min:10|unique:libros,isbn|string|regex:/^[a-zA-Z0-9-]+$/',
+            'titulo' => 'required|string|min:3|max:100|',
             'categoria_id' => 'required|integer|exists:categorias,id',
             'autores' => 'required|array',
             'precio' => 'required|numeric|min:0|max:999999.99',

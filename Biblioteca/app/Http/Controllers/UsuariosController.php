@@ -47,23 +47,32 @@ class UsuariosController extends Controller
     public function store(Request $request) {
     $mensajes = [
             'nombre.required' => 'El nombre es obligatorio',
-            'nombre.min' => 'El nombre debe tener al menos 3 caracteres',
+            'nombre.regex' => 'El nombre solo puede contener letras, espacios, tildes, diéresis y guiones.',
+            'nombre.min' => 'El nombre debe tener al menos 3 carácteres',
+            'nombre.max' => 'El nombre debe tener menos de 100 caráteres',
+
             'correo.required' => 'El correo electrónico es necesario',
             'correo.email' => 'Ingresa un formato de correo válido',
             'correo.unique' => 'Este correo ya está registrado',
+
             'telefono.required' => 'El teléfono es obligatorio',
+            'telefono.integer' => 'El teléfono debe ser tipo number',
             'telefono.regex' => 'El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9',
+
             'rol_id.required' => 'El rol es obligatorio',
+
             'contrasena.required' => 'La contraseña es obligatoria',
-            'contrasena.min' => 'La contraseña debe tener al menos 6 caracteres',
+            'contrasena.min' => 'La contraseña debe tener al menos 6 carácteres',
+            'contrasena.regex' => 'La contraseña es poco segura. Debe incluir: al menos 6 carácteres, una mayúscula, una minúscula, un número y un símbolo (@$!%*?&).',
+
             'biblioteca_id.required' => 'Debes seleccionar una biblioteca',
            
         ];
         $request->validate([
-        'nombre' => 'required|string|min:3|max:100',
+        'nombre' => 'required|string|min:3|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s-]+$/u',
         'correo' => 'required|email|unique:usuarios,correo|max:255' ,
-        'telefono'  => ['required', 'regex:/^[6789]\d{8}$/'],
-        'contrasena' => 'required|min:6',
+        'telefono'  => ['required', 'integer','regex:/^[6789]\d{8}$/'],
+        'contrasena' => 'required|min:6|regex:/^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{6,}$/',
         'rol_id' => 'required|integer|exists:roles,id',
         'biblioteca_id' => 'required|integer|exists:bibliotecas,id',
         ],$mensajes);
