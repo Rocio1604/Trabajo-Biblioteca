@@ -5,11 +5,11 @@
 <div class="mb-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <div>
-            <h1 class="fs-2 mb-2">Gestión de Trabajadores</h1>
+            <h1 class="fs-2 mb-2">Gestión de Usuarios</h1>
             <p class="m-0">Administración de usuarios del sistema</p>
         </div>
         <button type="button" class="btn btn-naranja rounded-3 d-flex align-items-center justify-content-center gap-2 px-3 py-2" data-bs-toggle="modal" data-bs-target="#registroModal">
-                        <i class="bi bi-plus-lg fs-5"></i>Nuevo Trabajador</button>
+                        <i class="bi bi-plus-lg fs-5"></i>Nuevo usuario</button>
     </div>
     <div class="row g-3">
         <div class="col-12 col-xl-6 ">
@@ -18,6 +18,10 @@
                     <i class="bi bi-search fs-5 color-input"></i>
                 </span>
                 <input type="text" id="inputBuscar" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por nombre, email o teléfono...">
+                <button id="buscar" class="btn btn-naranja px-4 d-flex align-items-center gap-2">
+                    <i class="bi bi-search"></i>
+                    <span class="d-none d-sm-inline">Buscar</span>
+                </button>
             </div>
         </div>
         <div class="col-12 col-md-6 col-xl-3">
@@ -71,7 +75,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4 pb-4 pt-0">
-                    <h2 class="fs-4 fw-semibold mb-2 titulo-modal mb-2" id="modalTitle">Nuevo Trabajador</h2>
+                    <h2 class="fs-4 fw-semibold mb-2 titulo-modal mb-2" id="modalTitle">Nuevo Usuario</h2>
                     <form id="registerForm"  method="POST" class="d-flex flex-column gap-3">
                         @csrf
                         <input type="hidden" id="editing_id" name="editing_id" value="{{ old('editing_id') }}">

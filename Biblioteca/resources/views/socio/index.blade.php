@@ -153,7 +153,7 @@
                         <input type="hidden" id="editing_id" name="editing_id" value="{{ old('editing_id') }}">
                         <div class="row gx-3">
                             <div class="col-6">
-                                <label for="dni" class="fs-7 icono-editar fw-semibold mb-1">DNI</label>
+                                <label for="dni" class="fs-7 icono-editar fw-semibold mb-1">Número Documento</label>
                                 <input type="text" id="dni" name="dni" value="{{ old('dni') }}" class="form-control rounded-3 input-focus py-2 @error('dni') is-invalid @enderror">
                                 @error('dni')
                                     <div class="invalid-feedback fs-8">{{ $message }}</div>

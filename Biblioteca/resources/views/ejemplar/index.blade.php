@@ -17,6 +17,10 @@
                     <i class="bi bi-search fs-5 color-input"></i>
                 </span>
                 <input type="text" id="inputBuscar" class="form-control border-0 rounded-end-4 py-2 bg-transparent" placeholder="Buscar por titulo, autor o ISBN...">
+                <button id="buscar" class="btn btn-naranja px-4 d-flex align-items-center gap-2">
+                    <i class="bi bi-search"></i>
+                    <span class="d-none d-sm-inline">Buscar</span>
+                </button>
             </div>
         </div>
         <div class="col-12 col-md-6 col-xl-2">
